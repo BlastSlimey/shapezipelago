@@ -1,2 +1,2 @@
 # shapezipelago
-Archipelago implementation for shapez
+Client mod for the Archipelago multiworld randomizer
