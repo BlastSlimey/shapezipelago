@@ -145,14 +145,14 @@ export function randomizedVanillaStepsShapes(randomizer, maxlevel, multiplier, b
 }
 
 export function randomizedStretchedShapes(randomizer, maxlevel, multiplier, building1, building2, building3, building4, building5) {
-    var levelsdefs = {};
+    var levelsdefs = [];
     var phase = {"Cutter": 0, "Rotator": 0, "Stacker": 0, "Painter": 0, "Color Mixer": 0};
     phase[building1] = 1;
     phase[building2] = 2;
     phase[building3] = 3;
     phase[building4] = 4;
     phase[building5] = 5;
-    const phaselength = Math.floor(maxlevel/26);
+    const phaselength = Math.floor(maxlevel/6);
     for (var i = 0; i < phaselength; i++) {
         levelsdefs.push({shape: calcRandomShape(randomizer, false, false, false, false, false), 
             required: Math.ceil((30+30*i)*multiplier/10), reward: "no_reward"});
@@ -414,138 +414,138 @@ function constructUpgradeShapes(multiplier, finaltier, beltshapes, minershapes, 
         belt: [
             {required: [
                 { shape: beltshapes[0], amount: Math.ceil(30*multiplier/10) }
-            ], excludePrevious: true},
+            ], excludePrevious: true, improvement: 0},
             {required: [
                 { shape: beltshapes[0], amount: Math.ceil(75*multiplier/10) },
                 { shape: beltshapes[1], amount: Math.ceil(500*multiplier/10) }
-            ], excludePrevious: true},
+            ], excludePrevious: true, improvement: 0},
             {required: [
                 { shape: beltshapes[0], amount: Math.ceil(180*multiplier/10) },
                 { shape: beltshapes[1], amount: Math.ceil(1200*multiplier/10) },
                 { shape: beltshapes[2], amount: Math.ceil(1000*multiplier/10) }
-            ], excludePrevious: true},
+            ], excludePrevious: true, improvement: 0},
             {required: [
                 { shape: beltshapes[0], amount: Math.ceil(440*multiplier/10) },
                 { shape: beltshapes[1], amount: Math.ceil(3000*multiplier/10) },
                 { shape: beltshapes[2], amount: Math.ceil(2500*multiplier/10) },
                 { shape: beltshapes[3], amount: Math.ceil(6000*multiplier/10) }
-            ], excludePrevious: true},
+            ], excludePrevious: true, improvement: 0},
             {required: [
                 { shape: beltshapes[0], amount: Math.ceil(1100*multiplier/10) },
                 { shape: beltshapes[1], amount: Math.ceil(7000*multiplier/10) },
                 { shape: beltshapes[2], amount: Math.ceil(6000*multiplier/10) },
                 { shape: beltshapes[3], amount: Math.ceil(15000*multiplier/10) },
                 { shape: beltshapes[4], amount: Math.ceil(25000*multiplier/10) }
-            ], excludePrevious: true},
+            ], excludePrevious: true, improvement: 0},
             {required: [
                 { shape: beltshapes[5], amount: Math.ceil(25000*multiplier/10) }
-            ], excludePrevious: true},
+            ], excludePrevious: true, improvement: 0},
             {required: [
                 { shape: beltshapes[5], amount: Math.ceil(25000*multiplier/10) },
                 { shape: beltshapes[6], amount: Math.ceil(50000*multiplier/10) }
-            ], excludePrevious: true}
+            ], excludePrevious: true, improvement: 0}
         ],
         miner: [
             {required: [
                 { shape: minershapes[0], amount: Math.ceil(300*multiplier/10) }
-            ], excludePrevious: true},
+            ], excludePrevious: true, improvement: 0},
             {required: [
                 { shape: minershapes[0], amount: Math.ceil(740*multiplier/10) },
                 { shape: minershapes[1], amount: Math.ceil(800*multiplier/10) }
-            ], excludePrevious: true},
+            ], excludePrevious: true, improvement: 0},
             {required: [
                 { shape: minershapes[0], amount: Math.ceil(1800*multiplier/10) },
                 { shape: minershapes[1], amount: Math.ceil(2000*multiplier/10) },
                 { shape: minershapes[2], amount: Math.ceil(3500*multiplier/10) }
-            ], excludePrevious: true},
+            ], excludePrevious: true, improvement: 0},
             {required: [
                 { shape: minershapes[0], amount: Math.ceil(4500*multiplier/10) },
                 { shape: minershapes[1], amount: Math.ceil(5000*multiplier/10) },
                 { shape: minershapes[2], amount: Math.ceil(8000*multiplier/10) },
                 { shape: minershapes[3], amount: Math.ceil(23000*multiplier/10) }
-            ], excludePrevious: true},
+            ], excludePrevious: true, improvement: 0},
             {required: [
                 { shape: minershapes[0], amount: Math.ceil(11000*multiplier/10) },
                 { shape: minershapes[1], amount: Math.ceil(12000*multiplier/10) },
                 { shape: minershapes[2], amount: Math.ceil(20000*multiplier/10) },
                 { shape: minershapes[3], amount: Math.ceil(50000*multiplier/10) },
                 { shape: minershapes[4], amount: Math.ceil(50000*multiplier/10) }
-            ], excludePrevious: true},
+            ], excludePrevious: true, improvement: 0},
             {required: [
                 { shape: minershapes[5], amount: Math.ceil(25000*multiplier/10) }
-            ], excludePrevious: true},
+            ], excludePrevious: true, improvement: 0},
             {required: [
                 { shape: minershapes[5], amount: Math.ceil(25000*multiplier/10) },
                 { shape: minershapes[6], amount: Math.ceil(50000*multiplier/10) }
-            ], excludePrevious: true}
+            ], excludePrevious: true, improvement: 0}
         ],
         processors: [
             {required: [
                 { shape: processorsshapes[0], amount: Math.ceil(500*multiplier/10) }
-            ], excludePrevious: true},
+            ], excludePrevious: true, improvement: 0},
             {required: [
                 { shape: processorsshapes[0], amount: Math.ceil(1200*multiplier/10) },
                 { shape: processorsshapes[1], amount: Math.ceil(600*multiplier/10) }
-            ], excludePrevious: true},
+            ], excludePrevious: true, improvement: 0},
             {required: [
                 { shape: processorsshapes[0], amount: Math.ceil(3000*multiplier/10) },
                 { shape: processorsshapes[1], amount: Math.ceil(1500*multiplier/10) },
                 { shape: processorsshapes[2], amount: Math.ceil(3500*multiplier/10) }
-            ], excludePrevious: true},
+            ], excludePrevious: true, improvement: 0},
             {required: [
                 { shape: processorsshapes[0], amount: Math.ceil(7000*multiplier/10) },
                 { shape: processorsshapes[1], amount: Math.ceil(3500*multiplier/10) },
                 { shape: processorsshapes[2], amount: Math.ceil(8000*multiplier/10) },
                 { shape: processorsshapes[3], amount: Math.ceil(25000*multiplier/10) }
-            ], excludePrevious: true},
+            ], excludePrevious: true, improvement: 0},
             {required: [
                 { shape: processorsshapes[0], amount: Math.ceil(17000*multiplier/10) },
                 { shape: processorsshapes[1], amount: Math.ceil(8000*multiplier/10) },
                 { shape: processorsshapes[2], amount: Math.ceil(20000*multiplier/10) },
                 { shape: processorsshapes[3], amount: Math.ceil(60000*multiplier/10) },
                 { shape: processorsshapes[4], amount: Math.ceil(50000*multiplier/10) }
-            ], excludePrevious: true},
+            ], excludePrevious: true, improvement: 0},
             {required: [
                 { shape: processorsshapes[5], amount: Math.ceil(25000*multiplier/10) }
-            ], excludePrevious: true},
+            ], excludePrevious: true, improvement: 0},
             {required: [
                 { shape: processorsshapes[5], amount: Math.ceil(25000*multiplier/10) },
                 { shape: processorsshapes[6], amount: Math.ceil(50000*multiplier/10) }
-            ], excludePrevious: true}
+            ], excludePrevious: true, improvement: 0}
         ],
         painting: [
             {required: [
                 { shape: paintingshapes[0], amount: Math.ceil(600*multiplier/10) }
-            ], excludePrevious: true},
+            ], excludePrevious: true, improvement: 0},
             {required: [
                 { shape: paintingshapes[0], amount: Math.ceil(1500*multiplier/10) },
                 { shape: paintingshapes[1], amount: Math.ceil(3800*multiplier/10) }
-            ], excludePrevious: true},
+            ], excludePrevious: true, improvement: 0},
             {required: [
                 { shape: paintingshapes[0], amount: Math.ceil(3500*multiplier/10) },
                 { shape: paintingshapes[1], amount: Math.ceil(9000*multiplier/10) },
                 { shape: paintingshapes[2], amount: Math.ceil(6500*multiplier/10) }
-            ], excludePrevious: true},
+            ], excludePrevious: true, improvement: 0},
             {required: [
                 { shape: paintingshapes[0], amount: Math.ceil(8000*multiplier/10) },
                 { shape: paintingshapes[1], amount: Math.ceil(20000*multiplier/10) },
                 { shape: paintingshapes[2], amount: Math.ceil(16000*multiplier/10) },
                 { shape: paintingshapes[3], amount: Math.ceil(25000*multiplier/10) }
-            ], excludePrevious: true},
+            ], excludePrevious: true, improvement: 0},
             {required: [
                 { shape: paintingshapes[0], amount: Math.ceil(20000*multiplier/10) },
                 { shape: paintingshapes[1], amount: Math.ceil(50000*multiplier/10) },
                 { shape: paintingshapes[2], amount: Math.ceil(40000*multiplier/10) },
                 { shape: paintingshapes[3], amount: Math.ceil(60000*multiplier/10) },
                 { shape: paintingshapes[4], amount: Math.ceil(50000*multiplier/10) }
-            ], excludePrevious: true},
+            ], excludePrevious: true, improvement: 0},
             {required: [
                 { shape: paintingshapes[5], amount: Math.ceil(25000*multiplier/10) }
-            ], excludePrevious: true},
+            ], excludePrevious: true, improvement: 0},
             {required: [
                 { shape: paintingshapes[5], amount: Math.ceil(25000*multiplier/10) },
                 { shape: paintingshapes[6], amount: Math.ceil(50000*multiplier/10) }
-            ], excludePrevious: true}
+            ], excludePrevious: true, improvement: 0}
         ]
     };
     for (var i = 9; i <= finaltier; i++) {
@@ -553,22 +553,22 @@ function constructUpgradeShapes(multiplier, finaltier, beltshapes, minershapes, 
             { shape: beltshapes[5], amount: Math.ceil((-60000 + i * 10000)*multiplier/10) },
             { shape: beltshapes[6], amount: Math.ceil((-25000 + i * 5000)*multiplier/10) },
             { shape: beltshapes[7], amount: Math.ceil((-25000 + i * 5000)*multiplier/10) }
-        ], excludePrevious: true});
+        ], excludePrevious: true, improvement: 0});
         upgradedefs.miner.push({required: [
             { shape: minershapes[5], amount: Math.ceil((-60000 + i * 10000)*multiplier/10) },
             { shape: minershapes[6], amount: Math.ceil((-25000 + i * 5000)*multiplier/10) },
             { shape: minershapes[7], amount: Math.ceil((-25000 + i * 5000)*multiplier/10) }
-        ], excludePrevious: true});
+        ], excludePrevious: true, improvement: 0});
         upgradedefs.processors.push({required: [
             { shape: processorsshapes[5], amount: Math.ceil((-60000 + i * 10000)*multiplier/10) },
             { shape: processorsshapes[6], amount: Math.ceil((-25000 + i * 5000)*multiplier/10) },
             { shape: processorsshapes[7], amount: Math.ceil((-25000 + i * 5000)*multiplier/10) }
-        ], excludePrevious: true});
+        ], excludePrevious: true, improvement: 0});
         upgradedefs.painting.push({required: [
             { shape: paintingshapes[5], amount: Math.ceil((-60000 + i * 10000)*multiplier/10) },
             { shape: paintingshapes[6], amount: Math.ceil((-25000 + i * 5000)*multiplier/10) },
             { shape: paintingshapes[7], amount: Math.ceil((-25000 + i * 5000)*multiplier/10) }
-        ], excludePrevious: true});
+        ], excludePrevious: true, improvement: 0});
     }
     return upgradedefs;
 }
