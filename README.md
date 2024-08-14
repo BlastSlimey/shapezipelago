@@ -8,7 +8,6 @@ Client mod for the Archipelago multiworld randomizer.
 - Item descriptions
 - Location descriptions
 - Include building variants in logic (look at client mod)
-- Rewrite windmill shapesanity logic
 - Spoiler doc path generation
 ### Client mod
 - Replace seed from save file with apworld-generated seed
@@ -18,7 +17,6 @@ Client mod for the Archipelago multiworld randomizer.
 - Save login details in save files and automatically connect, connecting in main menu overwrites login details
 - Save all slot data in save file
 - Make building variants placable without base variant (look at apworld)
-- Rewrite windmill requirement logic
 - Make same color at random shape generator more often
 - Automize saving/loading hubgoal reward
 - 
