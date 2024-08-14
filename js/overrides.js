@@ -1,13 +1,13 @@
 import { Mod } from "shapez/mods/mod";
-import { client, connected, customRewards, initializedOnce, leveldefs, roman, setInitializedOnce, setLevelDefs, setUpgredeDefs, upgradeDefs } from "./global_data";
+import { client, connected, customRewards, leveldefs, roman, setLevelDefs, setUpgredeDefs, upgradeDefs } from "./global_data";
 import { RandomNumberGenerator } from "shapez/core/rng";
 import { hardcoreUpgradeShapes, linearUpgradeShapes, randomizedHardcoreShapes, randomizedStretchedShapes, randomizedVanillaStepsShapes, vanillaLikeUpgradeShapes, vanillaShapes, vanillaUpgradeShapes } from "./requirement_definitions";
 import { MOD_SIGNALS } from "shapez/mods/mod_signals";
-import { checkLocation, processItemsPacket, processItemsReconnectPacket } from "./server_communication";
+import { checkLocation, setRootAndModImpl } from "./server_communication";
 import { enumAnalyticsDataSource } from "shapez/game/production_analytics";
 import { defaultBuildingVariant } from "shapez/game/meta_building";
 import { enumPainterVariants } from "shapez/game/buildings/painter";
-import { SERVER_PACKET_TYPE } from "archipelago.js";
+import { CLIENT_PACKET_TYPE } from "archipelago.js";
 import { enumSubShape } from "shapez/game/shape_definition";
 import { clamp } from "shapez/core/utils";
 import { MODS_ADDITIONAL_SHAPE_MAP_WEIGHTS } from "shapez/game/map_chunk";
@@ -112,10 +112,8 @@ export function overrideLocationsListenToItems(modImpl) {
                 }
             }
         });
-        client.addListener(SERVER_PACKET_TYPE.RECEIVED_ITEMS, function (packet) {
-            processItemsPacket(packet.items, root, modImpl);
-        });
-        processItemsReconnectPacket(root, modImpl);
+        setRootAndModImpl(root, modImpl);
+        client.send({cmd: CLIENT_PACKET_TYPE.SYNC});
     });
 }
 
@@ -169,7 +167,7 @@ export function overridePatchGenerator(modImpl) {
                 [enumSubShape.rect]: 100,
                 [enumSubShape.circle]: Math.round(50 + clamp(distanceToOriginInChunks * 2, 0, 50)),
                 [enumSubShape.star]: Math.round(20 + clamp(distanceToOriginInChunks, 0, 30)),
-                [enumSubShape.windmill]: Math.round(6 + clamp(distanceToOriginInChunks / 2, 0, 20)),
+                [enumSubShape.windmill]: Math.round(15 + clamp(distanceToOriginInChunks / 2, 0, 20)),
             };
             for (const key in MODS_ADDITIONAL_SHAPE_MAP_WEIGHTS) {
                 weights[key] = MODS_ADDITIONAL_SHAPE_MAP_WEIGHTS[key](distanceToOriginInChunks);

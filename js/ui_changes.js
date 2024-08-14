@@ -1,6 +1,7 @@
 import { Mod } from "shapez/mods/mod";
-import { connected, setConnected, setGamePackage } from "./global_data";
-import { ITEMS_HANDLING_FLAGS, Client } from "archipelago.js";
+import { connected, setConnected, setGamePackage, setProcessedItems } from "./global_data";
+import { ITEMS_HANDLING_FLAGS, Client, SERVER_PACKET_TYPE } from "archipelago.js";
+import { processItemsPacket } from "./server_communication";
 
 /**
  * @param {Mod} modImpl
@@ -13,6 +14,7 @@ import { ITEMS_HANDLING_FLAGS, Client } from "archipelago.js";
 export function addInputContainer(modImpl, client, autoPlayer, autoAddress, autoPort, autoPassword) {
     modImpl.signals.stateEntered.add(state => {
         if (state.key === "MainMenuState") {
+            setProcessedItems(0); // new game won't load from save file obviously
             const mainWrapper = document.body.getElementsByClassName("mainWrapper").item(0);
             const sideContainer = mainWrapper.getElementsByClassName("sideContainer").item(0);
             const inputContainer = document.createElement("div");
@@ -66,18 +68,24 @@ export function addInputContainer(modImpl, client, autoPlayer, autoAddress, auto
             const statusLabel = document.createElement("h4");
             const statusButton = document.createElement("button");
             statusLabel.innerText = connected ? "Connected" : "Not Connected";
-            statusButton.innerText = connected ? "Disconnected" : "Connect";
+            statusButton.innerText = connected ? "Disconnect" : "Connect";
             statusButton.classList.add("styledButton", "statusButton");
             statusButton.addEventListener("click", () => {
                 if (!connected) {
                     var connectInfo = {
-                        hostname: addressInput.value, // Replace with the actual AP server hostname.
-                        port: portInput.valueAsNumber, // Replace with the actual AP server port.
-                        game: "shapez", // Replace with the game name for this player.
-                        name: playerInput.value, // Replace with the player slot name.
+                        hostname: addressInput.value,
+                        port: portInput.valueAsNumber, 
+                        game: "shapez", 
+                        name: playerInput.value,
                         items_handling: ITEMS_HANDLING_FLAGS.REMOTE_ALL,
                         password: passwordInput.value
                     };
+                    client.addListener(SERVER_PACKET_TYPE.PRINT_JSON, (packet, message) => {
+                        console.log("[Archipelago] ", message);
+                    });
+                    client.addListener(SERVER_PACKET_TYPE.RECEIVED_ITEMS, function (packet) {
+                        processItemsPacket(packet.items);
+                    });
                     client.connect(connectInfo)
                         .then(() => {
                             console.log("[Archipelago] Connected to the server");

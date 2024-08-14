@@ -1,6 +1,13 @@
-import { GameRoot } from "shapez/game/root";
 import { client, gamePackage, increaseProcessedItems, processedItemCount, receiveItemFunctions } from "./global_data";
 import { CLIENT_STATUS } from "archipelago.js";
+
+var storedRoot = null;
+var storedModImpl = null;
+
+export function setRootAndModImpl(root, modImpl) {
+    storedModImpl = modImpl;
+    storedRoot = root;
+}
 
 /**
  * 
@@ -19,27 +26,19 @@ export function checkLocation(name) {
  * 
  * @param {import("archipelago.js").NetworkItem[]} items 
  */
-export function processItemsPacket(items, root, modImpl) {
+export function processItemsPacket(items) {
     for (var i = processedItemCount; i < items.length; i++) {
-        receiveItem(items[i], root, modImpl);
-        increaseProcessedItems();
-    }
-}
-
-export function processItemsReconnectPacket(root, modImpl) {
-    for (var i = 0; i < client.items.received.length-processedItemCount; i++) {
-        receiveItem(client.items.received[i], root, modImpl);
+        receiveItem(items[i]);
         increaseProcessedItems();
     }
 }
 
 /**
  * 
- * @param {GameRoot} root
  * @param {import("archipelago.js").NetworkItem} item 
  */
-function receiveItem(item, root, modImpl) {
+function receiveItem(item) {
     const itemName = client.items.name("shapez", item.item);
-    receiveItemFunctions[itemName](root);
-    modImpl.dialogs.showInfo("Item received!", itemName);
+    receiveItemFunctions[itemName](storedRoot);
+    storedModImpl.dialogs.showInfo("Item received!", itemName);
 }
