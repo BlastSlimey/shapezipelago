@@ -20,10 +20,8 @@ Client mod for the Archipelago multiworld randomizer.
 - Offline playing
 - Make building variants placable without base variant (look at apworld)
 - Make same color at random shape generator more often
-- Automize saving/loading hubgoal reward
-- Add extra text for popup in receiveItemFunctions
+- Automate saving/loading hubgoal reward
 - Randomize blueprint shape
-- Check signals and listeners for resets
 ### Both
 - Rename upgrade categories
 - Add shapesanity goal
@@ -33,3 +31,5 @@ Client mod for the Archipelago multiworld randomizer.
 - Trap making different buildings unplacable for some time
 - Trap to make buildings produce wrong items
 - More randomized level and upgrade logic types
+### Other
+- Mod showcase in developer discord
