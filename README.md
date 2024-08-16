@@ -23,6 +23,7 @@ Client mod for the Archipelago multiworld randomizer.
 - Automize saving/loading hubgoal reward
 - Add extra text for popup in receiveItemFunctions
 - Randomize blueprint shape
+- Check signals and listeners for resets
 ### Both
 - Rename upgrade categories
 - Add shapesanity goal
