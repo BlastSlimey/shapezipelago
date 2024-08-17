@@ -83,9 +83,6 @@ export function addInputContainer(modImpl, client, autoPlayer, autoAddress, auto
                     client.addListener(SERVER_PACKET_TYPE.PRINT_JSON, (packet, message) => {
                         console.log("[Archipelago] ", message);
                     });
-                    client.addListener(SERVER_PACKET_TYPE.RECEIVED_ITEMS, function (packet) {
-                        processItemsPacket(packet.items);
-                    });
                     client.connect(connectInfo)
                         .then(() => {
                             console.log("[Archipelago] Connected to the server");
@@ -93,6 +90,9 @@ export function addInputContainer(modImpl, client, autoPlayer, autoAddress, auto
                             setGamePackage(client.data.package.get("shapez"));
                             statusLabel.innerText = "Connected";
                             statusButton.innerText = "Disconnect";
+                            client.addListener(SERVER_PACKET_TYPE.RECEIVED_ITEMS, function (packet) {
+                                processItemsPacket(packet.items);
+                            });
                         })
                         .catch((error) => {
                             console.error("[Archipelago] Failed to connect:", error);

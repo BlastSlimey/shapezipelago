@@ -13,12 +13,18 @@ export function setRootAndModImpl(root, modImpl) {
  * 
  * @param {string} name 
  */
-export function checkLocation(name) {
+export function checkLocation(name, another = null) {
     if (name === "Goal") {
         client.updateStatus(CLIENT_STATUS.GOAL);
     } else {
-        client.locations.check(gamePackage.location_name_to_id[name]);
-        console.log("[Archipelago] Checked location " + name)
+        if (another) {
+            client.locations.check(gamePackage.location_name_to_id[name], gamePackage.location_name_to_id[another]);
+            console.log("[Archipelago] Checked location " + name);
+            console.log("[Archipelago] Checked location " + another)
+        } else {
+            client.locations.check(gamePackage.location_name_to_id[name]);
+            console.log("[Archipelago] Checked location " + name);
+        }
     }
 }
 
@@ -27,9 +33,18 @@ export function checkLocation(name) {
  * @param {import("archipelago.js").NetworkItem[]} items 
  */
 export function processItemsPacket(items) {
-    for (var i = processedItemCount; i < items.length; i++) {
-        receiveItem(items[i]);
-        increaseProcessedItems();
+    if (processedItemCount + 1 >= items.length) {
+        for (var i = processedItemCount; i < items.length; i++) {
+            receiveItem(items[i], true);
+            increaseProcessedItems();
+        }
+    } else {
+        var itemCounting = [];
+        for (var i = processedItemCount; i < items.length; i++) {
+            itemCounting.push(receiveItem(items[i], false));
+            increaseProcessedItems();
+        }
+        storedModImpl.dialogs.showInfo("Items received!", itemCounting.join("<br />"));
     }
 }
 
@@ -37,8 +52,13 @@ export function processItemsPacket(items) {
  * 
  * @param {import("archipelago.js").NetworkItem} item 
  */
-function receiveItem(item) {
+function receiveItem(item, showInfo) {
     const itemName = client.items.name("shapez", item.item);
-    receiveItemFunctions[itemName](storedRoot);
-    storedModImpl.dialogs.showInfo("Item received!", itemName);
+    const message = receiveItemFunctions[itemName](storedRoot);
+    if (showInfo) {
+        storedModImpl.dialogs.showInfo("Item received!", itemName + message);
+        return "";
+    } else {
+        return itemName + message;
+    }
 }

@@ -1,5 +1,5 @@
 import { Mod } from "shapez/mods/mod";
-import { client, connected, customRewards, leveldefs, roman, setLevelDefs, setUpgredeDefs, upgradeDefs } from "./global_data";
+import { client, connected, customRewards, leveldefs, roman, setLevelDefs, setUpgredeDefs, trapLocked, trapMalfunction, trapThrottled, upgradeDefs } from "./global_data";
 import { RandomNumberGenerator } from "shapez/core/rng";
 import { hardcoreUpgradeShapes, linearUpgradeShapes, randomizedHardcoreShapes, randomizedStretchedShapes, randomizedVanillaStepsShapes, vanillaLikeUpgradeShapes, vanillaShapes, vanillaUpgradeShapes } from "./requirement_definitions";
 import { MOD_SIGNALS } from "shapez/mods/mod_signals";
@@ -8,10 +8,11 @@ import { enumAnalyticsDataSource } from "shapez/game/production_analytics";
 import { defaultBuildingVariant } from "shapez/game/meta_building";
 import { enumPainterVariants } from "shapez/game/buildings/painter";
 import { CLIENT_PACKET_TYPE } from "archipelago.js";
-import { enumSubShape } from "shapez/game/shape_definition";
-import { clamp } from "shapez/core/utils";
-import { MODS_ADDITIONAL_SHAPE_MAP_WEIGHTS } from "shapez/game/map_chunk";
+import { ShapeDefinition } from "shapez/game/shape_definition";
 import { getShapesanityAnalyser } from "./shapesanity";
+import { enumItemProcessorTypes } from "shapez/game/components/item_processor";
+import { MOD_ITEM_PROCESSOR_SPEEDS } from "shapez/game/hub_goals";
+import { ACHIEVEMENTS } from "shapez/platform/achievement_provider";
 
 /**
  * 
@@ -52,9 +53,10 @@ export function overrideLocationsListenToItems(modImpl) {
         if (connected) {
             var goal = client.data.slotData["goal"].valueOf();
             this.root.app.gameAnalytics.handleLevelCompleted(this.level);
-            checkLocation("Level " + this.level);
             if (this.level == 1 || this.level == 20) {
-                checkLocation("Level " + this.level + " Additional");
+                checkLocation("Level " + this.level, "Level " + this.level + " Additional");
+            } else {
+                checkLocation("Level " + this.level);
             }
             if (goal == 0 || goal == 1) {
                 if (client.data.slotData["maxlevel"].valueOf() == this.level - 1) {
@@ -93,7 +95,7 @@ export function overrideLocationsListenToItems(modImpl) {
         }
     });
     modImpl.signals.gameStarted.add(function (root) {
-        root.signals.shapeDelivered.add(getShapesanityAnalyser(root));
+        root.signals.shapeDelivered.add(getShapesanityAnalyser(root, true));
         root.signals.shapeDelivered.add(function (shape) {
             if (connected && client.data.slotData["goal"].valueOf() == 3 && root.productionAnalytics.getCurrentShapeRateRaw(
                 enumAnalyticsDataSource.delivered, root.shapeDefinitionMgr.getShapeFromShortKey("CbCbCbRb:CwCwCwCw")
@@ -122,18 +124,76 @@ export function overrideLocationsListenToItems(modImpl) {
  * @param {Mod} modImpl 
  */
 export function overrideBuildings(modImpl) {
+    // getIsUnlocked
+    modImpl.modInterface.replaceMethod(shapez.MetaBeltBuilding, "getIsUnlocked", function ($original, [root]) {
+        return $original(root) && !trapLocked.belt;
+    });
+    modImpl.modInterface.replaceMethod(shapez.MetaBalancerBuilding, "getIsUnlocked", function ($original, [root]) {
+        return $original(root) && !trapLocked.balancer;
+    });
+    modImpl.modInterface.replaceMethod(shapez.MetaUndergroundBeltBuilding, "getIsUnlocked", function ($original, [root]) {
+        return $original(root) && !trapLocked.tunnel;
+    });
+    modImpl.modInterface.replaceMethod(shapez.MetaMinerBuilding, "getIsUnlocked", function ($original, [root]) {
+        return $original(root) && !trapLocked.extractor;
+    });
     modImpl.modInterface.replaceMethod(shapez.MetaCutterBuilding, "getIsUnlocked", function ($original, [root]) {
-        if (connected) return customRewards.reward_cutter != 0;
-        else return $original(root);
+        return (connected ? customRewards.reward_cutter != 0 : $original(root)) && !trapLocked.cutter;
+    });
+    modImpl.modInterface.replaceMethod(shapez.MetaRotaterBuilding, "getIsUnlocked", function ($original, [root]) {
+        return $original(root) && !trapLocked.rotator;
+    });
+    modImpl.modInterface.replaceMethod(shapez.MetaStackerBuilding, "getIsUnlocked", function ($original, [root]) {
+        return $original(root) && !trapLocked.stacker;
+    });
+    modImpl.modInterface.replaceMethod(shapez.MetaPainterBuilding, "getIsUnlocked", function ($original, [root]) {
+        return $original(root) && !trapLocked.painter;
+    });
+    modImpl.modInterface.replaceMethod(shapez.MetaMixerBuilding, "getIsUnlocked", function ($original, [root]) {
+        return $original(root) && !trapLocked.mixer;
     });
     modImpl.modInterface.replaceMethod(shapez.MetaTrashBuilding, "getIsUnlocked", function ($original, [root]) {
-        if (connected) return customRewards.reward_trash != 0;
-        else return $original(root);
+        return (connected ? customRewards.reward_trash != 0 : $original(root)) && !trapLocked.trash;
     });
     modImpl.modInterface.replaceMethod(shapez.MetaWireBuilding, "getIsUnlocked", function ($original, [root]) {
         if (connected) return customRewards.reward_wires != 0;
         else return $original(root);
     });
+    // base speeds
+    modImpl.modInterface.replaceMethod(shapez.HubGoals, "getBeltBaseSpeed", function ($original, []) {
+        return $original() * (trapThrottled.belt ? 0.5 : 1);
+    });
+    modImpl.modInterface.replaceMethod(shapez.HubGoals, "getUndergroundBeltBaseSpeed", function ($original, []) {
+        return $original() * (trapThrottled.tunnel ? 0.5 : 1);
+    });
+    modImpl.modInterface.replaceMethod(shapez.HubGoals, "getMinerBaseSpeed", function ($original, []) {
+        return $original() * (trapThrottled.extractor ? 0.5 : 1);
+    });
+    modImpl.modInterface.replaceMethod(shapez.HubGoals, "getProcessorBaseSpeed", function ($original, [processorType]) {
+        const originalSpeed = $original(processorType);
+        switch (processorType) {
+            case enumItemProcessorTypes.balancer:
+                return originalSpeed * (trapThrottled.balancer ? 0.5 : 1);
+            case enumItemProcessorTypes.mixer:
+                return originalSpeed * (trapThrottled.mixer ? 0.5 : 1);
+            case enumItemProcessorTypes.painter:
+            case enumItemProcessorTypes.painterDouble:
+            case enumItemProcessorTypes.painterQuad:
+                return originalSpeed * (trapThrottled.painter ? 0.5 : 1);
+            case enumItemProcessorTypes.cutter:
+            case enumItemProcessorTypes.cutterQuad:
+                return originalSpeed * (trapThrottled.cutter ? 0.5 : 1);
+            case enumItemProcessorTypes.rotater:
+            case enumItemProcessorTypes.rotaterCCW:
+            case enumItemProcessorTypes.rotater180:
+                return originalSpeed * (trapThrottled.rotator ? 0.5 : 1);
+            case enumItemProcessorTypes.stacker:
+                return originalSpeed * (trapThrottled.stacker ? 0.5 : 1);
+            default:
+                return originalSpeed;
+        }
+    });
+    // getAvailableVariants
     modImpl.modInterface.replaceMethod(shapez.MetaPainterBuilding, "getAvailableVariants", function ($original, [root]) {
         if (connected) {
             let variants = [defaultBuildingVariant, enumPainterVariants.mirrored];
@@ -151,55 +211,127 @@ export function overrideBuildings(modImpl) {
             return $original(root);
         }
     });
-}
-
-/**
- * 
- * @param {Mod} modImpl 
- */
-export function overridePatchGenerator(modImpl) {
-    modImpl.modInterface.replaceMethod(shapez.MapChunk, "internalGenerateShapePatch", function ($original, [rng, shapePatchSize, distanceToOriginInChunks]) {
-        if (connected) {
-            /** @type {[enumSubShape, enumSubShape, enumSubShape, enumSubShape]} */
-            let subShapes = null;
-            let weights = {};
-            weights = {
-                [enumSubShape.rect]: 100,
-                [enumSubShape.circle]: Math.round(50 + clamp(distanceToOriginInChunks * 2, 0, 50)),
-                [enumSubShape.star]: Math.round(20 + clamp(distanceToOriginInChunks, 0, 30)),
-                [enumSubShape.windmill]: Math.round(15 + clamp(distanceToOriginInChunks / 2, 0, 20)),
-            };
-            for (const key in MODS_ADDITIONAL_SHAPE_MAP_WEIGHTS) {
-                weights[key] = MODS_ADDITIONAL_SHAPE_MAP_WEIGHTS[key](distanceToOriginInChunks);
-            }
-            if (distanceToOriginInChunks < 7) {
-                weights[enumSubShape.star] = 0;
-                weights[enumSubShape.windmill] = 0;
-            }
-            if (distanceToOriginInChunks < 10) {
-                const subShape = this.internalGenerateRandomSubShape(rng, weights);
-                subShapes = [subShape, subShape, subShape, subShape];
-            } else if (distanceToOriginInChunks < 15) {
-                const subShapeA = this.internalGenerateRandomSubShape(rng, weights);
-                const subShapeB = this.internalGenerateRandomSubShape(rng, weights);
-                subShapes = [subShapeA, subShapeA, subShapeB, subShapeB];
-            } else {
-                subShapes = [
-                    this.internalGenerateRandomSubShape(rng, weights),
-                    this.internalGenerateRandomSubShape(rng, weights),
-                    this.internalGenerateRandomSubShape(rng, weights),
-                    this.internalGenerateRandomSubShape(rng, weights),
-                ];
-            }
-            const definition = this.root.shapeDefinitionMgr.getDefinitionFromSimpleShapes(subShapes);
-            this.internalGeneratePatch(
-                rng,
-                shapePatchSize,
-                this.root.shapeDefinitionMgr.getShapeItemFromDefinition(definition)
-            );
-        } else {
-            $original(rng, shapePatchSize, distanceToOriginInChunks);
+    // shapeActions
+    modImpl.modInterface.replaceMethod(shapez.ShapeDefinitionManager, "shapeActionCutHalf", function ($original, [definition]) {
+        if (!trapMalfunction.cutter) {
+            return $original(definition);
         }
+        const key = "cut-mal/" + definition.getHash();
+        if (this.operationCache[key]) {
+            return /** @type {[ShapeDefinition, ShapeDefinition]} */ (this.operationCache[key]);
+        }
+        const rightSide = definition.cloneFilteredByQuadrants([3, 0]);
+        const leftSide = definition.cloneFilteredByQuadrants([1, 2]);
+        this.root.signals.achievementCheck.dispatch(ACHIEVEMENTS.cutShape, null);
+        return /** @type {[ShapeDefinition, ShapeDefinition]} */ (this.operationCache[key] = [
+            this.registerOrReturnHandle(rightSide),
+            this.registerOrReturnHandle(leftSide),
+        ]);
+    });
+    modImpl.modInterface.replaceMethod(shapez.ShapeDefinitionManager, "shapeActionCutQuad", function ($original, [definition]) {
+        if (!trapMalfunction.cutter_quad) {
+            return $original(definition);
+        }
+        const key = "cut-quad-mal/" + definition.getHash();
+        if (this.operationCache[key]) {
+            return /** @type {[ShapeDefinition, ShapeDefinition, ShapeDefinition, ShapeDefinition]} */ (this
+                .operationCache[key]);
+        }
+        const rotated = definition.cloneRotateCW();
+        return /** @type {[ShapeDefinition, ShapeDefinition, ShapeDefinition, ShapeDefinition]} */ (this.operationCache[
+            key
+        ] = [
+            this.registerOrReturnHandle(rotated.cloneFilteredByQuadrants([2])),
+            this.registerOrReturnHandle(rotated.cloneFilteredByQuadrants([0])),
+            this.registerOrReturnHandle(rotated.cloneFilteredByQuadrants([1])),
+            this.registerOrReturnHandle(rotated.cloneFilteredByQuadrants([3])),
+        ]);
+    });
+    modImpl.modInterface.replaceMethod(shapez.ShapeDefinitionManager, "shapeActionRotateCW", function ($original, [definition]) {
+        if (!trapMalfunction.rotator) {
+            return $original(definition);
+        }
+        const key = "rotate-ccw/" + definition.getHash();
+        if (this.operationCache[key]) {
+            return /** @type {ShapeDefinition} */ (this.operationCache[key]);
+        }
+        const rotated = definition.cloneRotateCCW();
+        this.root.signals.achievementCheck.dispatch(ACHIEVEMENTS.rotateShape, null);
+        return /** @type {ShapeDefinition} */ (this.operationCache[key] = this.registerOrReturnHandle(
+            rotated
+        ));
+    });
+    modImpl.modInterface.replaceMethod(shapez.ShapeDefinitionManager, "shapeActionRotateCCW", function ($original, [definition]) {
+        if (!trapMalfunction.rotator_ccw) {
+            return $original(definition);
+        }
+        const key = "rotate-fl/" + definition.getHash();
+        if (this.operationCache[key]) {
+            return /** @type {ShapeDefinition} */ (this.operationCache[key]);
+        }
+        const rotated = definition.cloneRotate180();
+        return /** @type {ShapeDefinition} */ (this.operationCache[key] = this.registerOrReturnHandle(
+            rotated
+        ));
+    });
+    modImpl.modInterface.replaceMethod(shapez.ShapeDefinitionManager, "shapeActionRotate180", function ($original, [definition]) {
+        if (!trapMalfunction.rotator_180) {
+            return $original(definition);
+        }
+        const key = "rotate-cw/" + definition.getHash();
+        if (this.operationCache[key]) {
+            return /** @type {ShapeDefinition} */ (this.operationCache[key]);
+        }
+        const rotated = definition.cloneRotateCW();
+        return /** @type {ShapeDefinition} */ (this.operationCache[key] = this.registerOrReturnHandle(
+            rotated
+        ));
+    });
+    modImpl.modInterface.replaceMethod(shapez.ShapeDefinitionManager, "shapeActionStack", function ($original, [lowerDefinition, upperDefinition]) {
+        if (!trapMalfunction.stacker) {
+            return $original(lowerDefinition, upperDefinition);
+        } else {
+            return $original(upperDefinition, lowerDefinition);
+        }
+    });
+    modImpl.modInterface.replaceMethod(shapez.ShapeDefinitionManager, "shapeActionPaintWith", function ($original, [definition, color]) {
+        if (!trapMalfunction.painter) {
+            return $original(definition, color);
+        }
+        const key = "paint-mal/" + definition.getHash() + "/" + color;
+        if (this.operationCache[key]) {
+            return /** @type {ShapeDefinition} */ (this.operationCache[key]);
+        }
+        this.root.signals.achievementCheck.dispatch(ACHIEVEMENTS.paintShape, null);
+        const randomizedColors = [
+            Math.random() < 0.75 ? color : null,
+            Math.random() < 0.75 ? color : null,
+            Math.random() < 0.75 ? color : null,
+            Math.random() < 0.75 ? color : null
+        ];
+        const colorized = definition.cloneAndPaintWith4Colors(randomizedColors);
+        return /** @type {ShapeDefinition} */ (this.operationCache[key] = this.registerOrReturnHandle(
+            colorized
+        ));
+    });
+    modImpl.modInterface.replaceMethod(shapez.ShapeDefinitionManager, "shapeActionPaintWith4Colors", function ($original, [definition, colors]) {
+        if (!trapMalfunction.painter_quad) {
+            return $original(definition, colors);
+        }
+        const randomizedColors = [
+            colors[Math.floor(Math.random()*4)],
+            colors[Math.floor(Math.random()*4)],
+            colors[Math.floor(Math.random()*4)],
+            colors[Math.floor(Math.random()*4)]
+        ];
+        const key = "paint4/" + definition.getHash() + "/" + randomizedColors.join(",");
+        if (this.operationCache[key]) {
+            return /** @type {ShapeDefinition} */ (this.operationCache[key]);
+        }
+        const colorized = definition.cloneAndPaintWith4Colors(randomizedColors);
+        return /** @type {ShapeDefinition} */ (this.operationCache[key] = this.registerOrReturnHandle(
+            colorized
+        ));
     });
 }
 
@@ -214,17 +346,18 @@ function calcLevelDefinitions() {
             maxlevel = Number(client.data.slotData["maxlevel"].valueOf());
         }
         var logic = Number(client.data.slotData["randomize_level_logic"].valueOf());
+        var throughputratio = Number(client.data.slotData["throughput_levels_ratio"].valueOf());
         var building1 = client.data.slotData["Level building 1"].valueOf(); //immer
         var building2 = client.data.slotData["Level building 2"].valueOf(); //immer
         var building3 = client.data.slotData["Level building 3"].valueOf(); //immer
         var building4 = client.data.slotData["Level building 4"].valueOf(); //immer
         var building5 = client.data.slotData["Level building 5"].valueOf(); //immer
         if (logic < 2) {
-            return randomizedVanillaStepsShapes(randomizer, maxlevel, multiplier, building1, building2, building3, building4, building5);
+            return randomizedVanillaStepsShapes(randomizer, maxlevel, throughputratio, multiplier, building1, building2, building3, building4, building5);
         } else if (logic == 4) {
-            return randomizedHardcoreShapes(randomizer, maxlevel);
+            return randomizedHardcoreShapes(randomizer, maxlevel, throughputratio);
         } else {
-            return randomizedStretchedShapes(randomizer, maxlevel, multiplier, building1, building2, building3, building4, building5);
+            return randomizedStretchedShapes(randomizer, maxlevel, throughputratio, multiplier, building1, building2, building3, building4, building5);
         }
     } else {
         return vanillaShapes(multiplier);

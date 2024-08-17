@@ -2,7 +2,7 @@ import { Mod } from "shapez/mods/mod";
 import { addInputContainer } from "./ui_changes";
 import { registerSavingData } from "./savefile";
 import { client } from "./global_data";
-import { overrideBuildings, overrideGameMode, overrideLocationsListenToItems, overridePatchGenerator } from "./overrides";
+import { overrideBuildings, overrideGameMode, overrideLocationsListenToItems } from "./overrides";
 
 class ModImpl extends Mod {
     init() {
