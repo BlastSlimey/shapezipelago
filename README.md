@@ -20,6 +20,9 @@ Client mod for the Archipelago multiworld randomizer.
 - Automate saving/loading hubgoal reward
 - Randomize blueprint shape
 - make buildings traps only affect unlocked ones
+- Wires still blocked until vanilla unlock?
+- Save shapesanity analysis in cache
+- Scout location before sending
 ### Both
 - Rename upgrade categories
 - Add shapesanity goal
