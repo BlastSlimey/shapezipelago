@@ -19,14 +19,14 @@ Client mod for the Archipelago multiworld randomizer.
 - Make same color at random shape generator more often
 - Automate saving/loading hubgoal reward
 - Randomize blueprint shape
+- make buildings traps only affect unlocked ones
 ### Both
 - Rename upgrade categories
 - Add shapesanity goal
 - Add locked belt/extractor option
-- Add randomize level checking option (bool), amount/throughput rate option (range 0-100)
 - Need some ideas for expanding upgrade requirements
-- Trap making different buildings unplacable for some time
 - Trap to make buildings produce wrong items
 - More randomized level and upgrade logic types
+- Fix Rotater/Rotator misspelling (correct is Rotator according to Google Translate, but vanilla code says Rotater
 ### Other
 - Mod showcase in developer discord
