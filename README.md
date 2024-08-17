@@ -3,13 +3,10 @@ Client mod for the Archipelago multiworld randomizer.
 
 ## TODO list
 ### APWorld
-- TestBase
 - Web docs
 - Item descriptions
 - Location descriptions
 - Include building variants in logic (look at client mod)
-- Spoiler doc playthrough generation
-- earlier balancer tunnel trash option (complete random, five buildings, three buildings, sphere 1)
 ### Client mod
 - Replace seed from save file with apworld-generated seed
 - Achievements
