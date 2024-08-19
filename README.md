@@ -4,12 +4,7 @@ Client mod for the Archipelago multiworld randomizer.
 ## TODO list
 ### APWorld
 - IMPORTANT:     Web docs
-- IMPORTANT:     Item descriptions
-- IMPORTANT:     Location descriptions
 - FEATURE:       Include building variants in logic (look at client mod)
-- GOOD LOOKING:  Remove "option".value on comparisons
-- GOOD LOOKING:  Specify return type everywhere
-- GOOD LOOKING:  Rich text for some optionsw
 ### Client mod
 - FEATURE:       Replace seed from save file with apworld-generated seed
 - FEATURE:       Achievements
@@ -24,7 +19,6 @@ Client mod for the Archipelago multiworld randomizer.
 - FEATURE:       Randomize blueprint shape
 - FEATURE:       make buildings traps only affect unlocked ones
 - FEATURE:       Wires still blocked until vanilla unlock?
-- FEATURE:       Save shapesanity analysis in cache
 - FEATURE:       Scout location before sending
 - FEATURE:       Details when checking Level location, custom hubGoal reward, override hud
 - FEATURE:       Details for received items (player, location)
@@ -33,4 +27,3 @@ Client mod for the Archipelago multiworld randomizer.
 - FEATURE:       Add locked belt/extractor option
 - FEATURE:       Need some ideas for expanding upgrade requirements
 - FEATURE:       More randomized level and upgrade logic types
-- GOOD LOOKING:  Fix Rotater/Rotator misspelling (correct is Rotator according to Google Translate, but vanilla code says Rotater)
