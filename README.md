@@ -3,10 +3,6 @@ Client mod for the Archipelago multiworld randomizer.
 
 ## TODO list
 ### APWorld
-- IMPORTANT:     Web docs
-- IMPORTANT:     Rotator (180) naming error
-- IMPORTANT:     Missing game info file?
-- IMPORTANT:     Preset shapesanity 0
 - FEATURE:       Include building variants in logic (look at client mod)
 ### Client mod
 - FEATURE:       Replace seed from save file with apworld-generated seed
@@ -30,3 +26,4 @@ Client mod for the Archipelago multiworld randomizer.
 - FEATURE:       Add locked belt/extractor option
 - FEATURE:       Need some ideas for expanding upgrade requirements
 - FEATURE:       More randomized level and upgrade logic types
+- FEATURE:       Buildings functionality randomization
