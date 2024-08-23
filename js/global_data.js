@@ -2,7 +2,6 @@ import { Client } from "archipelago.js";
 
 export const client = new Client();
 export var connected = false;
-export var initializedOnce = false;
 export var processedItemCount = 0;
 export const customRewards = {
     reward_cutter: 0,
@@ -13,12 +12,12 @@ export const customRewards = {
 export var upgradeDefs = null;
 export var leveldefs = null;
 export var gamePackage = null;
-const upgradeIdNames = {
-    belt: "Routing",
-    miner: "Extraction",
-    processors: "Shape Processing",
-    painting: "Color Processing"
-}
+export const upgradeIdNames = {
+    belt: "Belt",
+    miner: "Miner",
+    processors: "Processors",
+    painting: "Painting"
+};
 const achievementNames = {
     "belt500Tiles": "I need trains",
     "blueprint100k": "It's piling up",
@@ -65,112 +64,6 @@ const achievementNames = {
     "upgradesTier5": "Faster",
     "upgradesTier8": "Even faster"
 };
-export const receiveItemFunctions = {
-    "Cutter": (root) => {customRewards.reward_cutter = 1; return "";},
-    "Rotator": (root) => {root.hubGoals.gainedRewards["reward_rotater"] = 1; return "";},
-    "Painter": (root) => {root.hubGoals.gainedRewards["reward_painter"] = 1; return "";},
-    "Rotator (CCW)": (root) => {root.hubGoals.gainedRewards["reward_rotater_ccw"] = 1; return "";},
-    "Color Mixer": (root) => {root.hubGoals.gainedRewards["reward_mixer"] = 1; return "";},
-    "Stacker": (root) => {root.hubGoals.gainedRewards["reward_stacker"] = 1; return "";},
-    "Quad Cutter": (root) => {root.hubGoals.gainedRewards["reward_cutter_quad"] = 1; return "";},
-    "Double Painter": (root) => {root.hubGoals.gainedRewards["reward_painter_double"] = 1; return "";},
-    "Rotator (180°)": (root) => {root.hubGoals.gainedRewards["reward_rotater_180"] = 1; return "";},
-    "Quad Painter": (root) => {customRewards.reward_painter_quad = 1; return "";},
-    "Balancer": (root) => {root.hubGoals.gainedRewards["reward_balancer"] = 1; return "";},
-    "Tunnel": (root) => {root.hubGoals.gainedRewards["reward_tunnel"] = 1; return "";},
-    "Compact Merger": (root) => {root.hubGoals.gainedRewards["reward_merger"] = 1; return "";},
-    "Tunnel Tier II": (root) => {root.hubGoals.gainedRewards["reward_underground_belt_tier_2"] = 1; return "";},
-    "Compact Splitter": (root) => {root.hubGoals.gainedRewards["reward_splitter"] = 1; return "";},
-    "Trash": (root) => {customRewards.reward_trash = 1; return "";},
-    "Chaining Extractor": (root) => {root.hubGoals.gainedRewards["reward_miner_chainable"] = 1; return "";},
-    "Belt Reader": (root) => {root.hubGoals.gainedRewards["reward_belt_reader"] = 1; return "";},
-    "Storage": (root) => {root.hubGoals.gainedRewards["reward_storage"] = 1; return "";},
-    "Item Filter": (root) => {root.hubGoals.gainedRewards["reward_filter"] = 1; return "";},
-    "Display": (root) => {root.hubGoals.gainedRewards["reward_display"] = 1; return "";},
-    "Wires": (root) => {customRewards.reward_wires = 1; return "";},
-    "Constant Signal": (root) => {root.hubGoals.gainedRewards["reward_constant_signal"] = 1; return "";},
-    "Logic Gates": (root) => {root.hubGoals.gainedRewards["reward_logic_gates"] = 1; return "";},
-    "Virtual Processing": (root) => {root.hubGoals.gainedRewards["reward_virtual_processing"] = 1; return "";},
-    "Blueprints": (root) => {root.hubGoals.gainedRewards["reward_blueprints"] = 1; return "";},
-    "Big Routing Upgrade": (root) => {root.hubGoals.upgradeImprovements["belt"] += 1; return "";},
-    "Big Extraction Upgrade": (root) => {root.hubGoals.upgradeImprovements["miner"] += 1; return "";},
-    "Big Shape Processing Upgrade": (root) => {root.hubGoals.upgradeImprovements["processors"] += 1; return "";},
-    "Big Color Processing Upgrade": (root) => {root.hubGoals.upgradeImprovements["painting"] += 1; return "";},
-    "Small Routing Upgrade": (root) => {root.hubGoals.upgradeImprovements["belt"] += 0.1; return "";},
-    "Small Extraction Upgrade": (root) => {root.hubGoals.upgradeImprovements["miner"] += 0.1; return "";},
-    "Small Shape Processing Upgrade": (root) => {root.hubGoals.upgradeImprovements["processors"] += 0.1; return "";},
-    "Small Color Processing Upgrade": (root) => {root.hubGoals.upgradeImprovements["painting"] += 0.1; return "";},
-    "Blueprint Shapes Bundle": (root) => {root.hubGoals.storedShapes["CbCbCbRb:CwCwCwCw"] = (root.hubGoals.storedShapes["CbCbCbRb:CwCwCwCw"] || 0) + 1000; return ": 1000";},
-    "Level Shapes Bundle": (root) => {
-        const levelShape = root.hubGoals.currentGoal.definition.getHash();
-        const requiredLevelShapes = root.hubGoals.currentGoal.required;
-        const storedLevelShapes = root.hubGoals.storedShapes[levelShape] || 0;
-        const addedAmount = Math.floor((requiredLevelShapes - storedLevelShapes) / 2);
-        root.hubGoals.storedShapes[levelShape] = (storedLevelShapes || 0) + addedAmount;
-        return ": " + addedAmount.toString();
-    },
-    "Upgrade Shapes Bundle": (/** @type {import("shapez/game/root").GameRoot} */ root) => {
-        const upgradeIds = ["belt", "miner", "processors", "painting"];
-        const randomID = upgradeIds[Math.floor(Math.random()*4)];
-        const requiredShapes = upgradeDefs[randomID][root.hubGoals.getUpgradeLevel(randomID)].required;
-        const requirement = requiredShapes[Math.floor(Math.random()*requiredShapes.length)];
-        const stored = root.hubGoals.storedShapes[requirement.shape] || 0;
-        var addedAmount = Math.floor((requirement.amount - stored) / 2);
-        if (addedAmount < 0) {
-            addedAmount = 100;
-        }
-        root.hubGoals.storedShapes[requirement.shape] = (stored || 0) + addedAmount;
-        return `: ${addedAmount} ${requirement.shape} in ${upgradeIdNames[randomID]} Upgrades`;
-    },
-    "Inventory Draining Trap": (root) => {
-        const r = Math.random()*3;
-        if (r < 1) {
-            var storedBlueprint = root.hubGoals.storedShapes["CbCbCbRb:CwCwCwCw"] || 0;
-            root.hubGoals.storedShapes["CbCbCbRb:CwCwCwCw"] = Math.floor(storedBlueprint / 2);
-            return ": Blueprint shapes";
-        } else if (r < 2) {
-            const levelShape = root.hubGoals.currentGoal.definition.getHash();
-            const storedLevelShapes = root.hubGoals.storedShapes[levelShape] || 0;
-            root.hubGoals.storedShapes[levelShape] = Math.floor((storedLevelShapes || 0) / 2);
-            return ": Current level shapes";
-        } else {
-            const upgradeIds = ["belt", "miner", "processors", "painting"];
-            const randomID = upgradeIds[Math.floor(Math.random()*4)];
-            const requiredShapes = upgradeDefs[randomID][root.hubGoals.getUpgradeLevel(randomID)].required;
-            const requirement = requiredShapes[Math.floor(Math.random()*requiredShapes.length)];
-            const stored = root.hubGoals.storedShapes[requirement.shape] || 0;
-            root.hubGoals.storedShapes[requirement.shape] = Math.floor((stored || 0) / 2);
-            return `: ${requirement.shape} from ${upgradeIdNames[randomID]} Upgrades`;
-        }
-    },
-    "Locked Building Trap": (root) => {
-        const randomBuilding = Object.keys(trapLocked)[Math.floor(Math.random()*10)];
-        const randomTimeSec = Math.floor(Math.random()*46) + 15;
-        trapLocked[randomBuilding] = true;
-        setTimeout(() => {
-            trapLocked[randomBuilding] = false;
-        }, randomTimeSec*1000);
-        return `: ${baseBuildingNames[randomBuilding]} for ${randomTimeSec} seconds`;
-    },
-    "Throttled Building Trap": (root) => {
-        const randomBuilding = Object.keys(trapThrottled)[Math.floor(Math.random()*9)];
-        const randomTimeSec = Math.floor(Math.random()*46) + 15;
-        trapThrottled[randomBuilding] = true;
-        setTimeout(() => {
-            trapThrottled[randomBuilding] = false;
-        }, randomTimeSec*1000);
-        return `: ${baseBuildingNames[randomBuilding]} for ${randomTimeSec} seconds`;
-    },
-    "Malfunctioning Trap": (root) => {
-        const randomBuilding = Object.keys(trapMalfunction)[Math.floor(Math.random()*8)];
-        const randomTimeSec = Math.floor(Math.random()*46) + 15;
-        trapMalfunction[randomBuilding] = true;
-        setTimeout(() => {
-            trapMalfunction[randomBuilding] = false;
-        }, randomTimeSec*1000);
-        return `: ${baseBuildingNames[randomBuilding]} for ${randomTimeSec} seconds`;
-    }
-};
 const translate = [
     {key: 1000, val: "M"},
     {key: 900, val: "CM"},
@@ -197,7 +90,7 @@ export const trapLocked = {
     painter: false,
     mixer: false,
     trash: false
-}
+};
 export const trapThrottled = {
     belt: false,
     balancer: false,
@@ -208,7 +101,7 @@ export const trapThrottled = {
     stacker: false,
     painter: false,
     mixer: false
-}
+};
 export const trapMalfunction = {
     cutter: false,
     cutter_quad: false,
@@ -218,8 +111,8 @@ export const trapMalfunction = {
     stacker: false,
     painter: false,
     painter_quad: false
-}
-const baseBuildingNames = {
+};
+export const baseBuildingNames = {
     belt: "Belt",
     balancer: "Balancer",
     tunnel: "Tunnel",
@@ -234,7 +127,10 @@ const baseBuildingNames = {
     painter_quad: "Quad Painter",
     mixer: "Color Mixer",
     trash: "Trash"
-}
+};
+export var shapesanityCache = {
+    "CuCuCuCu:CuCuCuCu": true
+};
 
 export function roman(number) {
     var rom = "";
@@ -273,14 +169,6 @@ export function setProcessedItems(amount) {
 
 export function increaseProcessedItems() {
     processedItemCount++;
-}
-
-/**
- * 
- * @param {boolean} initialized 
- */
-export function setInitializedOnce(initialized) {
-    initializedOnce = initialized;
 }
 
 /**

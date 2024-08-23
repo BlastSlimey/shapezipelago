@@ -1,7 +1,6 @@
 import { Mod } from "shapez/mods/mod";
-import { connected, setConnected, setGamePackage, setProcessedItems } from "./global_data";
+import { connected, customRewards, setConnected, setGamePackage, setProcessedItems, trapLocked, trapMalfunction, trapThrottled } from "./global_data";
 import { ITEMS_HANDLING_FLAGS, Client, SERVER_PACKET_TYPE } from "archipelago.js";
-import { processItemsPacket } from "./server_communication";
 
 /**
  * @param {Mod} modImpl
@@ -14,7 +13,20 @@ import { processItemsPacket } from "./server_communication";
 export function addInputContainer(modImpl, client, autoPlayer, autoAddress, autoPort, autoPassword) {
     modImpl.signals.stateEntered.add(state => {
         if (state.key === "MainMenuState") {
-            setProcessedItems(0); // new game won't load from save file obviously
+            // reset custom global data
+            setProcessedItems(0);
+            for (var [key, valNum] of Object.entries(customRewards)) {
+                customRewards[key] = 0;
+            }
+            for (var [key, valBool] of Object.entries(trapLocked)) {
+                trapLocked[key] = false;
+            }
+            for (var [key, valBool] of Object.entries(trapThrottled)) {
+                trapThrottled[key] = false;
+            }
+            for (var [key, valBool] of Object.entries(trapMalfunction)) {
+                trapMalfunction[key] = false;
+            }
             const mainWrapper = document.body.getElementsByClassName("mainWrapper").item(0);
             const sideContainer = mainWrapper.getElementsByClassName("sideContainer").item(0);
             const inputContainer = document.createElement("div");
@@ -90,9 +102,6 @@ export function addInputContainer(modImpl, client, autoPlayer, autoAddress, auto
                             setGamePackage(client.data.package.get("shapez"));
                             statusLabel.innerText = "Connected";
                             statusButton.innerText = "Disconnect";
-                            client.addListener(SERVER_PACKET_TYPE.RECEIVED_ITEMS, function (packet) {
-                                processItemsPacket(packet.items);
-                            });
                         })
                         .catch((error) => {
                             console.error("[Archipelago] Failed to connect:", error);

@@ -1,8 +1,155 @@
-import { client, gamePackage, increaseProcessedItems, processedItemCount, receiveItemFunctions } from "./global_data";
+import { enumSubShapeToShortcode, ShapeDefinition } from "shapez/game/shape_definition";
+import { baseBuildingNames, client, connected, customRewards, gamePackage, increaseProcessedItems, processedItemCount, shapesanityCache, trapLocked, trapMalfunction, trapThrottled, upgradeDefs, upgradeIdNames } from "./global_data";
 import { CLIENT_STATUS } from "archipelago.js";
+import { enumColorToShortcode } from "shapez/game/colors";
+import { GameRoot } from "shapez/game/root";
 
-var storedRoot = null;
-var storedModImpl = null;
+export var storedRoot = null;
+export var storedModImpl = null;
+const subShapeNames = {
+    rect: "Square",
+    circle: "Circle",
+    star: "Star",
+    windmill: "Windmill",
+};
+const colorNames = {
+    red: "Red",
+    green: "Green",
+    blue: "Blue",
+
+    yellow: "Yellow",
+    purple: "Purple",
+    cyan: "Cyan",
+
+    white: "White",
+    uncolored: "Uncolored",
+};
+
+export const receiveItemFunctions = {
+    "Cutter": (root, resynced) => {customRewards.reward_cutter = 1; return "";},
+    "Rotator": (root, resynced) => {root.hubGoals.gainedRewards["reward_rotater"] = 1; return "";},
+    "Painter": (root, resynced) => {root.hubGoals.gainedRewards["reward_painter"] = 1; return "";},
+    "Rotator (CCW)": (root, resynced) => {root.hubGoals.gainedRewards["reward_rotater_ccw"] = 1; return "";},
+    "Color Mixer": (root, resynced) => {root.hubGoals.gainedRewards["reward_mixer"] = 1; return "";},
+    "Stacker": (root, resynced) => {root.hubGoals.gainedRewards["reward_stacker"] = 1; return "";},
+    "Quad Cutter": (root, resynced) => {root.hubGoals.gainedRewards["reward_cutter_quad"] = 1; return "";},
+    "Double Painter": (root, resynced) => {root.hubGoals.gainedRewards["reward_painter_double"] = 1; return "";},
+    "Rotator (180°)": (root, resynced) => {root.hubGoals.gainedRewards["reward_rotater_180"] = 1; return "";},
+    "Quad Painter": (root, resynced) => {customRewards.reward_painter_quad = 1; return "";},
+    "Balancer": (root, resynced) => {root.hubGoals.gainedRewards["reward_balancer"] = 1; return "";},
+    "Tunnel": (root, resynced) => {root.hubGoals.gainedRewards["reward_tunnel"] = 1; return "";},
+    "Compact Merger": (root, resynced) => {root.hubGoals.gainedRewards["reward_merger"] = 1; return "";},
+    "Tunnel Tier II": (root, resynced) => {root.hubGoals.gainedRewards["reward_underground_belt_tier_2"] = 1; return "";},
+    "Compact Splitter": (root, resynced) => {root.hubGoals.gainedRewards["reward_splitter"] = 1; return "";},
+    "Trash": (root, resynced) => {customRewards.reward_trash = 1; return "";},
+    "Chaining Extractor": (root, resynced) => {root.hubGoals.gainedRewards["reward_miner_chainable"] = 1; return "";},
+    "Belt Reader": (root, resynced) => {root.hubGoals.gainedRewards["reward_belt_reader"] = 1; return "";},
+    "Storage": (root, resynced) => {root.hubGoals.gainedRewards["reward_storage"] = 1; return "";},
+    "Item Filter": (root, resynced) => {root.hubGoals.gainedRewards["reward_filter"] = 1; return "";},
+    "Display": (root, resynced) => {root.hubGoals.gainedRewards["reward_display"] = 1; return "";},
+    "Wires": (root, resynced) => {customRewards.reward_wires = 1; return "";},
+    "Constant Signal": (root, resynced) => {root.hubGoals.gainedRewards["reward_constant_signal"] = 1; return "";},
+    "Logic Gates": (root, resynced) => {root.hubGoals.gainedRewards["reward_logic_gates"] = 1; return "";},
+    "Virtual Processing": (root, resynced) => {root.hubGoals.gainedRewards["reward_virtual_processing"] = 1; return "";},
+    "Blueprints": (root, resynced) => {root.hubGoals.gainedRewards["reward_blueprints"] = 1; return "";},
+    "Big Belt Upgrade": (root, resynced) => {root.hubGoals.upgradeImprovements["belt"] += 1; return "";},
+    "Big Miner Upgrade": (root, resynced) => {root.hubGoals.upgradeImprovements["miner"] += 1; return "";},
+    "Big Processing Upgrade": (root, resynced) => {root.hubGoals.upgradeImprovements["processors"] += 1; return "";},
+    "Big Painting Upgrade": (root, resynced) => {root.hubGoals.upgradeImprovements["painting"] += 1; return "";},
+    "Small Belt Upgrade": (root, resynced) => {root.hubGoals.upgradeImprovements["belt"] += 0.1; return "";},
+    "Small Miner Upgrade": (root, resynced) => {root.hubGoals.upgradeImprovements["miner"] += 0.1; return "";},
+    "Small Processing Upgrade": (root, resynced) => {root.hubGoals.upgradeImprovements["processors"] += 0.1; return "";},
+    "Small Painting Upgrade": (root, resynced) => {root.hubGoals.upgradeImprovements["painting"] += 0.1; return "";},
+    "Blueprint Shapes Bundle": (root, resynced) => {
+        if (resynced) return "";
+        root.hubGoals.storedShapes["CbCbCbRb:CwCwCwCw"] = (root.hubGoals.storedShapes["CbCbCbRb:CwCwCwCw"] || 0) + 1000; 
+        if (root.hubGoals.storedShapes["CbCbCbRb:CwCwCwCw"] > 0) {
+            getShapesanityAnalyser(root, false)(ShapeDefinition.fromShortKey("CbCbCbRb:CwCwCwCw"));
+        }
+        return ": 1000";
+    },
+    "Level Shapes Bundle": (root, resynced) => {
+        if (resynced) return "";
+        const levelShape = root.hubGoals.currentGoal.definition.getHash();
+        const requiredLevelShapes = root.hubGoals.currentGoal.required;
+        const storedLevelShapes = root.hubGoals.storedShapes[levelShape] || 0;
+        const addedAmount = Math.floor((requiredLevelShapes - storedLevelShapes) / 2);
+        root.hubGoals.storedShapes[levelShape] = (storedLevelShapes || 0) + addedAmount;
+        if (root.hubGoals.storedShapes[levelShape] > 0) {
+            getShapesanityAnalyser(root, false)(root.hubGoals.currentGoal.definition);
+        }
+        return ": " + addedAmount.toString();
+    },
+    "Upgrade Shapes Bundle": (/** @type {import("shapez/game/root").GameRoot} */ root, resynced) => {
+        if (resynced) return "";
+        const upgradeIds = ["belt", "miner", "processors", "painting"];
+        const randomID = upgradeIds[Math.floor(Math.random()*4)];
+        const requiredShapes = upgradeDefs[randomID][root.hubGoals.getUpgradeLevel(randomID)].required;
+        const requirement = requiredShapes[Math.floor(Math.random()*requiredShapes.length)];
+        const stored = root.hubGoals.storedShapes[requirement.shape] || 0;
+        var addedAmount = Math.floor((requirement.amount - stored) / 2);
+        if (addedAmount < 0) {
+            addedAmount = 100;
+        }
+        root.hubGoals.storedShapes[requirement.shape] = (stored || 0) + addedAmount;
+        if (root.hubGoals.storedShapes[requirement.shape] > 0) {
+            getShapesanityAnalyser(root, false)(ShapeDefinition.fromShortKey(requirement.shape));
+        }
+        return `: ${addedAmount} ${requirement.shape} in ${upgradeIdNames[randomID]} Upgrades`;
+    },
+    "Inventory Draining Trap": (root, resynced) => {
+        if (resynced) return "";
+        const r = Math.random()*3;
+        if (r < 1) {
+            var storedBlueprint = root.hubGoals.storedShapes["CbCbCbRb:CwCwCwCw"] || 0;
+            root.hubGoals.storedShapes["CbCbCbRb:CwCwCwCw"] = Math.floor(storedBlueprint / 2);
+            return ": Blueprint shapes";
+        } else if (r < 2) {
+            const levelShape = root.hubGoals.currentGoal.definition.getHash();
+            const storedLevelShapes = root.hubGoals.storedShapes[levelShape] || 0;
+            root.hubGoals.storedShapes[levelShape] = Math.floor((storedLevelShapes || 0) / 2);
+            return ": Current level shapes";
+        } else {
+            const upgradeIds = ["belt", "miner", "processors", "painting"];
+            const randomID = upgradeIds[Math.floor(Math.random()*4)];
+            const requiredShapes = upgradeDefs[randomID][root.hubGoals.getUpgradeLevel(randomID)].required;
+            const requirement = requiredShapes[Math.floor(Math.random()*requiredShapes.length)];
+            const stored = root.hubGoals.storedShapes[requirement.shape] || 0;
+            root.hubGoals.storedShapes[requirement.shape] = Math.floor((stored || 0) / 2);
+            return `: ${requirement.shape} from ${upgradeIdNames[randomID]} Upgrades`;
+        }
+    },
+    "Locked Building Trap": (root, resynced) => {
+        if (resynced) return "";
+        const randomBuilding = Object.keys(trapLocked)[Math.floor(Math.random()*10)];
+        const randomTimeSec = Math.floor(Math.random()*46) + 15;
+        trapLocked[randomBuilding] = true;
+        setTimeout(() => {
+            trapLocked[randomBuilding] = false;
+        }, randomTimeSec*1000);
+        return `: ${baseBuildingNames[randomBuilding]} for ${randomTimeSec} seconds`;
+    },
+    "Throttled Building Trap": (root, resynced) => {
+        if (resynced) return "";
+        const randomBuilding = Object.keys(trapThrottled)[Math.floor(Math.random()*9)];
+        const randomTimeSec = Math.floor(Math.random()*46) + 15;
+        trapThrottled[randomBuilding] = true;
+        setTimeout(() => {
+            trapThrottled[randomBuilding] = false;
+        }, randomTimeSec*1000);
+        return `: ${baseBuildingNames[randomBuilding]} for ${randomTimeSec} seconds`;
+    },
+    "Malfunctioning Trap": (root, resynced) => {
+        if (resynced) return "";
+        const randomBuilding = Object.keys(trapMalfunction)[Math.floor(Math.random()*8)];
+        const randomTimeSec = Math.floor(Math.random()*46) + 15;
+        trapMalfunction[randomBuilding] = true;
+        setTimeout(() => {
+            trapMalfunction[randomBuilding] = false;
+        }, randomTimeSec*1000);
+        return `: ${baseBuildingNames[randomBuilding]} for ${randomTimeSec} seconds`;
+    }
+};
 
 export function setRootAndModImpl(root, modImpl) {
     storedModImpl = modImpl;
@@ -13,35 +160,53 @@ export function setRootAndModImpl(root, modImpl) {
  * 
  * @param {string} name 
  */
-export function checkLocation(name, another = null) {
+export function checkLocation(name, another = null, resyncMessage = "Checked") {
     if (name === "Goal") {
         client.updateStatus(CLIENT_STATUS.GOAL);
     } else {
         if (another) {
             client.locations.check(gamePackage.location_name_to_id[name], gamePackage.location_name_to_id[another]);
-            console.log("[Archipelago] Checked location " + name);
-            console.log("[Archipelago] Checked location " + another)
+            console.log(`[Archipelago] ${resyncMessage} location ` + name);
+            console.log(`[Archipelago] ${resyncMessage} location ` + another)
         } else {
             client.locations.check(gamePackage.location_name_to_id[name]);
-            console.log("[Archipelago] Checked location " + name);
+            console.log(`[Archipelago] ${resyncMessage} location ` + name);
         }
     }
 }
 
 /**
- * 
- * @param {import("archipelago.js").NetworkItem[]} items 
+ * @param {import("archipelago.js").ReceivedItemsPacket} packet
  */
-export function processItemsPacket(items) {
-    if (processedItemCount + 1 >= items.length) {
-        for (var i = processedItemCount; i < items.length; i++) {
-            receiveItem(items[i], true);
+export function processItemsPacket(packet) {
+    /**console.log(packet.index, processedItemCount)
+    if (packet.index == 0 && processedItemCount > 0) {
+        //set all gainedRewards to 0
+        for (var [reward, value] of Object.entries(storedRoot.hubGoals.gainedRewards)) {
+            storedRoot.hubGoals.gainedRewards[reward] = 0;
+        }
+        //set all upgradeImprovement to 1
+        storedRoot.hubGoals.upgradeImprovements["belt"] = 1;
+        storedRoot.hubGoals.upgradeImprovements["miner"] = 1;
+        storedRoot.hubGoals.upgradeImprovements["processors"] = 1;
+        storedRoot.hubGoals.upgradeImprovements["painting"] = 1;
+        //bundles and traps should not be resynced
+        //resync items
+        setProcessedItems(0);
+        for (var i = 0; i < packet.items.length; i++) {
+            receiveItem(packet.items[i], false, true);
+            increaseProcessedItems();
+        }
+    } else */
+    if (processedItemCount + 1 >= packet.items.length) {
+        for (var i = processedItemCount; i < packet.items.length; i++) {
+            receiveItem(packet.items[i], true, false);
             increaseProcessedItems();
         }
     } else {
         var itemCounting = [];
-        for (var i = processedItemCount; i < items.length; i++) {
-            itemCounting.push(receiveItem(items[i], false));
+        for (var i = processedItemCount; i < packet.items.length; i++) {
+            itemCounting.push(receiveItem(packet.items[i], false, false));
             increaseProcessedItems();
         }
         storedModImpl.dialogs.showInfo("Items received!", itemCounting.join("<br />"));
@@ -52,13 +217,520 @@ export function processItemsPacket(items) {
  * 
  * @param {import("archipelago.js").NetworkItem} item 
  */
-function receiveItem(item, showInfo) {
+function receiveItem(item, showInfo, resynced) {
     const itemName = client.items.name("shapez", item.item);
-    const message = receiveItemFunctions[itemName](storedRoot);
+    const message = receiveItemFunctions[itemName](storedRoot, resynced);
     if (showInfo) {
         storedModImpl.dialogs.showInfo("Item received!", itemName + message);
         return "";
     } else {
         return itemName + message;
+    }
+}
+
+function isSame(part1, part2) {
+    return part1.subShape === part2.subShape && part1.color === part2.color;
+}
+
+function toShort(part) {
+    return enumSubShapeToShortcode[part.subShape] + enumColorToShortcode[part.color];
+}
+
+function ordered(part1, part2) {
+    var string1 = toShort(part1);
+    var string2 = toShort(part2);
+    if (string1 < string2) {
+        return string1 + " " + string2;
+    } else {
+        return string2 + " " + string1;
+    }
+}
+
+/**
+ * 
+ * @param {string} letter1 
+ * @param {string} letter2 
+ * @param {string} letter3 
+ * @param {string} letter4 
+ */
+function orderedOnlyDifferent(letter1, letter2, letter3, letter4 = "-") {
+    var arr = [letter1, letter2, letter3, letter4].sort();
+    return arr[0] + arr[1] + arr[2] + arr[3];
+}
+
+/**
+ * 
+ * @param {GameRoot} root 
+ * @param {boolean} checkStored
+ * @returns 
+ */
+export function getShapesanityAnalyser(root, checkStored) {
+    return function (shape) {
+        return shapesanityAnalyzer(shape, root, checkStored);
+    };
+}
+
+/**
+ * @param {ShapeDefinition} shape
+ * @param {GameRoot} root
+ * @param {boolean} checkStored
+ */
+function shapesanityAnalyzer(shape, root, checkStored) {
+    if (!connected) {
+        return;
+    }
+    if (shape.layers.length == 1) {
+        if (shapesanityCache[shape.getHash()]) {
+            return;
+        }
+        if (!checkStored || root.hubGoals.getShapesStored(shape) <= 2) {
+            var parts = shape.layers[0];
+            if (parts[0]) { //Aa
+                if (parts[1]) { //Aa??
+                    if (parts[0].subShape === parts[1].subShape) { //AaA?
+                        if (parts[2]) { //AaA???
+                            if (parts[3]) { //AaA?????
+                                if (parts[0].subShape === parts[2].subShape) { //AaA?A???
+                                    if (parts[0].subShape === parts[3].subShape) { //AaA?A?A?
+                                        if (parts[0].color === parts[1].color) { //AaAaA?A?
+                                            if (parts[0].color === parts[2].color) { //AaAaAaA?
+                                                if (parts[0].color === parts[3].color) { //AaAaAaAa
+                                                    checkLocation("Shapesanity " + colorNames[parts[0].color] + " " + 
+                                                        subShapeNames[parts[0].subShape]);
+                                                } else { //AaAaAaAb
+                                                    checkLocation("Shapesanity 3-1 " + toShort(parts[0]) + " " + 
+                                                        toShort(parts[3]));
+                                                }
+                                            } else { //AaAaAbA?
+                                                if (parts[0].color === parts[3].color) { //AaAaAbAa
+                                                    checkLocation("Shapesanity 3-1 " + toShort(parts[0]) + " " + 
+                                                        toShort(parts[2]));
+                                                } else if (parts[2].color === parts[3].color) { //AaAaAbAb
+                                                    checkLocation("Shapesanity Half-Half " + ordered(parts[0], parts[2]));
+                                                } //AaAaAbAc
+                                            }
+                                        } else { //AaAbA?A?
+                                            if (parts[0].color === parts[2].color) { //AaAbAaA?
+                                                if (parts[0].color === parts[3].color) { //AaAbAaAa
+                                                    checkLocation("Shapesanity 3-1 " + toShort(parts[0]) + " " + 
+                                                        toShort(parts[1]));
+                                                } else if (parts[1].color === parts[3].color) { //AaAbAaAb
+                                                    checkLocation("Shapesanity Checkered " + ordered(parts[0], parts[1]));
+                                                } //AaAbAaAc UNUSED
+                                            } else if (parts[1].color === parts[2].color) { //AaAbAbA?
+                                                if (parts[0].color === parts[3].color) { //AaAbAbAa
+                                                    checkLocation("Shapesanity Half-Half " + ordered(parts[0], parts[1]));
+                                                } else if (parts[1].color === parts[3].color) { //AaAbAbAb
+                                                    checkLocation("Shapesanity 3-1 " + toShort(parts[1]) + " " + 
+                                                        toShort(parts[0]));
+                                                } //AaAbAbAc UNUSED
+                                            } else { //AaAbAcA?
+                                                if (parts[0].color !== parts[3].color) { //AaAbAcA!(a)
+                                                    if (parts[1].color !== parts[3].color) { //AaAbAcA!(a|b)
+                                                        if (parts[2].color !== parts[3].color) { //AaAbAcAd
+                                                            checkLocation("Shapesanity " + orderedOnlyDifferent(
+                                                                enumColorToShortcode[parts[0].color],
+                                                                enumColorToShortcode[parts[1].color],
+                                                                enumColorToShortcode[parts[2].color],
+                                                                enumColorToShortcode[parts[3].color]
+                                                            ) + " " + subShapeNames[parts[0].subShape]);
+                                                        } //AaAbAcAc UNUSED
+                                                    } //AaAbAcAb UNUSED
+                                                } //AaAbAcAa UNUSED
+                                            }
+                                        }
+                                    } else { //AaA?A?B?
+                                        if (parts[0].color === parts[1].color) { //AaAaA?B?
+                                            if (parts[0].color === parts[2].color) { //AaAaAaB?
+                                                checkLocation("Shapesanity 3-1 " + toShort(parts[0]) + " " + 
+                                                    toShort(parts[3]));
+                                            } //AaAaAbB? UNUSED
+                                        } //AaAbA?B? UNUSED
+                                    }
+                                } else { //AaA?B???
+                                    if (parts[0].subShape === parts[3].subShape) { //AaA?B?A?
+                                        if (parts[0].color === parts[1].color) { //AaAaB?A?
+                                            if (parts[0].color === parts[3].color) { //AaAaB?Aa
+                                                checkLocation("Shapesanity 3-1 " + toShort(parts[0]) + " " + 
+                                                    toShort(parts[2]));
+                                            } //AaAaB?Ab UNUSED
+                                        } //AaAbB?A? UNUSED
+                                    } else if (parts[2].subShape === parts[3].subShape) { //AaA?B?B?
+                                        if (parts[0].color === parts[1].color) { //AaAaB?B?
+                                            if (parts[2].color === parts[3].color) { //AaAaBxBx
+                                                checkLocation("Shapesanity Half-Half " + ordered(parts[0], parts[2]));
+                                            } //AaAaBxBy UNUSED
+                                        } //AaAbB?B? UNUSED
+                                    } //AaA?B?C? UNUSED
+                                }
+                            } else { //AaA???--
+                                if (parts[0].subShape === parts[2].subShape) { //AaA?A?--
+                                    if (parts[0].color === parts[1].color) { //AaAaA?--
+                                        if (parts[0].color === parts[2].color) { //AaAaAa--
+                                            checkLocation("Shapesanity Cut Out " + colorNames[parts[0].color] + " " + 
+                                                subShapeNames[parts[0].subShape]);
+                                        } else { //AaAaAb--
+                                            checkLocation("Shapesanity Adjacent 2-1 " + toShort(parts[0]) + " " + 
+                                                toShort(parts[2]));
+                                        }
+                                    } else { //AaAbA?--
+                                        if (parts[0].color === parts[2].color) { //AaAbAa--
+                                            checkLocation("Shapesanity Cornered 2-1 " + toShort(parts[0]) + " " + 
+                                                toShort(parts[1]));
+                                        } else if (parts[1].color === parts[2].color) { //AaAbAb--
+                                            checkLocation("Shapesanity Adjacent 2-1 " + toShort(parts[1]) + " " + 
+                                                toShort(parts[0]));
+                                        } else { //AaAbAc--
+                                            checkLocation("Shapesanity " + orderedOnlyDifferent(
+                                                enumColorToShortcode[parts[0].color],
+                                                enumColorToShortcode[parts[1].color],
+                                                enumColorToShortcode[parts[2].color]
+                                            ) + " " + subShapeNames[parts[0].subShape]);
+                                        }
+                                    }
+                                } else { //AaA?B?--
+                                    if (parts[0].color === parts[1].color) { //AaAaB?--
+                                        checkLocation("Shapesanity Adjacent 2-1 " + toShort(parts[0]) + " " + 
+                                            toShort(parts[2]));
+                                    } //AaAbB?-- UNUSED
+                                }
+                            }
+                        } else { //AaA?--
+                            if (parts[3]) { //AaA?--??
+                                if (parts[0].color === parts[1].color) { //AaAa--??
+                                    if (isSame(parts[0], parts[3])) { //AaAa--Aa
+                                        checkLocation("Shapesanity Cut Out " + colorNames[parts[0].color] + " " + 
+                                            subShapeNames[parts[0].subShape]);
+                                    } else { //AaAa--!(Aa)
+                                        checkLocation("Shapesanity Adjacent 2-1 " + toShort(parts[0]) + " " + 
+                                            toShort(parts[3]));
+                                    }
+                                } else { //AaAb--??
+                                    if (parts[0].subShape === parts[3].subShape) { //AaAb--A?
+                                        if (parts[0].color === parts[3].color) { //AaAb--Aa
+                                            checkLocation("Shapesanity Adjacent 2-1 " + toShort(parts[0]) + " " + 
+                                                toShort(parts[1]));
+                                        } else if (parts[1].color === parts[3].color) { //AaAb--Ab
+                                            checkLocation("Shapesanity Cornered 2-1 " + toShort(parts[1]) + " " + 
+                                                toShort(parts[0]));
+                                        } else { //AaAb--Ac
+                                            checkLocation("Shapesanity " + orderedOnlyDifferent(
+                                                enumColorToShortcode[parts[0].color],
+                                                enumColorToShortcode[parts[1].color],
+                                                enumColorToShortcode[parts[3].color]
+                                            ) + " " + subShapeNames[parts[0].subShape]);
+                                        }
+                                    } //AaAb--B? UNUSED
+                                }
+                            } else { //AaA?----
+                                if (parts[0].color === parts[1].color) { //AaAa----
+                                    checkLocation("Shapesanity Half " + colorNames[parts[0].color] + " " + 
+                                        subShapeNames[parts[0].subShape]);
+                                } else { //AaAb----
+                                    checkLocation("Shapesanity Adjacent Singles " + ordered(parts[0], parts[1]));
+                                }
+                            }
+                        }
+                    } else { //AaB?
+                        if (parts[0].color === parts[1].color) { //AaBa
+                            if (parts[2]) { //AaBa??
+                                if (parts[0].color === parts[2].color) { //AaBa?a
+                                    if (parts[0].subShape === parts[2].subShape) { //AaBaAa
+                                        if (parts[3]) { //AaBaAa??
+                                            if (isSame(parts[0], parts[3])) { //AaBaAaAa
+                                                checkLocation("Shapesanity 3-1 " + toShort(parts[0]) + " " + 
+                                                    toShort(parts[1]));
+                                            } else if (isSame(parts[1], parts[3])) { //AaBaAaBa
+                                                checkLocation("Shapesanity Checkered " + ordered(parts[0], parts[1]));
+                                            } //AaBaAa!(Aa|Ba) UNUSED
+                                        } else { //AaBaAa--
+                                            checkLocation("Shapesanity Cornered 2-1 " + toShort(parts[0]) + " " + 
+                                                toShort(parts[1]));
+                                        }
+                                    } else if (parts[1].subShape === parts[2].subShape) { //AaBaBa
+                                        if (parts[3]) { //AaBaBa??
+                                            if (isSame(parts[0], parts[3])) { //AaBaBaAa
+                                                checkLocation("Shapesanity Half-Half " + ordered(parts[0], parts[1]));
+                                            } else if (isSame(parts[1], parts[3])) { //AaBaBaBa
+                                                checkLocation("Shapesanity 3-1 " + toShort(parts[1]) + " " + 
+                                                    toShort(parts[0]));
+                                            } //AaBaBa!(Aa|Ba) UNUSED
+                                        } else { //AaBaBa--
+                                            checkLocation("Shapesanity Adjacent 2-1 " + toShort(parts[1]) + " " + 
+                                                toShort(parts[0]));
+                                        }
+                                    } else { //AaBaCa
+                                        if (parts[3]) { //AaBaCa??
+                                            if (parts[0].color === parts[3].color) { //AaBaCa?a
+                                                if (parts[0].subShape !== parts[3].subShape) { //AaBaCa!(A)a
+                                                    if (parts[1].subShape !== parts[3].subShape) { //AaBaCa!(A|B)a
+                                                        if (parts[2].subShape !== parts[3].subShape) { //AaBaCaDa
+                                                            checkLocation("Shapesanity " + colorNames[parts[0].color] + " " + 
+                                                                orderedOnlyDifferent(enumSubShapeToShortcode[parts[0].subShape],
+                                                                    enumSubShapeToShortcode[parts[1].subShape],
+                                                                    enumSubShapeToShortcode[parts[2].subShape],
+                                                                    enumSubShapeToShortcode[parts[3].subShape]));
+                                                        } //AaBaCaCa UNUSED
+                                                    } //AaBaCaBa UNUSED
+                                                } //AaBaCaAa UNUSED
+                                            } //AaBaCa?b UNUSED
+                                        } else { //AaBaCa--
+                                            checkLocation("Shapesanity " + colorNames[parts[0].color] + " " + 
+                                                orderedOnlyDifferent(enumSubShapeToShortcode[parts[0].subShape],
+                                                    enumSubShapeToShortcode[parts[1].subShape],
+                                                    enumSubShapeToShortcode[parts[2].subShape]));
+                                        }
+                                    }
+                                } //AaBa?b UNUSED
+                            } else { //AaBa--
+                                if (parts[3]) { //AaBa--??
+                                    if (parts[0].color === parts[3].color) { //AaBa--?a
+                                        if (parts[0].subShape === parts[3].subShape) { //AaBa--Aa
+                                            checkLocation("Shapesanity Adjacent 2-1 " + toShort(parts[0]) + " " + 
+                                                toShort(parts[1]));
+                                        } else if (parts[1].subShape === parts[3].subShape) { //AaBa--Ba
+                                            checkLocation("Shapesanity Cornered 2-1 " + toShort(parts[1]) + " " + 
+                                                toShort(parts[0]));
+                                        } else { //AaBa--Ca
+                                            checkLocation("Shapesanity " + colorNames[parts[0].color] + " " + 
+                                                orderedOnlyDifferent(enumSubShapeToShortcode[parts[0].subShape],
+                                                    enumSubShapeToShortcode[parts[1].subShape],
+                                                    enumSubShapeToShortcode[parts[3].subShape]));
+                                        }
+                                    } //AaBa--?b UNUSED
+                                } else { //AaBa----
+                                    checkLocation("Shapesanity Adjacent Singles " + ordered(parts[0], parts[1]));
+                                }
+                            }
+                        } else { //AaBb
+                            if (parts[2]) { //AaBb??
+                                if (isSame(parts[0], parts[2])) { //AaBbAa
+                                    if (parts[3]) { //AaBbAa??
+                                        if (isSame(parts[0], parts[3])) { //AaBbAaAa
+                                            checkLocation("Shapesanity 3-1 " + toShort(parts[0]) + " " + 
+                                                toShort(parts[1]));
+                                        } else if (isSame(parts[1], parts[3])) { //AaBbAaBb
+                                            checkLocation("Shapesanity Checkered " + ordered(parts[0], parts[1]));
+                                        } //AaBbAa!(Aa|Bb) UNUSED
+                                    } else { //AaBbAa--
+                                        checkLocation("Shapesanity Cornered 2-1 " + toShort(parts[0]) + " " + 
+                                            toShort(parts[1]));
+                                    }
+                                } else if (isSame(parts[1], parts[2])) { //AaBbBb
+                                    if (parts[3]) { //AaBbBb??
+                                        if (isSame(parts[0], parts[3])) { //AaBbBbAa
+                                            checkLocation("Shapesanity Half-Half " + ordered(parts[0], parts[1]));
+                                        } else if (isSame(parts[1], parts[3])) { //AaBbBbBb
+                                            checkLocation("Shapesanity 3-1 " + toShort(parts[1]) + " " + 
+                                                toShort(parts[0]));
+                                        } //AaBbBb!(Aa|Bb) UNUSED
+                                    } else { //AaBbBb--
+                                        checkLocation("Shapesanity Adjacent 2-1 " + toShort(parts[1]) + " " + 
+                                            toShort(parts[0]));
+                                    }
+                                } //AaBb!(Aa|Bb) UNUSED
+                            } else { //AaBb--
+                                if (parts[3]) { //AaBb--??
+                                    if (isSame(parts[0], parts[3])) { //AaBb--Aa
+                                        checkLocation("Shapesanity Adjacent 2-1 " + toShort(parts[0]) + " " + 
+                                            toShort(parts[1]));
+                                    } else if (isSame(parts[1], parts[3])) { //AaBb--Bb
+                                        checkLocation("Shapesanity Cornered 2-1 " + toShort(parts[1]) + " " + 
+                                            toShort(parts[0]));
+                                    } //AaBb--!(Aa|Bb) UNUSED
+                                } else { //AaBb----
+                                    checkLocation("Shapesanity Adjacent Singles " + ordered(parts[0], parts[1]));
+                                }
+                            }
+                        }
+                    }
+                } else { //Aa--
+                    if (parts[2]) { //Aa--??
+                        if (parts[0].subShape === parts[2].subShape) { //Aa--A?
+                            if (parts[0].color === parts[2].color) { //Aa--Aa
+                                if (parts[3]) { //Aa--Aa??
+                                    if (isSame(parts[0], parts[3])) { //Aa--AaAa
+                                        checkLocation("Shapesanity Cut Out " + colorNames[parts[0].color] + " " + 
+                                            subShapeNames[parts[0].subShape]);
+                                    } else { //Aa--Aa!(Aa)
+                                        checkLocation("Shapesanity Cornered 2-1 " + toShort(parts[0]) + " " + 
+                                            toShort(parts[3]));
+                                    }
+                                } else { //Aa--Aa--
+                                    checkLocation("Shapesanity Cornered " + colorNames[parts[0].color] + " " + 
+                                        subShapeNames[parts[0].subShape]);
+                                }
+                            } else { //Aa--Ab
+                                if (parts[3]) { //Aa--Ab??
+                                    if (parts[0].subShape === parts[3].subShape) { //Aa--AbA?
+                                        if (parts[0].color === parts[3].color) { //Aa--AbAa
+                                            checkLocation("Shapesanity Adjacent 2-1 " + toShort(parts[0]) + " " + 
+                                                toShort(parts[2]));
+                                        } else if (parts[2].color === parts[3].color) { //Aa--AbAb
+                                            checkLocation("Shapesanity Adjacent 2-1 " + toShort(parts[2]) + " " + 
+                                                toShort(parts[0]));
+                                        } else { //Aa--AbAc
+                                            checkLocation("Shapesanity " + orderedOnlyDifferent(
+                                                enumColorToShortcode[parts[0].color],
+                                                enumColorToShortcode[parts[2].color],
+                                                enumColorToShortcode[parts[3].color]
+                                            ) + " " + subShapeNames[parts[0].subShape]);
+                                        }
+                                    } //Aa--AbB? UNUSED
+                                } else { //Aa--Ab--
+                                    checkLocation("Shapesanity Cornered Singles " + ordered(parts[0], parts[2]));
+                                }
+                            }
+                        } else { //Aa--B?
+                            if (parts[0].color === parts[2].color) { //Aa--Ba
+                                if (parts[3]) { //Aa--Ba??
+                                    if (parts[0].color === parts[3].color) { //Aa--Ba?a
+                                        if (parts[0].subShape === parts[3].subShape) { //Aa--BaAa
+                                            checkLocation("Shapesanity Adjacent 2-1 " + toShort(parts[0]) + " " + 
+                                                toShort(parts[2]));
+                                        } else if (parts[2].subShape === parts[3].subShape) { //Aa--BaBa
+                                            checkLocation("Shapesanity Adjacent 2-1 " + toShort(parts[2]) + " " + 
+                                                toShort(parts[0]));
+                                        } else { //Aa--BaCa
+                                            checkLocation("Shapesanity " + colorNames[parts[0].color] + " " + 
+                                                orderedOnlyDifferent(enumSubShapeToShortcode[parts[0].subShape],
+                                                    enumSubShapeToShortcode[parts[2].subShape],
+                                                    enumSubShapeToShortcode[parts[3].subShape]));
+                                        }
+                                    } //Aa--Ba?!(a) UNUSED
+                                } else { //Aa--Ba--
+                                    checkLocation("Shapesanity Cornered Singles " + ordered(parts[0], parts[2]));
+                                }
+                            } else { //Aa--Bb
+                                if (parts[3]) { //Aa--Bb??
+                                    if (parts[0].subShape === parts[3].subShape) { //Aa--BbA?
+
+                                    } else if (parts[2].subShape === parts[3].subShape) { //Aa--BbB?
+                                        if (parts[2].color === parts[3].color) { //Aa--BbBb
+                                            checkLocation("Shapesanity Adjacent 2-1 " + toShort(parts[2]) + " " + 
+                                                toShort(parts[0]));
+                                        } //Aa--BbB!(b) UNUSED
+                                    } //Aa--BbC? UNUSED
+                                } else { //Aa--Bb--
+                                    checkLocation("Shapesanity Cornered Singles " + ordered(parts[0], parts[2]));
+                                }
+                            }
+                        }
+                    } else { //Aa----
+                        if (parts[3]) { //Aa----??
+                            if (isSame(parts[0], parts[3])) { //Aa----Aa
+                                checkLocation("Shapesanity Half " + colorNames[parts[0].color] + " " + 
+                                    subShapeNames[parts[3].subShape]);
+                            } else { //Aa----!(Aa)
+                                checkLocation("Shapesanity Adjacent Singles " + ordered(parts[0], parts[3]));
+                            }
+                        } else { //Aa------
+                            checkLocation("Shapesanity " + colorNames[parts[0].color] + " " + 
+                                subShapeNames[parts[0].subShape] + " Piece");
+                        }
+                    }
+                }
+            } else { //--
+                if (parts[1]) { //--Aa
+                    if (parts[2]) { //--Aa??
+                        if (parts[1].subShape === parts[2].subShape) { //--AaA?
+                            if (parts[1].color === parts[2].color) { //--AaAa
+                                if (parts[3]) { //--AaAa??
+                                    if (isSame(parts[1], parts[3])) { //--AaAaAa
+                                        checkLocation("Shapesanity Cut Out " + colorNames[parts[1].color] + " " + 
+                                            subShapeNames[parts[1].subShape]);
+                                    } else { //--AaAa!(Aa)
+                                        checkLocation("Shapesanity Adjacent 2-1 " + toShort(parts[1]) + " " + 
+                                            toShort(parts[3]));
+                                    }
+                                } else { //--AaAa--
+                                    checkLocation("Shapesanity Half " + colorNames[parts[1].color] + " " + 
+                                        subShapeNames[parts[1].subShape]);
+                                }
+                            } else { //--AaAb
+                                if (parts[3]) { //--AaAb??
+                                    if (parts[1].subShape === parts[3].subShape) { //--AaAbA?
+                                        if (parts[1].color === parts[3].color) { //--AaAbAa
+                                            checkLocation("Shapesanity Cornered 2-1 " + toShort(parts[1]) + " " + 
+                                                toShort(parts[2]));
+                                        } else if (parts[2].color === parts[3].color) { //--AaAbAb
+                                            checkLocation("Shapesanity Adjacent 2-1 " + toShort(parts[2]) + " " + 
+                                                toShort(parts[1]));
+                                        } else { //--AaAbAc
+                                            checkLocation("Shapesanity " + orderedOnlyDifferent(
+                                                enumColorToShortcode[parts[1].color],
+                                                enumColorToShortcode[parts[2].color],
+                                                enumColorToShortcode[parts[3].color]
+                                            ) + " " + subShapeNames[parts[1].subShape]);
+                                        }
+                                    } //--AaAbB? UNUSED
+                                } else { //--AaAb--
+                                    checkLocation("Shapesanity Adjacent Singles " + ordered(parts[1], parts[2]));
+                                }
+                            }
+                        } else { //--AaB?
+                            if (parts[3]) { //--AaB???
+                                if (parts[1].color === parts[2].color) { //--AaBa??
+                                    if (parts[1].color === parts[3].color) { //--AaBa?a
+                                        if (parts[1].subShape === parts[3].subShape) { //--AaBaAa
+                                            checkLocation("Shapesanity Cornered 2-1 " + toShort(parts[1]) + " " + 
+                                                toShort(parts[2]));
+                                        } else if (parts[2].subShape === parts[3].subShape) { //--AaBaBa
+                                            checkLocation("Shapesanity Adjacent 2-1 " + toShort(parts[2]) + " " + 
+                                                toShort(parts[1]));
+                                        } else { //--AaBaCa
+                                            checkLocation("Shapesanity " + colorNames[parts[1].color] + " " + 
+                                                orderedOnlyDifferent(enumSubShapeToShortcode[parts[1].subShape],
+                                                    enumSubShapeToShortcode[parts[2].subShape],
+                                                    enumSubShapeToShortcode[parts[3].subShape]));
+                                        }
+                                    } //--AaBa?b UNUSED
+                                } else { //--AaBb??
+                                    if (isSame(parts[1], parts[3])) { //--AaBbAa
+                                        checkLocation("Shapesanity Cornered 2-1 " + toShort(parts[1]) + " " + 
+                                            toShort(parts[2]));
+                                    } else if (isSame(parts[2], parts[3])) { //--AaBbBb
+                                        checkLocation("Shapesanity Adjacent 2-1 " + toShort(parts[2]) + " " + 
+                                            toShort(parts[1]));
+                                    } //--AaBb!(Aa|Bb) UNUSED
+                                }
+                            } else { //--AaB?--
+                                checkLocation("Shapesanity Adjacent Singles " + ordered(parts[1], parts[2]));
+                            }
+                        }
+                    } else { //--Aa--
+                        if (parts[3]) { //--Aa--??
+                            if (isSame(parts[1], parts[3])) { //--Aa--Aa
+                                checkLocation("Shapesanity Cornered " + colorNames[parts[1].color] + " " + 
+                                    subShapeNames[parts[1].subShape]);
+                            } else { //--Aa--!(Aa)
+                                checkLocation("Shapesanity Cornered Singles " + ordered(parts[1], parts[3]));
+                            }
+                        } else { //--Aa----
+                            checkLocation("Shapesanity " + colorNames[parts[1].color] + " " + 
+                                subShapeNames[parts[1].subShape] + " Piece");
+                        }
+                    }
+                } else { //----
+                    if (parts[2]) { //----Aa
+                        if (parts[3]) { //----Aa??
+                            if (isSame(parts[2], parts[3])) { //----AaAa
+                                checkLocation("Shapesanity Half " + colorNames[parts[2].color] + " " + 
+                                    subShapeNames[parts[2].subShape]);
+                            } else { //----Aa!(Aa)
+                                checkLocation("Shapesanity Adjacent Singles " + ordered(parts[2], parts[3]));
+                            }
+                        } else { //----Aa--
+                            checkLocation("Shapesanity " + colorNames[parts[2].color] + " " + 
+                                subShapeNames[parts[2].subShape] + " Piece");
+                        }
+                    } else { //------ => ------Aa
+                        checkLocation("Shapesanity " + colorNames[parts[3].color] + " " + 
+                            subShapeNames[parts[3].subShape] + " Piece");
+                    }
+                }
+            }
+        }
+        shapesanityCache[shape.getHash()] = true;
     }
 }

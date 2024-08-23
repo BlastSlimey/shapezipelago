@@ -1,18 +1,17 @@
 import { Mod } from "shapez/mods/mod";
-import { client, connected, customRewards, leveldefs, roman, setLevelDefs, setUpgredeDefs, trapLocked, trapMalfunction, trapThrottled, upgradeDefs } from "./global_data";
+import { client, connected, customRewards, leveldefs, roman, setLevelDefs, setUpgredeDefs, trapLocked, trapMalfunction, trapThrottled, upgradeDefs, upgradeIdNames } from "./global_data";
 import { RandomNumberGenerator } from "shapez/core/rng";
 import { hardcoreUpgradeShapes, linearUpgradeShapes, randomizedHardcoreShapes, randomizedStretchedShapes, randomizedVanillaStepsShapes, vanillaLikeUpgradeShapes, vanillaShapes, vanillaUpgradeShapes } from "./requirement_definitions";
 import { MOD_SIGNALS } from "shapez/mods/mod_signals";
-import { checkLocation, setRootAndModImpl } from "./server_communication";
+import { checkLocation, getShapesanityAnalyser, processItemsPacket, setRootAndModImpl } from "./server_communication";
 import { enumAnalyticsDataSource } from "shapez/game/production_analytics";
 import { defaultBuildingVariant } from "shapez/game/meta_building";
 import { enumPainterVariants } from "shapez/game/buildings/painter";
-import { CLIENT_PACKET_TYPE } from "archipelago.js";
+import { CLIENT_PACKET_TYPE, SERVER_PACKET_TYPE } from "archipelago.js";
 import { ShapeDefinition } from "shapez/game/shape_definition";
-import { getShapesanityAnalyser } from "./shapesanity";
 import { enumItemProcessorTypes } from "shapez/game/components/item_processor";
-import { MOD_ITEM_PROCESSOR_SPEEDS } from "shapez/game/hub_goals";
 import { ACHIEVEMENTS } from "shapez/platform/achievement_provider";
+import { GameRoot } from "shapez/game/root";
 
 /**
  * 
@@ -86,7 +85,7 @@ export function overrideLocationsListenToItems(modImpl) {
                 this.storedShapes[requirement.shape] -= requirement.amount;
             }
             this.upgradeLevels[upgradeId] = (this.upgradeLevels[upgradeId] || 0) + 1;
-            const upgradeNames = {belt: "Routing", miner: "Extracting", processors: "Shape Processing", painting: "Color Processing"};
+            const upgradeNames = {belt: "Belt", miner: "Miner", processors: "Processors", painting: "Painting"};
             checkLocation(upgradeNames[upgradeId] + " Upgrade Tier " + roman(currentLevel+2));
             this.root.signals.upgradePurchased.dispatch(upgradeId);
             this.root.app.gameAnalytics.handleUpgradeUnlocked(upgradeId, currentLevel);
@@ -106,16 +105,20 @@ export function overrideLocationsListenToItems(modImpl) {
         root.signals.upgradePurchased.add(function (upgrade) {
             if (connected && client.data.slotData["goal"].valueOf() == 2) {
                 var finaltier = client.data.slotData["finaltier"].valueOf();
-                if (root.hubGoals.getUpgradeLevel("belt") == finaltier 
-                && root.hubGoals.getUpgradeLevel("miner") == finaltier 
-                && root.hubGoals.getUpgradeLevel("processors") == finaltier 
-                && root.hubGoals.getUpgradeLevel("painting") == finaltier) {
+                if (root.hubGoals.getUpgradeLevel("belt") >= finaltier 
+                && root.hubGoals.getUpgradeLevel("miner") >= finaltier 
+                && root.hubGoals.getUpgradeLevel("processors") >= finaltier 
+                && root.hubGoals.getUpgradeLevel("painting") >= finaltier) {
                     checkLocation("Goal");
                 }
             }
         });
         setRootAndModImpl(root, modImpl);
+        client.addListener(SERVER_PACKET_TYPE.RECEIVED_ITEMS, function (packet) {
+            processItemsPacket(packet);
+        });
         client.send({cmd: CLIENT_PACKET_TYPE.SYNC});
+        resyncLocationChecks(root);
     });
 }
 
@@ -333,6 +336,23 @@ export function overrideBuildings(modImpl) {
             colorized
         ));
     });
+    // switching layers
+    modImpl.modInterface.replaceMethod(shapez.HUDWiresOverlay, "switchLayers", function ($original, []) {
+        if (!connected) {
+            $original();
+        }
+        if (!this.root.gameMode.getSupportsWires()) {
+            return;
+        }
+        if (this.root.currentLayer === "regular") {
+            if (customRewards.reward_wires != 0) {
+                this.root.currentLayer = "wires";
+            }
+        } else {
+            this.root.currentLayer = "regular";
+        }
+        this.root.signals.editModeChanged.dispatch(this.root.currentLayer);
+    });
 }
 
 function calcLevelDefinitions() {
@@ -393,3 +413,33 @@ function calcUpgradeDefinitions() {
         return vanillaUpgradeShapes(multiplier, finaltier);
     }
 }
+
+/**
+ * 
+ * @param {GameRoot} root 
+ */
+function resyncLocationChecks(root) {
+    // resync levels
+    for (var i = 1; i < root.hubGoals.level; i++) { // current level is what is to be completed
+        checkLocation(`Level ${i}`, null, "Resynced");
+    }
+    if (root.hubGoals.level > 20) {
+        checkLocation("Level 1 Additional", "Level 20 Additional", "Resynced");
+    } else if (root.hubGoals.level > 1) {
+        checkLocation("Level 1 Additional", null, "Resynced");
+    }
+    // resync upgrades
+    for (var upgradeId of ["belt", "miner", "processors", "painting"]) {
+        const currentLevel = root.hubGoals.getUpgradeLevel(upgradeId);
+        for (var i = 1; i <= currentLevel; i++) {
+            checkLocation(upgradeIdNames[upgradeId] + " Upgrade Tier " + roman(i+1), null, "Resynced");
+        }
+    }
+    // resync shapesanity
+    for (var [hash, amount] of Object.entries(root.hubGoals.storedShapes)) {
+        if ((amount || 0) > 0) {
+            getShapesanityAnalyser(root, false)(ShapeDefinition.fromShortKey(hash));
+        }
+    }
+}
+
