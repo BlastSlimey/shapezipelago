@@ -22,7 +22,6 @@ Client mod for the Archipelago multiworld randomizer.
 ### Both
 - FEATURE:       Achievements
 - FEATURE:       Add bounty goal: collect mcguffins, enough of them give a hint towards bounty (always shapesanity stitched mixed), checking that gives bounty item, which sends goal
-- FEATURE:       Add locked belt/extractor option
 - FEATURE:       Need some ideas for expanding upgrade requirements
 - FEATURE:       Level logic types:
   - Linear/+shuffled (like with upgrades)
