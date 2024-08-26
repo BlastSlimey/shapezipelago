@@ -385,7 +385,7 @@ function calcLevelDefinitions() {
         } else if (logic.startsWith("quick")) {
             return randomizedQuickShapes(randomizer, maxlevel, throughputratio, multiplier, 
                 building1, building2, building3, building4, building5);
-        } else if (logic.startsWith("random")) {
+        } else if (logic.startsWith("random_steps")) {
             var phase0 = Number(client.data.slotData["Phase 0 length"].valueOf());
             var phase1 = Number(client.data.slotData["Phase 1 length"].valueOf());
             var phase2 = Number(client.data.slotData["Phase 2 length"].valueOf());
