@@ -1,7 +1,7 @@
 {
     "entry": "main.js",
     "id": "shapezipelago",
-    "version": "0.2.0",
+    "version": "0.3.0",
     "name": "shapezipelago",
     "author": "BlastSlimey",
     "description": "Client mod for the Archipelago multiworld randomizer",

@@ -12,6 +12,8 @@ export function registerSavingData(modImpl) {
             data.modExtraData["reward_trash"] = customRewards.reward_trash;
             data.modExtraData["reward_wires"] = customRewards.reward_wires;
             data.modExtraData["reward_painter_quad"] = customRewards.reward_painter_quad;
+            data.modExtraData["reward_belt"] = customRewards.reward_belt;
+            data.modExtraData["reward_extractor"] = customRewards.reward_extractor;
             data.modExtraData["reward_rotater"] = root.hubGoals.gainedRewards["reward_rotater"];
             data.modExtraData["reward_painter"] = root.hubGoals.gainedRewards["reward_painter"];
             data.modExtraData["reward_rotater_ccw"] = root.hubGoals.gainedRewards["reward_rotater_ccw"];
@@ -48,6 +50,8 @@ export function registerSavingData(modImpl) {
             customRewards.reward_trash = data.modExtraData["reward_trash"];
             customRewards.reward_wires = data.modExtraData["reward_wires"];
             customRewards.reward_painter_quad = data.modExtraData["reward_painter_quad"];
+            customRewards.reward_belt = data.modExtraData["reward_belt"];
+            customRewards.reward_extractor = data.modExtraData["reward_extractor"];
             root.hubGoals.gainedRewards["reward_rotater"]  =   data.modExtraData["reward_rotater"] ;
             root.hubGoals.gainedRewards["reward_painter"]   =   data.modExtraData["reward_painter"] ;
             root.hubGoals.gainedRewards["reward_rotater_ccw"] =  data.modExtraData["reward_rotater_ccw"] ;

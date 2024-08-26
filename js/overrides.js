@@ -1,7 +1,7 @@
 import { Mod } from "shapez/mods/mod";
 import { client, connected, customRewards, leveldefs, roman, setLevelDefs, setUpgredeDefs, trapLocked, trapMalfunction, trapThrottled, upgradeDefs, upgradeIdNames } from "./global_data";
 import { RandomNumberGenerator } from "shapez/core/rng";
-import { hardcoreUpgradeShapes, linearUpgradeShapes, randomizedHardcoreShapes, randomizedStretchedShapes, randomizedVanillaStepsShapes, vanillaLikeUpgradeShapes, vanillaShapes, vanillaUpgradeShapes } from "./requirement_definitions";
+import { categoryRandomUpgradeShapes, categoryUpgradeShapes, hardcoreUpgradeShapes, linearUpgradeShapes, randomizedHardcoreShapes, randomizedQuickShapes, randomizedRandomStepsShapes, randomizedStretchedShapes, randomizedVanillaStepsShapes, vanillaLikeUpgradeShapes, vanillaShapes, vanillaUpgradeShapes } from "./requirement_definitions";
 import { MOD_SIGNALS } from "shapez/mods/mod_signals";
 import { checkLocation, getShapesanityAnalyser, processItemsPacket, setRootAndModImpl } from "./server_communication";
 import { enumAnalyticsDataSource } from "shapez/game/production_analytics";
@@ -57,7 +57,7 @@ export function overrideLocationsListenToItems(modImpl) {
             } else {
                 checkLocation("Level " + this.level);
             }
-            if (goal == 0 || goal == 1) {
+            if (goal === "vanilla" || goal === "mam") {
                 if (client.data.slotData["maxlevel"].valueOf() == this.level - 1) {
                     checkLocation("Goal");
                 }
@@ -96,14 +96,14 @@ export function overrideLocationsListenToItems(modImpl) {
     modImpl.signals.gameStarted.add(function (root) {
         root.signals.shapeDelivered.add(getShapesanityAnalyser(root, true));
         root.signals.shapeDelivered.add(function (shape) {
-            if (connected && client.data.slotData["goal"].valueOf() == 3 && root.productionAnalytics.getCurrentShapeRateRaw(
+            if (connected && client.data.slotData["goal"].valueOf() === "efficiency_iii" && root.productionAnalytics.getCurrentShapeRateRaw(
                 enumAnalyticsDataSource.delivered, root.shapeDefinitionMgr.getShapeFromShortKey("CbCbCbRb:CwCwCwCw")
                 ) / 10 >= 500) {
                 checkLocation("Goal");
             }
         });
         root.signals.upgradePurchased.add(function (upgrade) {
-            if (connected && client.data.slotData["goal"].valueOf() == 2) {
+            if (connected && client.data.slotData["goal"].valueOf() === "even_fasterer") {
                 var finaltier = client.data.slotData["finaltier"].valueOf();
                 if (root.hubGoals.getUpgradeLevel("belt") >= finaltier 
                 && root.hubGoals.getUpgradeLevel("miner") >= finaltier 
@@ -114,6 +114,10 @@ export function overrideLocationsListenToItems(modImpl) {
             }
         });
         setRootAndModImpl(root, modImpl);
+        if (!client.data.slotData["lock_belt_and_extractor"].valueOf()) {
+            customRewards.reward_belt = 1;
+            customRewards.reward_extractor = 1;
+        }
         client.addListener(SERVER_PACKET_TYPE.RECEIVED_ITEMS, function (packet) {
             processItemsPacket(packet);
         });
@@ -129,7 +133,7 @@ export function overrideLocationsListenToItems(modImpl) {
 export function overrideBuildings(modImpl) {
     // getIsUnlocked
     modImpl.modInterface.replaceMethod(shapez.MetaBeltBuilding, "getIsUnlocked", function ($original, [root]) {
-        return $original(root) && !trapLocked.belt;
+        return (connected ? customRewards.reward_belt != 0 : $original(root)) && !trapLocked.belt;
     });
     modImpl.modInterface.replaceMethod(shapez.MetaBalancerBuilding, "getIsUnlocked", function ($original, [root]) {
         return $original(root) && !trapLocked.balancer;
@@ -138,7 +142,7 @@ export function overrideBuildings(modImpl) {
         return $original(root) && !trapLocked.tunnel;
     });
     modImpl.modInterface.replaceMethod(shapez.MetaMinerBuilding, "getIsUnlocked", function ($original, [root]) {
-        return $original(root) && !trapLocked.extractor;
+        return (connected ? customRewards.reward_extractor != 0 : $original(root)) && !trapLocked.extractor;
     });
     modImpl.modInterface.replaceMethod(shapez.MetaCutterBuilding, "getIsUnlocked", function ($original, [root]) {
         return (connected ? customRewards.reward_cutter != 0 : $original(root)) && !trapLocked.cutter;
@@ -362,22 +366,36 @@ function calcLevelDefinitions() {
         var seed = client.data.slotData["seed"].valueOf();
         const randomizer = new RandomNumberGenerator(Number(seed));
         var maxlevel = 25;
-        if (client.data.slotData["goal"].valueOf() == 1) {
+        if (client.data.slotData["goal"].valueOf() === "mam") {
             maxlevel = Number(client.data.slotData["maxlevel"].valueOf());
         }
-        var logic = Number(client.data.slotData["randomize_level_logic"].valueOf());
+        var logic = client.data.slotData["randomize_level_logic"].valueOf().toString();
         var throughputratio = Number(client.data.slotData["throughput_levels_ratio"].valueOf());
-        var building1 = client.data.slotData["Level building 1"].valueOf(); //immer
-        var building2 = client.data.slotData["Level building 2"].valueOf(); //immer
-        var building3 = client.data.slotData["Level building 3"].valueOf(); //immer
-        var building4 = client.data.slotData["Level building 4"].valueOf(); //immer
-        var building5 = client.data.slotData["Level building 5"].valueOf(); //immer
-        if (logic < 2) {
-            return randomizedVanillaStepsShapes(randomizer, maxlevel, throughputratio, multiplier, building1, building2, building3, building4, building5);
-        } else if (logic == 4) {
-            return randomizedHardcoreShapes(randomizer, maxlevel, throughputratio);
+        var building1 = client.data.slotData["Level building 1"].valueOf();
+        var building2 = client.data.slotData["Level building 2"].valueOf();
+        var building3 = client.data.slotData["Level building 3"].valueOf();
+        var building4 = client.data.slotData["Level building 4"].valueOf();
+        var building5 = client.data.slotData["Level building 5"].valueOf();
+        if (logic.startsWith("vanilla")) {
+            return randomizedVanillaStepsShapes(randomizer, maxlevel, throughputratio, multiplier, 
+                building1, building2, building3, building4, building5);
+        } else if (logic.startsWith("stretched")) {
+            return randomizedStretchedShapes(randomizer, maxlevel, throughputratio, multiplier, 
+                building1, building2, building3, building4, building5);
+        } else if (logic.startsWith("quick")) {
+            return randomizedQuickShapes(randomizer, maxlevel, throughputratio, multiplier, 
+                building1, building2, building3, building4, building5);
+        } else if (logic.startsWith("random")) {
+            var phase0 = Number(client.data.slotData["Phase 0 length"].valueOf());
+            var phase1 = Number(client.data.slotData["Phase 1 length"].valueOf());
+            var phase2 = Number(client.data.slotData["Phase 2 length"].valueOf());
+            var phase3 = Number(client.data.slotData["Phase 3 length"].valueOf());
+            var phase4 = Number(client.data.slotData["Phase 4 length"].valueOf());
+            return randomizedRandomStepsShapes(randomizer, maxlevel, throughputratio, multiplier, 
+                building1, building2, building3, building4, building5,
+                phase0, phase1, phase2, phase3, phase4);
         } else {
-            return randomizedStretchedShapes(randomizer, maxlevel, throughputratio, multiplier, building1, building2, building3, building4, building5);
+            return randomizedHardcoreShapes(randomizer, maxlevel, throughputratio);
         }
     } else {
         return vanillaShapes(multiplier);
@@ -392,20 +410,32 @@ function calcUpgradeDefinitions() {
         var seed = client.data.slotData["seed"].valueOf();
         const randomizer = new RandomNumberGenerator(Number(seed));
         var finaltier = 8;
-        if (client.data.slotData["goal"].valueOf() == 2) {
+        if (client.data.slotData["goal"].valueOf() === "even_fasterer") {
             finaltier = Number(client.data.slotData["finaltier"].valueOf());
         }
         var samelate = client.data.slotData["same_late_upgrade_requirements"].valueOf();
-        var logic = Number(client.data.slotData["randomize_upgrade_logic"].valueOf());
-        var building1 = client.data.slotData["Upgrade building 1"].valueOf(); //immer
-        var building2 = client.data.slotData["Upgrade building 2"].valueOf(); //immer
-        var building3 = client.data.slotData["Upgrade building 3"].valueOf(); //immer
-        var building4 = client.data.slotData["Upgrade building 4"].valueOf(); //immer
-        var building5 = client.data.slotData["Upgrade building 5"].valueOf(); //immer
-        if (logic == 0) {
-            return vanillaLikeUpgradeShapes(multiplier, randomizer, finaltier, samelate, building1, building2, building3, building4, building5);
-        } else if (logic == 1) {
-            return linearUpgradeShapes(multiplier, randomizer, finaltier, samelate, building1, building2, building3, building4, building5);
+        var logic = client.data.slotData["randomize_upgrade_logic"].valueOf().toString();
+        var building1 = client.data.slotData["Upgrade building 1"].valueOf();
+        var building2 = client.data.slotData["Upgrade building 2"].valueOf();
+        var building3 = client.data.slotData["Upgrade building 3"].valueOf();
+        var building4 = client.data.slotData["Upgrade building 4"].valueOf();
+        var building5 = client.data.slotData["Upgrade building 5"].valueOf();
+        if (logic === "vanilla_like") {
+            return vanillaLikeUpgradeShapes(multiplier, randomizer, finaltier, samelate, 
+                building1, building2, building3, building4, building5);
+        } else if (logic === "linear") {
+            return linearUpgradeShapes(multiplier, randomizer, finaltier, samelate, 
+                building1, building2, building3, building4, building5);
+        } else if (logic === "category") {
+            return categoryUpgradeShapes(multiplier, randomizer, finaltier, samelate);
+        } else if (logic === "category_random") {
+            var amountBelt = Number(client.data.slotData["belt category buildings amount"].valueOf());
+            var amountMiner = Number(client.data.slotData["miner category buildings amount"].valueOf());
+            var amountProcessors = Number(client.data.slotData["processors category buildings amount"].valueOf());
+            var amountPainting = Number(client.data.slotData["painting category buildings amount"].valueOf());
+            return categoryRandomUpgradeShapes(multiplier, randomizer, finaltier, samelate, 
+                building1, building2, building3, building4, building5, 
+                amountBelt, amountMiner, amountProcessors, amountPainting);
         } else {
             return hardcoreUpgradeShapes(multiplier, randomizer, finaltier, samelate);
         }

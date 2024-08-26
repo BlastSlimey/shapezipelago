@@ -7,7 +7,9 @@ export const customRewards = {
     reward_cutter: 0,
     reward_trash: 0,
     reward_wires: 0,
-    reward_painter_quad: 0
+    reward_painter_quad: 0,
+    reward_belt: 0,
+    reward_extractor: 0
 };
 export var upgradeDefs = null;
 export var leveldefs = null;

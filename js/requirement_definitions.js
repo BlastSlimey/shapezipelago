@@ -259,6 +259,203 @@ export function randomizedStretchedShapes(randomizer, maxlevel, throughputratio,
     return levelsdefs;
 }
 
+export function randomizedQuickShapes(randomizer, maxlevel, throughputratio, multiplier, building1, building2, building3, building4, building5) {
+    var phase = {"Cutter": 0, "Rotator": 0, "Stacker": 0, "Painter": 0, "Color Mixer": 0};
+    phase[building1] = 1;
+    phase[building2] = 2;
+    phase[building3] = 3;
+    phase[building4] = 4;
+    phase[building5] = 5;
+    var levelsdefs = [
+        {shape: calcRandomShape(randomizer, false, false, false, false, false), 
+            required: Math.ceil(30*multiplier/10), reward: "no_reward",
+            throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio},
+        {shape: calcRandomShape(randomizer, 
+            phase["Cutter"] == 1, 
+            phase["Rotator"] == 1, 
+            phase["Stacker"] == 1, 
+            phase["Painter"] == 1, 
+            phase["Color Mixer"] == 1), 
+            required: Math.ceil(40*multiplier/10), reward: "no_reward",
+            throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio},
+        {shape: calcRandomShape(randomizer, 
+            phase["Cutter"] <= 2, 
+            phase["Rotator"] <= 2, 
+            phase["Stacker"] <= 2, 
+            phase["Painter"] <= 2, 
+            phase["Color Mixer"] <= 2), 
+            required: Math.ceil(70*multiplier/10), reward: "no_reward",
+            throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio},
+        {shape: calcRandomShape(randomizer, 
+            phase["Cutter"] <= 3, 
+            phase["Rotator"] <= 3, 
+            phase["Stacker"] <= 3, 
+            phase["Painter"] <= 3, 
+            phase["Color Mixer"] <= 3), 
+            required: Math.ceil(70*multiplier/10), reward: "no_reward",
+            throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio},
+        {shape: calcRandomShape(randomizer, 
+            phase["Cutter"] <= 4, 
+            phase["Rotator"] <= 4, 
+            phase["Stacker"] <= 4, 
+            phase["Painter"] <= 4, 
+            phase["Color Mixer"] <= 4), 
+            required: Math.ceil(170*multiplier/10), reward: "no_reward",
+            throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio},
+        {shape: calcRandomShape(randomizer, true, true, true, true, true), 
+            required: Math.ceil(270*multiplier/10), reward: "no_reward",
+            throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio},
+        {shape: calcRandomShape(randomizer, true, true, true, true, true), 
+            required: Math.ceil(300*multiplier/10), reward: "no_reward",
+            throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio},
+        {shape: calcRandomShape(randomizer, true, true, true, true, true), 
+            required: Math.ceil(480*multiplier/10), reward: "no_reward",
+            throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio},
+        {shape: calcRandomShape(randomizer, true, true, true, true, true), 
+            required: Math.ceil(600*multiplier/10), reward: "no_reward",
+            throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio},
+        {shape: calcRandomShape(randomizer, true, true, true, true, true), 
+            required: Math.ceil(800*multiplier/10), reward: "no_reward",
+            throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio},
+        {shape: calcRandomShape(randomizer, true, true, true, true, true), 
+            required: Math.ceil(1000*multiplier/10), reward: "no_reward",
+            throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio},
+        {shape: calcRandomShape(randomizer, true, true, true, true, true), 
+            required: Math.ceil(1000*multiplier/10), reward: "no_reward",
+            throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio},
+        {shape: calcRandomShape(randomizer, true, true, true, true, true), 
+            required: Math.ceil(3800*multiplier/10), reward: "no_reward",
+            throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio},
+        {shape: calcRandomShape(randomizer, true, true, true, true, true), 
+            required: Math.ceil(5000*multiplier/10), reward: "no_reward", // Default required is 8 throughput
+            throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio || throughputratio == -1},
+        {shape: calcRandomShape(randomizer, true, true, true, true, true), 
+            required: Math.ceil(10000*multiplier/10), reward: "no_reward",
+            throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio},
+        {shape: calcRandomShape(randomizer, true, true, true, true, true), 
+            required: Math.ceil(6000*multiplier/10), reward: "no_reward",
+            throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio},
+        {shape: calcRandomShape(randomizer, true, true, true, true, true), 
+            required: Math.ceil(20000*multiplier/10), reward: "no_reward",
+            throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio},
+        {shape: calcRandomShape(randomizer, true, true, true, true, true), 
+            required: Math.ceil(20000*multiplier/10), reward: "no_reward",
+            throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio},
+        {shape: calcRandomShape(randomizer, true, true, true, true, true), 
+            required: Math.ceil(25000*multiplier/10), reward: "no_reward",
+            throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio},
+        {shape: calcRandomShape(randomizer, true, true, true, true, true), 
+            required: Math.ceil(25000*multiplier/10), reward: "no_reward",
+            throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio},
+        {shape: calcRandomShape(randomizer, true, true, true, true, true), 
+            required: Math.ceil(25000*multiplier/10), reward: "no_reward",
+            throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio},
+        {shape: calcRandomShape(randomizer, true, true, true, true, true), 
+            required: Math.ceil(25000*multiplier/10), reward: "no_reward",
+            throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio},
+        {shape: calcRandomShape(randomizer, true, true, true, true, true), 
+            required: Math.ceil(25000*multiplier/10), reward: "no_reward",
+            throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio},
+        {shape: calcRandomShape(randomizer, true, true, true, true, true), 
+            required: Math.ceil(25000*multiplier/10), reward: "no_reward",
+            throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio},
+        {shape: calcRandomShape(randomizer, true, true, true, true, true), 
+            required: Math.ceil(25000*multiplier/10), reward: "no_reward",
+            throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio},
+        {shape: calcRandomShape(randomizer, true, true, true, true, true), 
+            required: Math.ceil(50000*multiplier/10), reward: "no_reward",
+            throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio}
+    ];
+    for (var i = 27; i <= maxlevel+1; i++) {
+        levelsdefs.push({shape: calcRandomShape(randomizer, true, true, true, true, true), 
+            required: Math.ceil((4+0.25*(i-27))*multiplier/10), reward: "no_reward",
+            throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio || throughputratio == -1});
+    };
+    for (var i = 0; i < 26; i++) {
+        if (levelsdefs[i].throughputOnly) {
+            levelsdefs[i].required = Math.ceil((3.333+i*0.333)*multiplier/10);
+        }
+    }
+    for (var i = 26; i < levelsdefs.length; i++) {
+        if (!levelsdefs[i].throughputOnly) {
+            levelsdefs[i].required = Math.ceil(50000*multiplier/10);
+        }
+    }
+    return levelsdefs;
+}
+
+export function randomizedRandomStepsShapes(randomizer, maxlevel, throughputratio, multiplier, building1, building2, building3, building4, building5, phase0, phase1, phase2, phase3, phase4) {
+    var levelsdefs = [];
+    var phase = {"Cutter": 0, "Rotator": 0, "Stacker": 0, "Painter": 0, "Color Mixer": 0};
+    phase[building1] = 1;
+    phase[building2] = 2;
+    phase[building3] = 3;
+    phase[building4] = 4;
+    phase[building5] = 5;
+    for (var i = 0; i <= phase0; i++) { // <= phase0 because first level always no building and potentially phase0 == 0
+        levelsdefs.push({shape: calcRandomShape(randomizer, false, false, false, false, false), 
+            required: Math.ceil((30+30*i)*multiplier/10), reward: "no_reward",
+                throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio});
+    }
+    for (var i = 0; i < phase1; i++) {
+        levelsdefs.push({shape: calcRandomShape(randomizer, 
+            phase["Cutter"] == 1, 
+            phase["Rotator"] == 1, 
+            phase["Stacker"] == 1, 
+            phase["Painter"] == 1, 
+            phase["Color Mixer"] == 1), 
+            required: Math.ceil((40+10*i)*multiplier/10), reward: "no_reward",
+            throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio});
+    }
+    for (var i = 0; i < phase2; i++) {
+        levelsdefs.push({shape: calcRandomShape(randomizer, 
+            phase["Cutter"] <= 2, 
+            phase["Rotator"] <= 2, 
+            phase["Stacker"] <= 2, 
+            phase["Painter"] <= 2, 
+            phase["Color Mixer"] <= 2), 
+            required: Math.ceil((170+30*i)*multiplier/10), reward: "no_reward",
+            throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio});
+    }
+    for (var i = 0; i < phase3; i++) {
+        levelsdefs.push({shape: calcRandomShape(randomizer, 
+            phase["Cutter"] <= 3, 
+            phase["Rotator"] <= 3, 
+            phase["Stacker"] <= 3, 
+            phase["Painter"] <= 3, 
+            phase["Color Mixer"] <= 3), 
+            required: Math.ceil((300+60*i)*multiplier/10), reward: "no_reward",
+            throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio});
+    }
+    for (var i = 0; i < phase4; i++) {
+        levelsdefs.push({shape: calcRandomShape(randomizer, 
+            phase["Cutter"] <= 4, 
+            phase["Rotator"] <= 4, 
+            phase["Stacker"] <= 4, 
+            phase["Painter"] <= 4, 
+            phase["Color Mixer"] <= 4), 
+            required: Math.ceil((600+120*i)*multiplier/10), reward: "no_reward",
+            throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio});
+    }
+    for (var ii = levelsdefs.length; ii <= maxlevel; ii++) {
+        levelsdefs.push({shape: calcRandomShape(randomizer, true, true, true, true, true), 
+            required: Math.ceil(((ii+1)*50*1000/(maxlevel+1))*multiplier/10), reward: "no_reward",
+            throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio});
+    };
+    if (throughputratio == -1) {
+        levelsdefs[14].throughputOnly = true;
+        for (var i = 27; i < levelsdefs.length; i++) {
+            levelsdefs[i].throughputOnly = true;
+        }
+    }
+    for (var i = 0; i < levelsdefs.length; i++) {
+        if (levelsdefs[i].throughputOnly) {
+            levelsdefs[i].required = Math.ceil((3.25+i*0.25)*multiplier/10);
+        }
+    }
+    return levelsdefs;
+}
+
 export function randomizedHardcoreShapes(randomizer, maxlevel, throughputratio, multiplier) {
     var levelsdefs = [
         {shape: calcRandomShape(randomizer, false, false, false, false, false), 
@@ -417,6 +614,104 @@ export function linearUpgradeShapes(multiplier, randomizer, finaltier, samelate,
         calcRandomShape(randomizer, phase["Cutter"] <= 2, phase["Rotator"] <= 2, phase["Stacker"] <= 2, phase["Painter"] <= 2, phase["Color Mixer"] <= 2),
         calcRandomShape(randomizer, phase["Cutter"] <= 3, phase["Rotator"] <= 3, phase["Stacker"] <= 3, phase["Painter"] <= 3, phase["Color Mixer"] <= 3),
         calcRandomShape(randomizer, phase["Cutter"] <= 4, phase["Rotator"] <= 4, phase["Stacker"] <= 4, phase["Painter"] <= 4, phase["Color Mixer"] <= 4)
+    ];
+    if (samelate) {
+        var late1 = calcRandomShape(randomizer, true, true, true, true, true);
+        var late2 = calcRandomShape(randomizer, true, true, true, true, true);
+        var late3 = calcRandomShape(randomizer, true, true, true, true, true);
+        beltshapes.push(late1, late2, late3);
+        minershapes.push(late1, late2, late3);
+        processorsshapes.push(late1, late2, late3);
+        paintingshapes.push(late1, late2, late3);
+    } else {
+        beltshapes.push(calcRandomShape(randomizer, true, true, true, true, true), calcRandomShape(randomizer, true, true, true, true, true), calcRandomShape(randomizer, true, true, true, true, true));
+        minershapes.push(calcRandomShape(randomizer, true, true, true, true, true), calcRandomShape(randomizer, true, true, true, true, true), calcRandomShape(randomizer, true, true, true, true, true));
+        processorsshapes.push(calcRandomShape(randomizer, true, true, true, true, true), calcRandomShape(randomizer, true, true, true, true, true), calcRandomShape(randomizer, true, true, true, true, true));
+        paintingshapes.push(calcRandomShape(randomizer, true, true, true, true, true), calcRandomShape(randomizer, true, true, true, true, true), calcRandomShape(randomizer, true, true, true, true, true));
+    }
+    return constructUpgradeShapes(multiplier, finaltier, beltshapes, minershapes, processorsshapes, paintingshapes);
+}
+
+export function categoryUpgradeShapes(multiplier, randomizer, finaltier, samelate) {
+    const beltshapes = [
+        calcRandomShape(randomizer, false, false, false, false, false),
+        calcRandomShape(randomizer, false, false, false, false, false),
+        calcRandomShape(randomizer, false, false, false, false, false),
+        calcRandomShape(randomizer, false, false, false, false, false),
+        calcRandomShape(randomizer, false, false, false, false, false)
+    ];
+    const minershapes = [
+        calcRandomShape(randomizer, false, false, false, false, false),
+        calcRandomShape(randomizer, false, false, false, false, false),
+        calcRandomShape(randomizer, false, false, false, false, false),
+        calcRandomShape(randomizer, false, false, false, false, false),
+        calcRandomShape(randomizer, false, false, false, false, false)
+    ];
+    const processorsshapes = [
+        calcRandomShape(randomizer, true, false, false, false, false),
+        calcRandomShape(randomizer, true, false, false, false, false),
+        calcRandomShape(randomizer, true, true, false, false, false),
+        calcRandomShape(randomizer, true, true, false, false, false),
+        calcRandomShape(randomizer, true, true, true, false, false)
+    ];
+    const paintingshapes = [
+        calcRandomShape(randomizer, true, true, true, true, false),
+        calcRandomShape(randomizer, true, true, true, true, false),
+        calcRandomShape(randomizer, true, true, true, true, false),
+        calcRandomShape(randomizer, true, true, true, true, true),
+        calcRandomShape(randomizer, true, true, true, true, true)
+    ];
+    if (samelate) {
+        var late1 = calcRandomShape(randomizer, true, true, true, true, true);
+        var late2 = calcRandomShape(randomizer, true, true, true, true, true);
+        var late3 = calcRandomShape(randomizer, true, true, true, true, true);
+        beltshapes.push(late1, late2, late3);
+        minershapes.push(late1, late2, late3);
+        processorsshapes.push(late1, late2, late3);
+        paintingshapes.push(late1, late2, late3);
+    } else {
+        beltshapes.push(calcRandomShape(randomizer, true, true, true, true, true), calcRandomShape(randomizer, true, true, true, true, true), calcRandomShape(randomizer, true, true, true, true, true));
+        minershapes.push(calcRandomShape(randomizer, true, true, true, true, true), calcRandomShape(randomizer, true, true, true, true, true), calcRandomShape(randomizer, true, true, true, true, true));
+        processorsshapes.push(calcRandomShape(randomizer, true, true, true, true, true), calcRandomShape(randomizer, true, true, true, true, true), calcRandomShape(randomizer, true, true, true, true, true));
+        paintingshapes.push(calcRandomShape(randomizer, true, true, true, true, true), calcRandomShape(randomizer, true, true, true, true, true), calcRandomShape(randomizer, true, true, true, true, true));
+    }
+    return constructUpgradeShapes(multiplier, finaltier, beltshapes, minershapes, processorsshapes, paintingshapes);
+}
+
+export function categoryRandomUpgradeShapes(multiplier, randomizer, finaltier, samelate, building1, building2, building3, building4, building5, amountBelt, amountMiner, amountProcessors, amountPainting) {
+    var phase = {"Cutter": 0, "Rotator": 0, "Stacker": 0, "Painter": 0, "Color Mixer": 0};
+    phase[building1] = 1;
+    phase[building2] = 2;
+    phase[building3] = 3;
+    phase[building4] = 4;
+    phase[building5] = 5;
+    const beltshapes = [
+        calcRandomShape(randomizer, phase["Cutter"] <= amountBelt, phase["Rotator"] <= amountBelt, phase["Stacker"] <= amountBelt, phase["Painter"] <= amountBelt, phase["Color Mixer"] <= amountBelt),
+        calcRandomShape(randomizer, phase["Cutter"] <= amountBelt, phase["Rotator"] <= amountBelt, phase["Stacker"] <= amountBelt, phase["Painter"] <= amountBelt, phase["Color Mixer"] <= amountBelt),
+        calcRandomShape(randomizer, phase["Cutter"] <= amountBelt, phase["Rotator"] <= amountBelt, phase["Stacker"] <= amountBelt, phase["Painter"] <= amountBelt, phase["Color Mixer"] <= amountBelt),
+        calcRandomShape(randomizer, phase["Cutter"] <= amountBelt, phase["Rotator"] <= amountBelt, phase["Stacker"] <= amountBelt, phase["Painter"] <= amountBelt, phase["Color Mixer"] <= amountBelt),
+        calcRandomShape(randomizer, phase["Cutter"] <= amountBelt, phase["Rotator"] <= amountBelt, phase["Stacker"] <= amountBelt, phase["Painter"] <= amountBelt, phase["Color Mixer"] <= amountBelt)
+    ];
+    const minershapes = [
+        calcRandomShape(randomizer, phase["Cutter"] <= amountMiner, phase["Rotator"] <= amountMiner, phase["Stacker"] <= amountMiner, phase["Painter"] <= amountMiner, phase["Color Mixer"] <= amountMiner),
+        calcRandomShape(randomizer, phase["Cutter"] <= amountMiner, phase["Rotator"] <= amountMiner, phase["Stacker"] <= amountMiner, phase["Painter"] <= amountMiner, phase["Color Mixer"] <= amountMiner),
+        calcRandomShape(randomizer, phase["Cutter"] <= amountMiner, phase["Rotator"] <= amountMiner, phase["Stacker"] <= amountMiner, phase["Painter"] <= amountMiner, phase["Color Mixer"] <= amountMiner),
+        calcRandomShape(randomizer, phase["Cutter"] <= amountMiner, phase["Rotator"] <= amountMiner, phase["Stacker"] <= amountMiner, phase["Painter"] <= amountMiner, phase["Color Mixer"] <= amountMiner),
+        calcRandomShape(randomizer, phase["Cutter"] <= amountMiner, phase["Rotator"] <= amountMiner, phase["Stacker"] <= amountMiner, phase["Painter"] <= amountMiner, phase["Color Mixer"] <= amountMiner)
+    ];
+    const processorsshapes = [
+        calcRandomShape(randomizer, phase["Cutter"] <= amountProcessors, phase["Rotator"] <= amountProcessors, phase["Stacker"] <= amountProcessors, phase["Painter"] <= amountProcessors, phase["Color Mixer"] <= amountProcessors),
+        calcRandomShape(randomizer, phase["Cutter"] <= amountProcessors, phase["Rotator"] <= amountProcessors, phase["Stacker"] <= amountProcessors, phase["Painter"] <= amountProcessors, phase["Color Mixer"] <= amountProcessors),
+        calcRandomShape(randomizer, phase["Cutter"] <= amountProcessors, phase["Rotator"] <= amountProcessors, phase["Stacker"] <= amountProcessors, phase["Painter"] <= amountProcessors, phase["Color Mixer"] <= amountProcessors),
+        calcRandomShape(randomizer, phase["Cutter"] <= amountProcessors, phase["Rotator"] <= amountProcessors, phase["Stacker"] <= amountProcessors, phase["Painter"] <= amountProcessors, phase["Color Mixer"] <= amountProcessors),
+        calcRandomShape(randomizer, phase["Cutter"] <= amountProcessors, phase["Rotator"] <= amountProcessors, phase["Stacker"] <= amountProcessors, phase["Painter"] <= amountProcessors, phase["Color Mixer"] <= amountProcessors)
+    ];
+    const paintingshapes = [
+        calcRandomShape(randomizer, phase["Cutter"] <= amountPainting, phase["Rotator"] <= amountPainting, phase["Stacker"] <= amountPainting, phase["Painter"] <= amountPainting, phase["Color Mixer"] <= amountPainting),
+        calcRandomShape(randomizer, phase["Cutter"] <= amountPainting, phase["Rotator"] <= amountPainting, phase["Stacker"] <= amountPainting, phase["Painter"] <= amountPainting, phase["Color Mixer"] <= amountPainting),
+        calcRandomShape(randomizer, phase["Cutter"] <= amountPainting, phase["Rotator"] <= amountPainting, phase["Stacker"] <= amountPainting, phase["Painter"] <= amountPainting, phase["Color Mixer"] <= amountPainting),
+        calcRandomShape(randomizer, phase["Cutter"] <= amountPainting, phase["Rotator"] <= amountPainting, phase["Stacker"] <= amountPainting, phase["Painter"] <= amountPainting, phase["Color Mixer"] <= amountPainting),
+        calcRandomShape(randomizer, phase["Cutter"] <= amountPainting, phase["Rotator"] <= amountPainting, phase["Stacker"] <= amountPainting, phase["Painter"] <= amountPainting, phase["Color Mixer"] <= amountPainting)
     ];
     if (samelate) {
         var late1 = calcRandomShape(randomizer, true, true, true, true, true);

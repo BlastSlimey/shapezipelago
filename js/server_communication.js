@@ -26,6 +26,8 @@ const colorNames = {
 };
 
 export const receiveItemFunctions = {
+    "Belt": (root, resynced) => {customRewards.reward_belt = 1; return "";},
+    "Extractor": (root, resynced) => {customRewards.reward_extractor = 1; return "";},
     "Cutter": (root, resynced) => {customRewards.reward_cutter = 1; return "";},
     "Rotator": (root, resynced) => {root.hubGoals.gainedRewards["reward_rotater"] = 1; return "";},
     "Painter": (root, resynced) => {root.hubGoals.gainedRewards["reward_painter"] = 1; return "";},
@@ -54,11 +56,11 @@ export const receiveItemFunctions = {
     "Blueprints": (root, resynced) => {root.hubGoals.gainedRewards["reward_blueprints"] = 1; return "";},
     "Big Belt Upgrade": (root, resynced) => {root.hubGoals.upgradeImprovements["belt"] += 1; return "";},
     "Big Miner Upgrade": (root, resynced) => {root.hubGoals.upgradeImprovements["miner"] += 1; return "";},
-    "Big Processing Upgrade": (root, resynced) => {root.hubGoals.upgradeImprovements["processors"] += 1; return "";},
+    "Big Processors Upgrade": (root, resynced) => {root.hubGoals.upgradeImprovements["processors"] += 1; return "";},
     "Big Painting Upgrade": (root, resynced) => {root.hubGoals.upgradeImprovements["painting"] += 1; return "";},
     "Small Belt Upgrade": (root, resynced) => {root.hubGoals.upgradeImprovements["belt"] += 0.1; return "";},
     "Small Miner Upgrade": (root, resynced) => {root.hubGoals.upgradeImprovements["miner"] += 0.1; return "";},
-    "Small Processing Upgrade": (root, resynced) => {root.hubGoals.upgradeImprovements["processors"] += 0.1; return "";},
+    "Small Processors Upgrade": (root, resynced) => {root.hubGoals.upgradeImprovements["processors"] += 0.1; return "";},
     "Small Painting Upgrade": (root, resynced) => {root.hubGoals.upgradeImprovements["painting"] += 0.1; return "";},
     "Blueprint Shapes Bundle": (root, resynced) => {
         if (resynced) return "";
