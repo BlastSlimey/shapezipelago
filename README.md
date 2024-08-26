@@ -4,6 +4,7 @@ Client mod for the Archipelago multiworld randomizer.
 ## TODO list
 ### APWorld
 - FEATURE:       Include building variants in logic (look at client mod)
+- GOOD LOOKING:  Rewrite region connections to official method
 ### Client mod
 - FEATURE:       Replace seed from save file with apworld-generated seed
 - FEATURE:       Text box (read only), received non-progression items only there
@@ -19,13 +20,13 @@ Client mod for the Archipelago multiworld randomizer.
 - FEATURE:       Scout location before sending
 - FEATURE:       Details when checking Level location, custom hubGoal reward, override hud
 - FEATURE:       Details for received items (player, location)
-### Both
-- FEATURE:       Achievements
-- FEATURE:       Add bounty goal: collect mcguffins, enough of them give a hint towards bounty (always shapesanity stitched mixed), checking that gives bounty item, which sends goal
-- FEATURE:       Need some ideas for expanding upgrade requirements
 - FEATURE:       Level logic types:
   - Linear/+shuffled (like with upgrades)
   - random steps/+shuffled (like stretched but phases random length <= stretched)
 - FEATURE:       Upgrade logic types: 
   - category/+shuffled (belt and miner are main, processors are cutter+rotator+stacker, painting are painter+colormixer)
+### Both
+- FEATURE:       Achievements
+- FEATURE:       Add bounty goal: collect mcguffins, enough of them give a hint towards bounty (always shapesanity stitched mixed), checking that gives bounty item, which sends goal
+- FEATURE:       Need some ideas for expanding upgrade requirements
 - FEATURE:       Buildings functionality randomization, like malfunctioning trap, but permanent
