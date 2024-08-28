@@ -7,7 +7,7 @@ Client mod for the Archipelago multiworld randomizer.
 - GOOD LOOKING:  Rewrite region connections to official method
 - FEATURE:       Most vanilla options preset
 ### Client mod
-- IMPORTANT:     Rewrite progress saving to instead resyncing
+- IMPORTANT:     Check random shape generating east half windmill without rotator
 - FEATURE:       Replace seed from save file with apworld-generated seed
 - FEATURE:       Text box (read only), received non-progression items only there
 - FEATURE:       Disconnect from AP server when returning to main menu
