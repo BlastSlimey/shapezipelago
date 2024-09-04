@@ -24,7 +24,6 @@ Client mod for the Archipelago multiworld randomizer.
 - FEATURE:      Add bounty goal: collect mcguffins, enough of them give a hint towards bounty (always shapesanity stitched mixed), checking that gives bounty item, which sends goal
 - FEATURE:      Need some ideas for expanding upgrade requirements
 - FEATURE:      Buildings functionality randomization, like malfunctioning trap, but permanent
-- FEATURE:      Extra mod file for instant offline
 ### Labels
 - IMPORTANT:    Text
 - GOOD LOOKING: Text
