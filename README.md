@@ -3,7 +3,6 @@ Client mod for the Archipelago multiworld randomizer.
 
 ## TODO list
 ### APWorld
-- BEFORE PR:    Split Inventory Drain Trap option
 ### Client mod
 - Needed for 1.0 release:
   - Replace seed from save file with apworld-generated seed
