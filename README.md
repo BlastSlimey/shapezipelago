@@ -4,6 +4,7 @@ Client mod for the Archipelago multiworld randomizer.
 ## TODO list
 ### APWorld
 ### Client mod
+- IMPORTANT:    register achievements by hand
 - Needed for 1.0 release:
   - Replace seed from save file with apworld-generated seed
   - Text box (read only), received non-progression items only there
