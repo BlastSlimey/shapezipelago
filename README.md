@@ -20,6 +20,7 @@ Client mod for the Archipelago multiworld randomizer.
 - FEATURE:      Need some ideas for expanding upgrade requirements
 - FEATURE:      Buildings functionality randomization, like malfunctioning trap, but permanent
 - FEATURE:      Add music tracks to item pool
+- FEATURE:      Producer mode: shapes are items, producer replaces extractor
 ### Labels
 - IMPORTANT:    Text
 - GOOD LOOKING: Text
