@@ -14,6 +14,7 @@ Client mod for the Archipelago multiworld randomizer.
   - Details when checking Level location, custom hubGoal reward, override hud
   - shapesanity checks display
   - Translations
+  - fix undefined save data reading on vanilla saves
 ### Both
 - FEATURE:      Add bounty goal: collect mcguffins, enough of them give a hint towards bounty (always shapesanity stitched mixed), checking that gives bounty item, which sends goal
 - FEATURE:      Need some ideas for expanding upgrade requirements
