@@ -13,6 +13,7 @@ Client mod for the Archipelago multiworld randomizer.
   - Randomize blueprint shape
   - Details when checking Level location, custom hubGoal reward, override hud
   - shapesanity checks display
+  - Translations
 ### Both
 - FEATURE:      Add bounty goal: collect mcguffins, enough of them give a hint towards bounty (always shapesanity stitched mixed), checking that gives bounty item, which sends goal
 - FEATURE:      Need some ideas for expanding upgrade requirements
