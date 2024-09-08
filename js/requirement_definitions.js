@@ -443,8 +443,8 @@ export function randomizedRandomStepsShapes(randomizer, maxlevel, throughputrati
             throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio});
     };
     if (throughputratio == -1) {
-        levelsdefs[14].throughputOnly = true;
-        for (var i = 27; i < levelsdefs.length; i++) {
+        levelsdefs[13].throughputOnly = true;
+        for (var i = 26; i < levelsdefs.length; i++) {
             levelsdefs[i].throughputOnly = true;
         }
     }
@@ -535,47 +535,47 @@ export function vanillaLikeUpgradeShapes(multiplier, randomizer, finaltier, same
     phase[building3] = 3;
     phase[building4] = 4;
     phase[building5] = 5;
-    const beltshapes = [
-        calcRandomShape(randomizer, false, false, false, false, false),
-        calcRandomShape(randomizer, phase["Cutter"] <= 2, phase["Rotator"] <= 2, phase["Stacker"] <= 2, phase["Painter"] <= 2, phase["Color Mixer"] <= 2),
-        calcRandomShape(randomizer, true, true, true, true, true),
-        calcRandomShape(randomizer, true, true, true, true, true),
-        calcRandomShape(randomizer, true, true, true, true, true)
-    ];
-    const minershapes = [
-        calcRandomShape(randomizer, false, false, false, false, false),
-        calcRandomShape(randomizer, phase["Cutter"] <= 2, phase["Rotator"] <= 2, phase["Stacker"] <= 2, phase["Painter"] <= 2, phase["Color Mixer"] <= 2),
-        calcRandomShape(randomizer, true, true, true, true, true),
-        calcRandomShape(randomizer, true, true, true, true, true),
-        calcRandomShape(randomizer, true, true, true, true, true)
-    ];
-    const processorsshapes = [
-        calcRandomShape(randomizer, false, false, false, false, false),
-        calcRandomShape(randomizer, phase["Cutter"] <= 1, phase["Rotator"] <= 1, phase["Stacker"] <= 1, phase["Painter"] <= 1, phase["Color Mixer"] <= 1),
-        calcRandomShape(randomizer, true, true, true, true, true),
-        calcRandomShape(randomizer, true, true, true, true, true),
-        calcRandomShape(randomizer, true, true, true, true, true)
-    ];
-    const paintingshapes = [
-        calcRandomShape(randomizer, phase["Cutter"] <= 3, phase["Rotator"] <= 3, phase["Stacker"] <= 3, phase["Painter"] <= 3, phase["Color Mixer"] <= 3),
-        calcRandomShape(randomizer, phase["Cutter"] <= 3, phase["Rotator"] <= 3, phase["Stacker"] <= 3, phase["Painter"] <= 3, phase["Color Mixer"] <= 3),
-        calcRandomShape(randomizer, true, true, true, true, true),
-        calcRandomShape(randomizer, true, true, true, true, true),
-        calcRandomShape(randomizer, true, true, true, true, true)
-    ];
+    const beltshapes = [calcRandomShape(randomizer, false, false, false, false, false)];
+    beltshapes.push(calcRandomShape(randomizer, phase["Cutter"] <= 2, phase["Rotator"] <= 2, phase["Stacker"] <= 2, phase["Painter"] <= 2, phase["Color Mixer"] <= 2, beltshapes));
+    beltshapes.push(calcRandomShape(randomizer, true, true, true, true, true, beltshapes));
+    beltshapes.push(calcRandomShape(randomizer, true, true, true, true, true, beltshapes));
+    beltshapes.push(calcRandomShape(randomizer, true, true, true, true, true, beltshapes));
+    const minershapes = [calcRandomShape(randomizer, false, false, false, false, false)];
+    minershapes.push(calcRandomShape(randomizer, phase["Cutter"] <= 2, phase["Rotator"] <= 2, phase["Stacker"] <= 2, phase["Painter"] <= 2, phase["Color Mixer"] <= 2, minershapes));
+    minershapes.push(calcRandomShape(randomizer, true, true, true, true, true, minershapes));
+    minershapes.push(calcRandomShape(randomizer, true, true, true, true, true, minershapes));
+    minershapes.push(calcRandomShape(randomizer, true, true, true, true, true, minershapes));
+    const processorsshapes = [calcRandomShape(randomizer, false, false, false, false, false)];
+    processorsshapes.push(calcRandomShape(randomizer, phase["Cutter"] <= 1, phase["Rotator"] <= 1, phase["Stacker"] <= 1, phase["Painter"] <= 1, phase["Color Mixer"] <= 1, processorsshapes));
+    processorsshapes.push(calcRandomShape(randomizer, true, true, true, true, true, processorsshapes));
+    processorsshapes.push(calcRandomShape(randomizer, true, true, true, true, true, processorsshapes));
+    processorsshapes.push(calcRandomShape(randomizer, true, true, true, true, true, processorsshapes));
+    const paintingshapes = [calcRandomShape(randomizer, phase["Cutter"] <= 3, phase["Rotator"] <= 3, phase["Stacker"] <= 3, phase["Painter"] <= 3, phase["Color Mixer"] <= 3)];
+    paintingshapes.push(calcRandomShape(randomizer, phase["Cutter"] <= 3, phase["Rotator"] <= 3, phase["Stacker"] <= 3, phase["Painter"] <= 3, phase["Color Mixer"] <= 3, paintingshapes));
+    paintingshapes.push(calcRandomShape(randomizer, true, true, true, true, true, paintingshapes));
+    paintingshapes.push(calcRandomShape(randomizer, true, true, true, true, true, paintingshapes));
+    paintingshapes.push(calcRandomShape(randomizer, true, true, true, true, true, paintingshapes));
     if (samelate) {
-        var late1 = calcRandomShape(randomizer, true, true, true, true, true);
-        var late2 = calcRandomShape(randomizer, true, true, true, true, true);
-        var late3 = calcRandomShape(randomizer, true, true, true, true, true);
+        const late1 = calcRandomShape(randomizer, true, true, true, true, true);
+        const late2 = calcRandomShape(randomizer, true, true, true, true, true, [late1]);
+        const late3 = calcRandomShape(randomizer, true, true, true, true, true, [late1, late2]);
         beltshapes.push(late1, late2, late3);
         minershapes.push(late1, late2, late3);
         processorsshapes.push(late1, late2, late3);
         paintingshapes.push(late1, late2, late3);
     } else {
-        beltshapes.push(calcRandomShape(randomizer, true, true, true, true, true), calcRandomShape(randomizer, true, true, true, true, true), calcRandomShape(randomizer, true, true, true, true, true));
-        minershapes.push(calcRandomShape(randomizer, true, true, true, true, true), calcRandomShape(randomizer, true, true, true, true, true), calcRandomShape(randomizer, true, true, true, true, true));
-        processorsshapes.push(calcRandomShape(randomizer, true, true, true, true, true), calcRandomShape(randomizer, true, true, true, true, true), calcRandomShape(randomizer, true, true, true, true, true));
-        paintingshapes.push(calcRandomShape(randomizer, true, true, true, true, true), calcRandomShape(randomizer, true, true, true, true, true), calcRandomShape(randomizer, true, true, true, true, true));
+        beltshapes.push(calcRandomShape(randomizer, true, true, true, true, true));
+        beltshapes.push(calcRandomShape(randomizer, true, true, true, true, true, [beltshapes[5]]));
+        beltshapes.push(calcRandomShape(randomizer, true, true, true, true, true, [beltshapes[5], beltshapes[6]]));
+        minershapes.push(calcRandomShape(randomizer, true, true, true, true, true));
+        minershapes.push(calcRandomShape(randomizer, true, true, true, true, true, [minershapes[5]]));
+        minershapes.push(calcRandomShape(randomizer, true, true, true, true, true, [minershapes[5], minershapes[6]]));
+        processorsshapes.push(calcRandomShape(randomizer, true, true, true, true, true));
+        processorsshapes.push(calcRandomShape(randomizer, true, true, true, true, true, [processorsshapes[5]]));
+        processorsshapes.push(calcRandomShape(randomizer, true, true, true, true, true, [processorsshapes[5], processorsshapes[6]]));
+        paintingshapes.push(calcRandomShape(randomizer, true, true, true, true, true));
+        paintingshapes.push(calcRandomShape(randomizer, true, true, true, true, true, [paintingshapes[5]]));
+        paintingshapes.push(calcRandomShape(randomizer, true, true, true, true, true, [paintingshapes[5], paintingshapes[6]]));
     }
     return constructUpgradeShapes(multiplier, finaltier, beltshapes, minershapes, processorsshapes, paintingshapes);
 }
@@ -587,93 +587,89 @@ export function linearUpgradeShapes(multiplier, randomizer, finaltier, samelate,
     phase[building3] = 3;
     phase[building4] = 4;
     phase[building5] = 5;
-    const beltshapes = [
-        calcRandomShape(randomizer, false, false, false, false, false),
-        calcRandomShape(randomizer, phase["Cutter"] <= 1, phase["Rotator"] <= 1, phase["Stacker"] <= 1, phase["Painter"] <= 1, phase["Color Mixer"] <= 1),
-        calcRandomShape(randomizer, phase["Cutter"] <= 2, phase["Rotator"] <= 2, phase["Stacker"] <= 2, phase["Painter"] <= 2, phase["Color Mixer"] <= 2),
-        calcRandomShape(randomizer, phase["Cutter"] <= 3, phase["Rotator"] <= 3, phase["Stacker"] <= 3, phase["Painter"] <= 3, phase["Color Mixer"] <= 3),
-        calcRandomShape(randomizer, phase["Cutter"] <= 4, phase["Rotator"] <= 4, phase["Stacker"] <= 4, phase["Painter"] <= 4, phase["Color Mixer"] <= 4)
-    ];
-    const minershapes = [
-        calcRandomShape(randomizer, false, false, false, false, false),
-        calcRandomShape(randomizer, phase["Cutter"] <= 1, phase["Rotator"] <= 1, phase["Stacker"] <= 1, phase["Painter"] <= 1, phase["Color Mixer"] <= 1),
-        calcRandomShape(randomizer, phase["Cutter"] <= 2, phase["Rotator"] <= 2, phase["Stacker"] <= 2, phase["Painter"] <= 2, phase["Color Mixer"] <= 2),
-        calcRandomShape(randomizer, phase["Cutter"] <= 3, phase["Rotator"] <= 3, phase["Stacker"] <= 3, phase["Painter"] <= 3, phase["Color Mixer"] <= 3),
-        calcRandomShape(randomizer, phase["Cutter"] <= 4, phase["Rotator"] <= 4, phase["Stacker"] <= 4, phase["Painter"] <= 4, phase["Color Mixer"] <= 4)
-    ];
-    const processorsshapes = [
-        calcRandomShape(randomizer, false, false, false, false, false),
-        calcRandomShape(randomizer, phase["Cutter"] <= 1, phase["Rotator"] <= 1, phase["Stacker"] <= 1, phase["Painter"] <= 1, phase["Color Mixer"] <= 1),
-        calcRandomShape(randomizer, phase["Cutter"] <= 2, phase["Rotator"] <= 2, phase["Stacker"] <= 2, phase["Painter"] <= 2, phase["Color Mixer"] <= 2),
-        calcRandomShape(randomizer, phase["Cutter"] <= 3, phase["Rotator"] <= 3, phase["Stacker"] <= 3, phase["Painter"] <= 3, phase["Color Mixer"] <= 3),
-        calcRandomShape(randomizer, phase["Cutter"] <= 4, phase["Rotator"] <= 4, phase["Stacker"] <= 4, phase["Painter"] <= 4, phase["Color Mixer"] <= 4)
-    ];
-    const paintingshapes = [
-        calcRandomShape(randomizer, false, false, false, false, false),
-        calcRandomShape(randomizer, phase["Cutter"] <= 1, phase["Rotator"] <= 1, phase["Stacker"] <= 1, phase["Painter"] <= 1, phase["Color Mixer"] <= 1),
-        calcRandomShape(randomizer, phase["Cutter"] <= 2, phase["Rotator"] <= 2, phase["Stacker"] <= 2, phase["Painter"] <= 2, phase["Color Mixer"] <= 2),
-        calcRandomShape(randomizer, phase["Cutter"] <= 3, phase["Rotator"] <= 3, phase["Stacker"] <= 3, phase["Painter"] <= 3, phase["Color Mixer"] <= 3),
-        calcRandomShape(randomizer, phase["Cutter"] <= 4, phase["Rotator"] <= 4, phase["Stacker"] <= 4, phase["Painter"] <= 4, phase["Color Mixer"] <= 4)
-    ];
+    const beltshapes = [calcRandomShape(randomizer, false, false, false, false, false)];
+    for (var nextindex = 1; nextindex < 5; nextindex++) {
+        beltshapes.push(calcRandomShape(randomizer, phase["Cutter"] <= nextindex, phase["Rotator"] <= nextindex, phase["Stacker"] <= nextindex, phase["Painter"] <= nextindex, phase["Color Mixer"] <= nextindex, beltshapes));
+    }
+    const minershapes = [calcRandomShape(randomizer, false, false, false, false, false)];
+    for (var nextindex = 1; nextindex < 5; nextindex++) {
+        minershapes.push(calcRandomShape(randomizer, phase["Cutter"] <= nextindex, phase["Rotator"] <= nextindex, phase["Stacker"] <= nextindex, phase["Painter"] <= nextindex, phase["Color Mixer"] <= nextindex, minershapes));
+    }
+    const processorsshapes = [calcRandomShape(randomizer, false, false, false, false, false)];
+    for (var nextindex = 1; nextindex < 5; nextindex++) {
+        processorsshapes.push(calcRandomShape(randomizer, phase["Cutter"] <= nextindex, phase["Rotator"] <= nextindex, phase["Stacker"] <= nextindex, phase["Painter"] <= nextindex, phase["Color Mixer"] <= nextindex, processorsshapes));
+    }
+    const paintingshapes = [calcRandomShape(randomizer, false, false, false, false, false)];
+    for (var nextindex = 1; nextindex < 5; nextindex++) {
+        paintingshapes.push(calcRandomShape(randomizer, phase["Cutter"] <= nextindex, phase["Rotator"] <= nextindex, phase["Stacker"] <= nextindex, phase["Painter"] <= nextindex, phase["Color Mixer"] <= nextindex, paintingshapes));
+    }
     if (samelate) {
-        var late1 = calcRandomShape(randomizer, true, true, true, true, true);
-        var late2 = calcRandomShape(randomizer, true, true, true, true, true);
-        var late3 = calcRandomShape(randomizer, true, true, true, true, true);
+        const late1 = calcRandomShape(randomizer, true, true, true, true, true);
+        const late2 = calcRandomShape(randomizer, true, true, true, true, true, [late1]);
+        const late3 = calcRandomShape(randomizer, true, true, true, true, true, [late1, late2]);
         beltshapes.push(late1, late2, late3);
         minershapes.push(late1, late2, late3);
         processorsshapes.push(late1, late2, late3);
         paintingshapes.push(late1, late2, late3);
     } else {
-        beltshapes.push(calcRandomShape(randomizer, true, true, true, true, true), calcRandomShape(randomizer, true, true, true, true, true), calcRandomShape(randomizer, true, true, true, true, true));
-        minershapes.push(calcRandomShape(randomizer, true, true, true, true, true), calcRandomShape(randomizer, true, true, true, true, true), calcRandomShape(randomizer, true, true, true, true, true));
-        processorsshapes.push(calcRandomShape(randomizer, true, true, true, true, true), calcRandomShape(randomizer, true, true, true, true, true), calcRandomShape(randomizer, true, true, true, true, true));
-        paintingshapes.push(calcRandomShape(randomizer, true, true, true, true, true), calcRandomShape(randomizer, true, true, true, true, true), calcRandomShape(randomizer, true, true, true, true, true));
+        beltshapes.push(calcRandomShape(randomizer, true, true, true, true, true));
+        beltshapes.push(calcRandomShape(randomizer, true, true, true, true, true, [beltshapes[5]]));
+        beltshapes.push(calcRandomShape(randomizer, true, true, true, true, true, [beltshapes[5], beltshapes[6]]));
+        minershapes.push(calcRandomShape(randomizer, true, true, true, true, true));
+        minershapes.push(calcRandomShape(randomizer, true, true, true, true, true, [minershapes[5]]));
+        minershapes.push(calcRandomShape(randomizer, true, true, true, true, true, [minershapes[5], minershapes[6]]));
+        processorsshapes.push(calcRandomShape(randomizer, true, true, true, true, true));
+        processorsshapes.push(calcRandomShape(randomizer, true, true, true, true, true, [processorsshapes[5]]));
+        processorsshapes.push(calcRandomShape(randomizer, true, true, true, true, true, [processorsshapes[5], processorsshapes[6]]));
+        paintingshapes.push(calcRandomShape(randomizer, true, true, true, true, true));
+        paintingshapes.push(calcRandomShape(randomizer, true, true, true, true, true, [paintingshapes[5]]));
+        paintingshapes.push(calcRandomShape(randomizer, true, true, true, true, true, [paintingshapes[5], paintingshapes[6]]));
     }
     return constructUpgradeShapes(multiplier, finaltier, beltshapes, minershapes, processorsshapes, paintingshapes);
 }
 
 export function categoryUpgradeShapes(multiplier, randomizer, finaltier, samelate) {
-    const beltshapes = [
-        calcRandomShape(randomizer, false, false, false, false, false),
-        calcRandomShape(randomizer, false, false, false, false, false),
-        calcRandomShape(randomizer, false, false, false, false, false),
-        calcRandomShape(randomizer, false, false, false, false, false),
-        calcRandomShape(randomizer, false, false, false, false, false)
-    ];
-    const minershapes = [
-        calcRandomShape(randomizer, false, false, false, false, false),
-        calcRandomShape(randomizer, false, false, false, false, false),
-        calcRandomShape(randomizer, false, false, false, false, false),
-        calcRandomShape(randomizer, false, false, false, false, false),
-        calcRandomShape(randomizer, false, false, false, false, false)
-    ];
-    const processorsshapes = [
-        calcRandomShape(randomizer, true, false, false, false, false),
-        calcRandomShape(randomizer, true, false, false, false, false),
-        calcRandomShape(randomizer, true, true, false, false, false),
-        calcRandomShape(randomizer, true, true, false, false, false),
-        calcRandomShape(randomizer, true, true, true, false, false)
-    ];
-    const paintingshapes = [
-        calcRandomShape(randomizer, true, true, true, true, false),
-        calcRandomShape(randomizer, true, true, true, true, false),
-        calcRandomShape(randomizer, true, true, true, true, false),
-        calcRandomShape(randomizer, true, true, true, true, true),
-        calcRandomShape(randomizer, true, true, true, true, true)
-    ];
+    const beltshapes = [calcRandomShape(randomizer, false, false, false, false, false)];
+    beltshapes.push(calcRandomShape(randomizer, false, false, false, false, false, beltshapes));
+    beltshapes.push(calcRandomShape(randomizer, false, false, false, false, false, beltshapes));
+    beltshapes.push(calcRandomShape(randomizer, true, true, true, true, true, beltshapes));
+    beltshapes.push(calcRandomShape(randomizer, true, true, true, true, true, beltshapes));
+    const minershapes = [calcRandomShape(randomizer, false, false, false, false, false)];
+    minershapes.push(calcRandomShape(randomizer, false, false, false, false, false, minershapes));
+    minershapes.push(calcRandomShape(randomizer, false, false, false, false, false, minershapes));
+    minershapes.push(calcRandomShape(randomizer, true, true, true, true, true, minershapes));
+    minershapes.push(calcRandomShape(randomizer, true, true, true, true, true, minershapes));
+    const processorsshapes = [calcRandomShape(randomizer, true, false, false, false, false)];
+    processorsshapes.push(calcRandomShape(randomizer, true, false, false, false, false, processorsshapes));
+    processorsshapes.push(calcRandomShape(randomizer, true, true, false, false, false, processorsshapes));
+    processorsshapes.push(calcRandomShape(randomizer, true, true, false, false, false, processorsshapes));
+    processorsshapes.push(calcRandomShape(randomizer, true, true, true, false, false, processorsshapes));
+    const paintingshapes = [calcRandomShape(randomizer, true, true, true, true, false)];
+    paintingshapes.push(calcRandomShape(randomizer, true, true, true, true, false, paintingshapes));
+    paintingshapes.push(calcRandomShape(randomizer, true, true, true, true, false, paintingshapes));
+    paintingshapes.push(calcRandomShape(randomizer, true, true, true, true, true, paintingshapes));
+    paintingshapes.push(calcRandomShape(randomizer, true, true, true, true, true, paintingshapes));
     if (samelate) {
-        var late1 = calcRandomShape(randomizer, true, true, true, true, true);
-        var late2 = calcRandomShape(randomizer, true, true, true, true, true);
-        var late3 = calcRandomShape(randomizer, true, true, true, true, true);
+        const late1 = calcRandomShape(randomizer, true, true, true, true, true);
+        const late2 = calcRandomShape(randomizer, true, true, true, true, true, [late1]);
+        const late3 = calcRandomShape(randomizer, true, true, true, true, true, [late1, late2]);
         beltshapes.push(late1, late2, late3);
         minershapes.push(late1, late2, late3);
         processorsshapes.push(late1, late2, late3);
         paintingshapes.push(late1, late2, late3);
     } else {
-        beltshapes.push(calcRandomShape(randomizer, true, true, true, true, true), calcRandomShape(randomizer, true, true, true, true, true), calcRandomShape(randomizer, true, true, true, true, true));
-        minershapes.push(calcRandomShape(randomizer, true, true, true, true, true), calcRandomShape(randomizer, true, true, true, true, true), calcRandomShape(randomizer, true, true, true, true, true));
-        processorsshapes.push(calcRandomShape(randomizer, true, true, true, true, true), calcRandomShape(randomizer, true, true, true, true, true), calcRandomShape(randomizer, true, true, true, true, true));
-        paintingshapes.push(calcRandomShape(randomizer, true, true, true, true, true), calcRandomShape(randomizer, true, true, true, true, true), calcRandomShape(randomizer, true, true, true, true, true));
+        beltshapes.push(calcRandomShape(randomizer, true, true, true, true, true));
+        beltshapes.push(calcRandomShape(randomizer, true, true, true, true, true, [beltshapes[5]]));
+        beltshapes.push(calcRandomShape(randomizer, true, true, true, true, true, [beltshapes[5], beltshapes[6]]));
+        minershapes.push(calcRandomShape(randomizer, true, true, true, true, true));
+        minershapes.push(calcRandomShape(randomizer, true, true, true, true, true, [minershapes[5]]));
+        minershapes.push(calcRandomShape(randomizer, true, true, true, true, true, [minershapes[5], minershapes[6]]));
+        processorsshapes.push(calcRandomShape(randomizer, true, true, true, true, true));
+        processorsshapes.push(calcRandomShape(randomizer, true, true, true, true, true, [processorsshapes[5]]));
+        processorsshapes.push(calcRandomShape(randomizer, true, true, true, true, true, [processorsshapes[5], processorsshapes[6]]));
+        paintingshapes.push(calcRandomShape(randomizer, true, true, true, true, true));
+        paintingshapes.push(calcRandomShape(randomizer, true, true, true, true, true, [paintingshapes[5]]));
+        paintingshapes.push(calcRandomShape(randomizer, true, true, true, true, true, [paintingshapes[5], paintingshapes[6]]));
     }
     return constructUpgradeShapes(multiplier, finaltier, beltshapes, minershapes, processorsshapes, paintingshapes);
 }
@@ -685,93 +681,93 @@ export function categoryRandomUpgradeShapes(multiplier, randomizer, finaltier, s
     phase[building3] = 3;
     phase[building4] = 4;
     phase[building5] = 5;
-    const beltshapes = [
-        calcRandomShape(randomizer, phase["Cutter"] <= amountBelt, phase["Rotator"] <= amountBelt, phase["Stacker"] <= amountBelt, phase["Painter"] <= amountBelt, phase["Color Mixer"] <= amountBelt),
-        calcRandomShape(randomizer, phase["Cutter"] <= amountBelt, phase["Rotator"] <= amountBelt, phase["Stacker"] <= amountBelt, phase["Painter"] <= amountBelt, phase["Color Mixer"] <= amountBelt),
-        calcRandomShape(randomizer, phase["Cutter"] <= amountBelt, phase["Rotator"] <= amountBelt, phase["Stacker"] <= amountBelt, phase["Painter"] <= amountBelt, phase["Color Mixer"] <= amountBelt),
-        calcRandomShape(randomizer, phase["Cutter"] <= amountBelt, phase["Rotator"] <= amountBelt, phase["Stacker"] <= amountBelt, phase["Painter"] <= amountBelt, phase["Color Mixer"] <= amountBelt),
-        calcRandomShape(randomizer, phase["Cutter"] <= amountBelt, phase["Rotator"] <= amountBelt, phase["Stacker"] <= amountBelt, phase["Painter"] <= amountBelt, phase["Color Mixer"] <= amountBelt)
-    ];
-    const minershapes = [
-        calcRandomShape(randomizer, phase["Cutter"] <= amountMiner, phase["Rotator"] <= amountMiner, phase["Stacker"] <= amountMiner, phase["Painter"] <= amountMiner, phase["Color Mixer"] <= amountMiner),
-        calcRandomShape(randomizer, phase["Cutter"] <= amountMiner, phase["Rotator"] <= amountMiner, phase["Stacker"] <= amountMiner, phase["Painter"] <= amountMiner, phase["Color Mixer"] <= amountMiner),
-        calcRandomShape(randomizer, phase["Cutter"] <= amountMiner, phase["Rotator"] <= amountMiner, phase["Stacker"] <= amountMiner, phase["Painter"] <= amountMiner, phase["Color Mixer"] <= amountMiner),
-        calcRandomShape(randomizer, phase["Cutter"] <= amountMiner, phase["Rotator"] <= amountMiner, phase["Stacker"] <= amountMiner, phase["Painter"] <= amountMiner, phase["Color Mixer"] <= amountMiner),
-        calcRandomShape(randomizer, phase["Cutter"] <= amountMiner, phase["Rotator"] <= amountMiner, phase["Stacker"] <= amountMiner, phase["Painter"] <= amountMiner, phase["Color Mixer"] <= amountMiner)
-    ];
-    const processorsshapes = [
-        calcRandomShape(randomizer, phase["Cutter"] <= amountProcessors, phase["Rotator"] <= amountProcessors, phase["Stacker"] <= amountProcessors, phase["Painter"] <= amountProcessors, phase["Color Mixer"] <= amountProcessors),
-        calcRandomShape(randomizer, phase["Cutter"] <= amountProcessors, phase["Rotator"] <= amountProcessors, phase["Stacker"] <= amountProcessors, phase["Painter"] <= amountProcessors, phase["Color Mixer"] <= amountProcessors),
-        calcRandomShape(randomizer, phase["Cutter"] <= amountProcessors, phase["Rotator"] <= amountProcessors, phase["Stacker"] <= amountProcessors, phase["Painter"] <= amountProcessors, phase["Color Mixer"] <= amountProcessors),
-        calcRandomShape(randomizer, phase["Cutter"] <= amountProcessors, phase["Rotator"] <= amountProcessors, phase["Stacker"] <= amountProcessors, phase["Painter"] <= amountProcessors, phase["Color Mixer"] <= amountProcessors),
-        calcRandomShape(randomizer, phase["Cutter"] <= amountProcessors, phase["Rotator"] <= amountProcessors, phase["Stacker"] <= amountProcessors, phase["Painter"] <= amountProcessors, phase["Color Mixer"] <= amountProcessors)
-    ];
-    const paintingshapes = [
-        calcRandomShape(randomizer, phase["Cutter"] <= amountPainting, phase["Rotator"] <= amountPainting, phase["Stacker"] <= amountPainting, phase["Painter"] <= amountPainting, phase["Color Mixer"] <= amountPainting),
-        calcRandomShape(randomizer, phase["Cutter"] <= amountPainting, phase["Rotator"] <= amountPainting, phase["Stacker"] <= amountPainting, phase["Painter"] <= amountPainting, phase["Color Mixer"] <= amountPainting),
-        calcRandomShape(randomizer, phase["Cutter"] <= amountPainting, phase["Rotator"] <= amountPainting, phase["Stacker"] <= amountPainting, phase["Painter"] <= amountPainting, phase["Color Mixer"] <= amountPainting),
-        calcRandomShape(randomizer, phase["Cutter"] <= amountPainting, phase["Rotator"] <= amountPainting, phase["Stacker"] <= amountPainting, phase["Painter"] <= amountPainting, phase["Color Mixer"] <= amountPainting),
-        calcRandomShape(randomizer, phase["Cutter"] <= amountPainting, phase["Rotator"] <= amountPainting, phase["Stacker"] <= amountPainting, phase["Painter"] <= amountPainting, phase["Color Mixer"] <= amountPainting)
-    ];
+    const beltshapes = [calcRandomShape(randomizer, phase["Cutter"] <= amountBelt, phase["Rotator"] <= amountBelt, phase["Stacker"] <= amountBelt, phase["Painter"] <= amountBelt, phase["Color Mixer"] <= amountBelt)];
+    beltshapes.push(calcRandomShape(randomizer, phase["Cutter"] <= amountBelt, phase["Rotator"] <= amountBelt, phase["Stacker"] <= amountBelt, phase["Painter"] <= amountBelt, phase["Color Mixer"] <= amountBelt, beltshapes));
+    beltshapes.push(calcRandomShape(randomizer, phase["Cutter"] <= amountBelt, phase["Rotator"] <= amountBelt, phase["Stacker"] <= amountBelt, phase["Painter"] <= amountBelt, phase["Color Mixer"] <= amountBelt, beltshapes));
+    beltshapes.push(calcRandomShape(randomizer, true, true, true, true, true, beltshapes));
+    beltshapes.push(calcRandomShape(randomizer, true, true, true, true, true, beltshapes));
+    const minershapes = [calcRandomShape(randomizer, phase["Cutter"] <= amountMiner, phase["Rotator"] <= amountMiner, phase["Stacker"] <= amountMiner, phase["Painter"] <= amountMiner, phase["Color Mixer"] <= amountMiner)];
+    minershapes.push(calcRandomShape(randomizer, phase["Cutter"] <= amountMiner, phase["Rotator"] <= amountMiner, phase["Stacker"] <= amountMiner, phase["Painter"] <= amountMiner, phase["Color Mixer"] <= amountMiner, minershapes));
+    minershapes.push(calcRandomShape(randomizer, phase["Cutter"] <= amountMiner, phase["Rotator"] <= amountMiner, phase["Stacker"] <= amountMiner, phase["Painter"] <= amountMiner, phase["Color Mixer"] <= amountMiner, minershapes));
+    minershapes.push(calcRandomShape(randomizer, true, true, true, true, true, minershapes));
+    minershapes.push(calcRandomShape(randomizer, true, true, true, true, true, minershapes));
+    const processorsshapes = [calcRandomShape(randomizer, phase["Cutter"] <= amountProcessors, phase["Rotator"] <= amountProcessors, phase["Stacker"] <= amountProcessors, phase["Painter"] <= amountProcessors, phase["Color Mixer"] <= amountProcessors)];
+    processorsshapes.push(calcRandomShape(randomizer, phase["Cutter"] <= amountProcessors, phase["Rotator"] <= amountProcessors, phase["Stacker"] <= amountProcessors, phase["Painter"] <= amountProcessors, phase["Color Mixer"] <= amountProcessors, processorsshapes));
+    processorsshapes.push(calcRandomShape(randomizer, phase["Cutter"] <= amountProcessors, phase["Rotator"] <= amountProcessors, phase["Stacker"] <= amountProcessors, phase["Painter"] <= amountProcessors, phase["Color Mixer"] <= amountProcessors, processorsshapes));
+    processorsshapes.push(calcRandomShape(randomizer, true, true, true, true, true, processorsshapes));
+    processorsshapes.push(calcRandomShape(randomizer, true, true, true, true, true, processorsshapes));
+    const paintingshapes = [calcRandomShape(randomizer, phase["Cutter"] <= amountPainting, phase["Rotator"] <= amountPainting, phase["Stacker"] <= amountPainting, phase["Painter"] <= amountPainting, phase["Color Mixer"] <= amountPainting)];
+    paintingshapes.push(calcRandomShape(randomizer, phase["Cutter"] <= amountPainting, phase["Rotator"] <= amountPainting, phase["Stacker"] <= amountPainting, phase["Painter"] <= amountPainting, phase["Color Mixer"] <= amountPainting, paintingshapes));
+    paintingshapes.push(calcRandomShape(randomizer, phase["Cutter"] <= amountPainting, phase["Rotator"] <= amountPainting, phase["Stacker"] <= amountPainting, phase["Painter"] <= amountPainting, phase["Color Mixer"] <= amountPainting, paintingshapes));
+    paintingshapes.push(calcRandomShape(randomizer, true, true, true, true, true, paintingshapes));
+    paintingshapes.push(calcRandomShape(randomizer, true, true, true, true, true, paintingshapes));
     if (samelate) {
-        var late1 = calcRandomShape(randomizer, true, true, true, true, true);
-        var late2 = calcRandomShape(randomizer, true, true, true, true, true);
-        var late3 = calcRandomShape(randomizer, true, true, true, true, true);
+        const late1 = calcRandomShape(randomizer, true, true, true, true, true);
+        const late2 = calcRandomShape(randomizer, true, true, true, true, true, [late1]);
+        const late3 = calcRandomShape(randomizer, true, true, true, true, true, [late1, late2]);
         beltshapes.push(late1, late2, late3);
         minershapes.push(late1, late2, late3);
         processorsshapes.push(late1, late2, late3);
         paintingshapes.push(late1, late2, late3);
     } else {
-        beltshapes.push(calcRandomShape(randomizer, true, true, true, true, true), calcRandomShape(randomizer, true, true, true, true, true), calcRandomShape(randomizer, true, true, true, true, true));
-        minershapes.push(calcRandomShape(randomizer, true, true, true, true, true), calcRandomShape(randomizer, true, true, true, true, true), calcRandomShape(randomizer, true, true, true, true, true));
-        processorsshapes.push(calcRandomShape(randomizer, true, true, true, true, true), calcRandomShape(randomizer, true, true, true, true, true), calcRandomShape(randomizer, true, true, true, true, true));
-        paintingshapes.push(calcRandomShape(randomizer, true, true, true, true, true), calcRandomShape(randomizer, true, true, true, true, true), calcRandomShape(randomizer, true, true, true, true, true));
+        beltshapes.push(calcRandomShape(randomizer, true, true, true, true, true));
+        beltshapes.push(calcRandomShape(randomizer, true, true, true, true, true, [beltshapes[5]]));
+        beltshapes.push(calcRandomShape(randomizer, true, true, true, true, true, [beltshapes[5], beltshapes[6]]));
+        minershapes.push(calcRandomShape(randomizer, true, true, true, true, true));
+        minershapes.push(calcRandomShape(randomizer, true, true, true, true, true, [minershapes[5]]));
+        minershapes.push(calcRandomShape(randomizer, true, true, true, true, true, [minershapes[5], minershapes[6]]));
+        processorsshapes.push(calcRandomShape(randomizer, true, true, true, true, true));
+        processorsshapes.push(calcRandomShape(randomizer, true, true, true, true, true, [processorsshapes[5]]));
+        processorsshapes.push(calcRandomShape(randomizer, true, true, true, true, true, [processorsshapes[5], processorsshapes[6]]));
+        paintingshapes.push(calcRandomShape(randomizer, true, true, true, true, true));
+        paintingshapes.push(calcRandomShape(randomizer, true, true, true, true, true, [paintingshapes[5]]));
+        paintingshapes.push(calcRandomShape(randomizer, true, true, true, true, true, [paintingshapes[5], paintingshapes[6]]));
     }
     return constructUpgradeShapes(multiplier, finaltier, beltshapes, minershapes, processorsshapes, paintingshapes);
 }
 
 export function hardcoreUpgradeShapes(multiplier, randomizer, finaltier, samelate) {
-    const beltshapes = [
-        calcRandomShape(randomizer, false, false, false, false, false),
-        calcRandomShape(randomizer, true, true, true, true, true),
-        calcRandomShape(randomizer, true, true, true, true, true),
-        calcRandomShape(randomizer, true, true, true, true, true),
-        calcRandomShape(randomizer, true, true, true, true, true)
-    ];
-    const minershapes = [
-        calcRandomShape(randomizer, false, false, false, false, false),
-        calcRandomShape(randomizer, true, true, true, true, true),
-        calcRandomShape(randomizer, true, true, true, true, true),
-        calcRandomShape(randomizer, true, true, true, true, true),
-        calcRandomShape(randomizer, true, true, true, true, true)
-    ];
-    const processorsshapes = [
-        calcRandomShape(randomizer, false, false, false, false, false),
-        calcRandomShape(randomizer, true, true, true, true, true),
-        calcRandomShape(randomizer, true, true, true, true, true),
-        calcRandomShape(randomizer, true, true, true, true, true),
-        calcRandomShape(randomizer, true, true, true, true, true)
-    ];
-    const paintingshapes = [
-        calcRandomShape(randomizer, false, false, false, false, false),
-        calcRandomShape(randomizer, true, true, true, true, true),
-        calcRandomShape(randomizer, true, true, true, true, true),
-        calcRandomShape(randomizer, true, true, true, true, true),
-        calcRandomShape(randomizer, true, true, true, true, true)
-    ];
+    const beltshapes = [calcRandomShape(randomizer, false, false, false, false, false)];
+    beltshapes.push(calcRandomShape(randomizer, true, true, true, true, true, beltshapes));
+    beltshapes.push(calcRandomShape(randomizer, true, true, true, true, true, beltshapes));
+    beltshapes.push(calcRandomShape(randomizer, true, true, true, true, true, beltshapes));
+    beltshapes.push(calcRandomShape(randomizer, true, true, true, true, true, beltshapes));
+    const minershapes = [calcRandomShape(randomizer, false, false, false, false, false)];
+    minershapes.push(calcRandomShape(randomizer, true, true, true, true, true, minershapes));
+    minershapes.push(calcRandomShape(randomizer, true, true, true, true, true, minershapes));
+    minershapes.push(calcRandomShape(randomizer, true, true, true, true, true, minershapes));
+    minershapes.push(calcRandomShape(randomizer, true, true, true, true, true, minershapes));
+    const processorsshapes = [calcRandomShape(randomizer, false, false, false, false, false)];
+    processorsshapes.push(calcRandomShape(randomizer, true, true, true, true, true, processorsshapes));
+    processorsshapes.push(calcRandomShape(randomizer, true, true, true, true, true, processorsshapes));
+    processorsshapes.push(calcRandomShape(randomizer, true, true, true, true, true, processorsshapes));
+    processorsshapes.push(calcRandomShape(randomizer, true, true, true, true, true, processorsshapes));
+    const paintingshapes = [calcRandomShape(randomizer, false, false, false, false, false)];
+    paintingshapes.push(calcRandomShape(randomizer, true, true, true, true, true, paintingshapes));
+    paintingshapes.push(calcRandomShape(randomizer, true, true, true, true, true, paintingshapes));
+    paintingshapes.push(calcRandomShape(randomizer, true, true, true, true, true, paintingshapes));
+    paintingshapes.push(calcRandomShape(randomizer, true, true, true, true, true, paintingshapes));
     if (samelate) {
-        var late1 = calcRandomShape(randomizer, true, true, true, true, true);
-        var late2 = calcRandomShape(randomizer, true, true, true, true, true);
-        var late3 = calcRandomShape(randomizer, true, true, true, true, true);
+        const late1 = calcRandomShape(randomizer, true, true, true, true, true);
+        const late2 = calcRandomShape(randomizer, true, true, true, true, true, [late1]);
+        const late3 = calcRandomShape(randomizer, true, true, true, true, true, [late1, late2]);
         beltshapes.push(late1, late2, late3);
         minershapes.push(late1, late2, late3);
         processorsshapes.push(late1, late2, late3);
         paintingshapes.push(late1, late2, late3);
     } else {
-        beltshapes.push(calcRandomShape(randomizer, true, true, true, true, true), calcRandomShape(randomizer, true, true, true, true, true), calcRandomShape(randomizer, true, true, true, true, true));
-        minershapes.push(calcRandomShape(randomizer, true, true, true, true, true), calcRandomShape(randomizer, true, true, true, true, true), calcRandomShape(randomizer, true, true, true, true, true));
-        processorsshapes.push(calcRandomShape(randomizer, true, true, true, true, true), calcRandomShape(randomizer, true, true, true, true, true), calcRandomShape(randomizer, true, true, true, true, true));
-        paintingshapes.push(calcRandomShape(randomizer, true, true, true, true, true), calcRandomShape(randomizer, true, true, true, true, true), calcRandomShape(randomizer, true, true, true, true, true));
+        beltshapes.push(calcRandomShape(randomizer, true, true, true, true, true));
+        beltshapes.push(calcRandomShape(randomizer, true, true, true, true, true, [beltshapes[5]]));
+        beltshapes.push(calcRandomShape(randomizer, true, true, true, true, true, [beltshapes[5], beltshapes[6]]));
+        minershapes.push(calcRandomShape(randomizer, true, true, true, true, true));
+        minershapes.push(calcRandomShape(randomizer, true, true, true, true, true, [minershapes[5]]));
+        minershapes.push(calcRandomShape(randomizer, true, true, true, true, true, [minershapes[5], minershapes[6]]));
+        processorsshapes.push(calcRandomShape(randomizer, true, true, true, true, true));
+        processorsshapes.push(calcRandomShape(randomizer, true, true, true, true, true, [processorsshapes[5]]));
+        processorsshapes.push(calcRandomShape(randomizer, true, true, true, true, true, [processorsshapes[5], processorsshapes[6]]));
+        paintingshapes.push(calcRandomShape(randomizer, true, true, true, true, true));
+        paintingshapes.push(calcRandomShape(randomizer, true, true, true, true, true, [paintingshapes[5]]));
+        paintingshapes.push(calcRandomShape(randomizer, true, true, true, true, true, [paintingshapes[5], paintingshapes[6]]));
     }
     return constructUpgradeShapes(multiplier, finaltier, beltshapes, minershapes, processorsshapes, paintingshapes);
 }
@@ -941,23 +937,41 @@ function constructUpgradeShapes(multiplier, finaltier, beltshapes, minershapes, 
 }
 
 /**
- * 
- * @param {RandomNumberGenerator} randomizer 
+ * @param {RandomNumberGenerator} randomizer
  * @returns {string} full shape
+ * @param {boolean} hasCutter
+ * @param {boolean} hasRotator
+ * @param {boolean} hasStacker
+ * @param {boolean} hasPainter
+ * @param {boolean} hasMixer
+ * @param {Array<string>} exclude
  */
-function calcRandomShape(randomizer, hasCutter, hasRotator, hasStacker, hasPainter, hasMixer) {
-    var hash = calcRandomLayer(randomizer, hasCutter, hasRotator, hasStacker, hasPainter, hasMixer);
-    if (hasStacker) {
-        if (randomizer.nextIntRange(0, 2) == 0) {
-            hash = stackLayers(hash, calcRandomLayer(randomizer, hasCutter, hasRotator, hasStacker, hasPainter, hasMixer));
+function calcRandomShape(randomizer, hasCutter, hasRotator, hasStacker, hasPainter, hasMixer, exclude = []) {
+    var hash = "";
+    do {
+        hash = calcRandomLayer(randomizer, hasCutter, hasRotator, hasStacker, hasPainter, hasMixer);
+        if (hasStacker) {
             if (randomizer.nextIntRange(0, 2) == 0) {
-                hash = stackLayers(hash, calcRandomLayer(randomizer, hasCutter, hasRotator, hasStacker, hasPainter, hasMixer));
+                var bottom = calcRandomLayer(randomizer, 
+                    randomizer.choice([hasCutter, false]), 
+                    randomizer.choice([hasRotator, false]), 
+                    randomizer.choice([hasStacker, false]), hasPainter, hasMixer);
                 if (randomizer.nextIntRange(0, 2) == 0) {
-                    hash = stackLayers(hash, calcRandomLayer(randomizer, hasCutter, hasRotator, hasStacker, hasPainter, hasMixer));
+                    bottom = stackLayers(hash, calcRandomLayer(randomizer, 
+                        randomizer.choice([hasCutter, false]), 
+                        randomizer.choice([hasRotator, false]), 
+                        randomizer.choice([hasStacker, false]), hasPainter, hasMixer));
+                    if (randomizer.nextIntRange(0, 2) == 0) {
+                        bottom = stackLayers(hash, calcRandomLayer(randomizer, 
+                            randomizer.choice([hasCutter, false]), 
+                            randomizer.choice([hasRotator, false]), 
+                            randomizer.choice([hasStacker, false]), hasPainter, hasMixer));
+                    }
                 }
+                hash = stackLayers(bottom, hash);
             }
         }
-    }
+    } while (exclude.includes(hash));
     return hash;
 }
 
@@ -965,6 +979,7 @@ function calcRandomShape(randomizer, hasCutter, hasRotator, hasStacker, hasPaint
  * 
  * @param {string} bottom 
  * @param {string} newlayer 
+ * @returns {string} bottom:newlayer or newlayer merged with top layer of bottom
  */
 function stackLayers(bottom, newlayer) {
     var copy = bottom.substring(0, bottom.length-8);
@@ -989,21 +1004,21 @@ function stackLayers(bottom, newlayer) {
  */
 function calcRandomLayer(randomizer, hasCutter, hasRotator, hasStacker, hasPainter, hasMixer) {
     var layer = "";
-    if (hasCutter && randomizer.nextIntRange(0, 3) > 0) {
+    if (hasCutter && randomizer.choice([true, true, true, false])) {
         layer = calcRandomHalf(randomizer, hasCutter, hasRotator, hasStacker, hasPainter, hasMixer);
-        if (hasStacker && randomizer.nextIntRange(0, 2) == 0) {
+        if (hasStacker) {
             layer += calcRandomHalf(randomizer, hasCutter, hasRotator, hasStacker, hasPainter, hasMixer);
         } else {
             var r = randomizer.nextIntRange(0, 3);
-            if (r == 0 && !isWindmillHalf(layer)) {
-                layer = layer + "----";
-            } else if (r == 1 && !isWindmillHalf(layer)) {
+            if (r == 0 || isWindmillHalf(layer)) {
+                layer = "----" + layer;
+            } else if (r == 1 && !hasRotator) {
                 layer += layer;
             } else {
-                layer = "----" + layer;
+                layer = layer + "----";
             }
         }
-        if (hasRotator && randomizer.nextIntRange(0, 2) == 0) {
+        if (hasRotator && randomizer.choice([true, false])) {
             layer = layer.substring(2, 8) + layer.substring(0, 2);
         }
     } else {
@@ -1016,7 +1031,7 @@ function calcRandomLayer(randomizer, hasCutter, hasRotator, hasStacker, hasPaint
 /**
  * 
  * @param {string} half 
- * @returns {boolean}
+ * @returns {boolean} WxWx
  */
 function isWindmillHalf(half) {
     return half.charAt(0) === "W" && half.charAt(2) === "W";
@@ -1025,12 +1040,18 @@ function isWindmillHalf(half) {
 /**
  * hasCutter == true
  * @param {RandomNumberGenerator} randomizer 
- * @returns {string}
+ * @returns {string} XxXx
  */
 function calcRandomHalf(randomizer, hasCutter, hasRotator, hasStacker, hasPainter, hasMixer) {
     var part = calcRandomPart(randomizer, hasPainter, hasMixer, true);
-    if (hasCutter && hasRotator && hasStacker && randomizer.nextIntRange(0, 2) == 0) {
+    if (hasRotator && hasStacker && randomizer.choice([true, false])) {
         part += calcRandomPart(randomizer, hasPainter, hasMixer, true);
+    } else if (hasRotator && randomizer.choice([true, false])) {
+        if (randomizer.choice([true, false])) {
+            part += "--"
+        } else {
+            part = "--" + part
+        }
     } else {
         part += part;
     }
@@ -1042,7 +1063,7 @@ function calcRandomHalf(randomizer, hasCutter, hasRotator, hasStacker, hasPainte
  * @param {RandomNumberGenerator} randomizer 
  * @returns {string} Xx
  */
-function calcRandomPart(randomizer, hasPainter, hasMixer, windmillAllowed) {
+function calcRandomPart(randomizer, hasPainter, hasMixer, windmillAllowed, preferredColor = null) {
     const subshapes = ["C", "R", "S"];
     if (windmillAllowed) {
         subshapes.push("W");
@@ -1052,6 +1073,12 @@ function calcRandomPart(randomizer, hasPainter, hasMixer, windmillAllowed) {
         colors.push("r", "g", "b");
         if (hasMixer) {
             colors.push("y", "p", "c", "w");
+            if (preferredColor) colors.push(
+                preferredColor, preferredColor, 
+                preferredColor, preferredColor, 
+                preferredColor, preferredColor);
+        } else {
+            if (preferredColor) colors.push(preferredColor, preferredColor);
         }
     }
     return randomizer.choice(subshapes) + randomizer.choice(colors);

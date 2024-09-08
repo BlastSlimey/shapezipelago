@@ -8,6 +8,7 @@ export const customRewards = {
     reward_trash: 0,
     reward_wires: 0,
     reward_painter_quad: 0,
+    reward_switch: 0,
     reward_belt: 0,
     reward_extractor: 0
 };
@@ -20,7 +21,7 @@ export const upgradeIdNames = {
     processors: "Processors",
     painting: "Painting"
 };
-const achievementNames = {
+export const achievementNames = {
     "belt500Tiles": "I need trains",
     "blueprint100k": "It's piling up",
     "blueprint1m": "I'll use it later",
@@ -33,8 +34,6 @@ const achievementNames = {
     "logoBefore18": "A bit early?",
     "mam": "MAM (Make Anything Machine)",
     "mapMarkers15": "GPS",
-    "noBeltUpgradesUntilBp": "It's so slow",
-    "noInverseRotater": "King of Inefficiency",
     "oldLevel17": "Memories from the past",
     "openWires": "The next dimension",
     "paintShape": "Painter",
@@ -42,15 +41,10 @@ const achievementNames = {
     "placeBlueprint": "Now it's easy",
     "placeBp1000": "Copy-Pasta",
     "play1h": "Getting into it",
-    "play10h": "It's been a long time",
-    "play20h": "Addicted",
     "produceLogo": "The logo!",
     "produceMsLogo": "I've seen that before ...",
     "produceRocket": "To the moon",
     "rotateShape": "Rotater",
-    "speedrunBp30": "Speedrun Master",
-    "speedrunBp60": "Speedrun Novice",
-    "speedrunBp120": "Not an idle game",
     "stack4Layers": "Stack overflow",
     "stackShape": "Wait, they stack?",
     "store100Unique": "It's a mess",
@@ -64,7 +58,19 @@ const achievementNames = {
     "trash1000": "Get rid of them",
     "unlockWires": "Wires",
     "upgradesTier5": "Faster",
-    "upgradesTier8": "Even faster"
+    "upgradesTier8": "Even faster",
+    "darkMode": "My eyes no longer hurt"
+};
+export const softlockAchievementNames = {
+    "speedrunBp30": "Speedrun Master",
+    "speedrunBp60": "Speedrun Novice",
+    "speedrunBp120": "Not an idle game",
+    "noBeltUpgradesUntilBp": "It's so slow",
+    "noInverseRotater": "King of Inefficiency"
+};
+export const longAchievementNames = {
+    "play10h": "It's been a long time",
+    "play20h": "Addicted"
 };
 const translate = [
     {key: 1000, val: "M"},
@@ -130,6 +136,22 @@ export const baseBuildingNames = {
     mixer: "Color Mixer",
     trash: "Trash"
 };
+export const getIsUnlockedForTrap = {
+    belt: (root) => {return customRewards.reward_belt != 0},
+    balancer: (root) => {return root.hubGoals.isRewardUnlocked("reward_balancer")},
+    tunnel: (root) => {return root.hubGoals.isRewardUnlocked("reward_tunnel")},
+    extractor: (root) => {return customRewards.reward_extractor != 0},
+    cutter: (root) => {return customRewards.reward_cutter != 0},
+    cutter_quad: (root) => {return root.hubGoals.isRewardUnlocked("reward_cutter_quad")},
+    rotator: (root) => {return root.hubGoals.isRewardUnlocked("reward_rotater")},
+    rotator_ccw: (root) => {return root.hubGoals.isRewardUnlocked("reward_rotater_ccw")},
+    rotator_180: (root) => {return root.hubGoals.isRewardUnlocked("reward_rotater_180")},
+    stacker: (root) => {return root.hubGoals.isRewardUnlocked("reward_stacker")},
+    painter: (root) => {return root.hubGoals.isRewardUnlocked("reward_painter")},
+    painter_quad: (root) => {return customRewards.reward_painter_quad != 0},
+    mixer: (root) => {return root.hubGoals.isRewardUnlocked("reward_mixer")},
+    trash: (root) => {return customRewards.reward_trash != 0}
+}
 export var shapesanityCache = {
     "CuCuCuCu:CuCuCuCu": true
 };
@@ -179,4 +201,13 @@ export function increaseProcessedItems() {
  */
 export function setGamePackage(pack) {
     gamePackage = pack;
+}
+
+/**
+ * @param {string[]} messages
+ */
+export function aplog(...messages) {
+    for (var m of messages) {
+        console.log("%c[AP] " + m, "background: #dddddd; color: #0044ff");
+    }
 }

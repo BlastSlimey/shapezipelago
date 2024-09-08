@@ -1,5 +1,5 @@
 import { Mod } from "shapez/mods/mod";
-import { client, connected, customRewards, leveldefs, roman, setLevelDefs, setUpgredeDefs, trapLocked, trapMalfunction, trapThrottled, upgradeDefs, upgradeIdNames } from "./global_data";
+import { aplog, client, connected, customRewards, leveldefs, roman, setLevelDefs, setUpgredeDefs, trapLocked, trapMalfunction, trapThrottled, upgradeDefs, upgradeIdNames } from "./global_data";
 import { RandomNumberGenerator } from "shapez/core/rng";
 import { categoryRandomUpgradeShapes, categoryUpgradeShapes, hardcoreUpgradeShapes, linearUpgradeShapes, randomizedHardcoreShapes, randomizedQuickShapes, randomizedRandomStepsShapes, randomizedStretchedShapes, randomizedVanillaStepsShapes, vanillaLikeUpgradeShapes, vanillaShapes, vanillaUpgradeShapes } from "./requirement_definitions";
 import { MOD_SIGNALS } from "shapez/mods/mod_signals";
@@ -12,6 +12,12 @@ import { ShapeDefinition } from "shapez/game/shape_definition";
 import { enumItemProcessorTypes } from "shapez/game/components/item_processor";
 import { ACHIEVEMENTS } from "shapez/platform/achievement_provider";
 import { GameRoot } from "shapez/game/root";
+import { AchievementLocationProxy } from "./achievements";
+import { randomInt } from "shapez/core/utils";
+import { gMetaBuildingRegistry } from "shapez/core/global_registries";
+import { MetaHubBuilding } from "shapez/game/buildings/hub";
+import { Vector } from "shapez/core/vector";
+import { globalConfig } from "shapez/core/config";
 
 /**
  * 
@@ -52,8 +58,11 @@ export function overrideLocationsListenToItems(modImpl) {
         if (connected) {
             var goal = client.data.slotData["goal"].valueOf();
             this.root.app.gameAnalytics.handleLevelCompleted(this.level);
-            if (this.level == 1 || this.level == 20) {
-                checkLocation("Level " + this.level, "Level " + this.level + " Additional");
+            if (this.level == 1) {
+                checkLocation("Level 1", "Level 1 Additional");
+            } else if (this.level == 20) {
+                checkLocation("Level 20", "Level 20 Additional");
+                checkLocation("Level 20 Additional 2");
             } else {
                 checkLocation("Level " + this.level);
             }
@@ -74,6 +83,7 @@ export function overrideLocationsListenToItems(modImpl) {
             if (!this.canUnlockUpgrade(upgradeId)) {
                 return false;
             }
+            // @ts-ignore
             const upgradeTiers = this.root.gameMode.getUpgrades()[upgradeId];
             const currentLevel = this.getUpgradeLevel(upgradeId);
             const tierData = upgradeTiers[currentLevel];
@@ -84,6 +94,7 @@ export function overrideLocationsListenToItems(modImpl) {
                 const requirement = tierData.required[i];
                 this.storedShapes[requirement.shape] -= requirement.amount;
             }
+            // @ts-ignore
             this.upgradeLevels[upgradeId] = (this.upgradeLevels[upgradeId] || 0) + 1;
             const upgradeNames = {belt: "Belt", miner: "Miner", processors: "Processors", painting: "Painting"};
             checkLocation(upgradeNames[upgradeId] + " Upgrade Tier " + roman(currentLevel+2));
@@ -93,12 +104,41 @@ export function overrideLocationsListenToItems(modImpl) {
             $original(upgradeId);
         }
     });
+    modImpl.modInterface.replaceMethod(shapez.GameCore, "initNewGame", function ($original, []) {
+        aplog("Initializing new AP game");
+        this.root.gameIsFresh = true;
+        if (connected) {
+            this.root.map.seed = Number(client.data.slotData["seed"].valueOf());
+        } else {
+            this.root.map.seed = randomInt(0, 100000);
+        }
+        if (!this.root.gameMode.hasHub()) {
+            return;
+        }
+        // Place the hub
+        const hub = gMetaBuildingRegistry.findByClass(MetaHubBuilding).createEntity({
+            root: this.root,
+            origin: new Vector(-2, -2),
+            rotation: 0,
+            originalRotation: 0,
+            rotationVariant: 0,
+            variant: defaultBuildingVariant,
+        });
+        this.root.map.placeStaticEntity(hub);
+        this.root.entityMgr.registerEntity(hub);
+        this.root.camera.center = new Vector(-5, 2).multiplyScalar(globalConfig.tileSize);
+    });
+    modImpl.signals.gameInitialized.add(function (/** @type {GameRoot} */ root) {
+        if (connected) {
+            root.achievementProxy = new AchievementLocationProxy(root);
+        }
+    });
     modImpl.signals.gameStarted.add(function (root) {
-        root.signals.shapeDelivered.add(getShapesanityAnalyser(root, true));
+        root.signals.shapeDelivered.add(getShapesanityAnalyser());
         root.signals.shapeDelivered.add(function (shape) {
             if (connected && client.data.slotData["goal"].valueOf() === "efficiency_iii" && root.productionAnalytics.getCurrentShapeRateRaw(
                 enumAnalyticsDataSource.delivered, root.shapeDefinitionMgr.getShapeFromShortKey("CbCbCbRb:CwCwCwCw")
-                ) / 10 >= 500) {
+                ) / 10 >= 256) {
                 checkLocation("Goal");
             }
         });
@@ -114,15 +154,15 @@ export function overrideLocationsListenToItems(modImpl) {
             }
         });
         setRootAndModImpl(root, modImpl);
-        if (!client.data.slotData["lock_belt_and_extractor"].valueOf()) {
-            customRewards.reward_belt = 1;
-            customRewards.reward_extractor = 1;
+        client.addListener(SERVER_PACKET_TYPE.RECEIVED_ITEMS, processItemsPacket);
+        if (connected) {
+            if (!client.data.slotData["lock_belt_and_extractor"].valueOf()) {
+                customRewards.reward_belt = 1;
+                customRewards.reward_extractor = 1;
+            }
+            client.send({cmd: CLIENT_PACKET_TYPE.SYNC});
+            resyncLocationChecks(root);
         }
-        client.addListener(SERVER_PACKET_TYPE.RECEIVED_ITEMS, function (packet) {
-            processItemsPacket(packet);
-        });
-        client.send({cmd: CLIENT_PACKET_TYPE.SYNC});
-        resyncLocationChecks(root);
     });
 }
 
@@ -136,25 +176,39 @@ export function overrideBuildings(modImpl) {
         return (connected ? customRewards.reward_belt != 0 : $original(root)) && !trapLocked.belt;
     });
     modImpl.modInterface.replaceMethod(shapez.MetaBalancerBuilding, "getIsUnlocked", function ($original, [root]) {
-        return $original(root) && !trapLocked.balancer;
+        // @ts-ignore
+        return (connected ? $original(root) || root.hubGoals.isRewardUnlocked("reward_merger")
+            // @ts-ignore
+            || root.hubGoals.isRewardUnlocked("reward_splitter") : $original(root)) && !trapLocked.balancer;
     });
     modImpl.modInterface.replaceMethod(shapez.MetaUndergroundBeltBuilding, "getIsUnlocked", function ($original, [root]) {
-        return $original(root) && !trapLocked.tunnel;
+        // @ts-ignore
+        return (connected ? $original(root) || root.hubGoals.isRewardUnlocked("reward_underground_belt_tier_2")
+            : $original(root)) && !trapLocked.tunnel;
     });
     modImpl.modInterface.replaceMethod(shapez.MetaMinerBuilding, "getIsUnlocked", function ($original, [root]) {
-        return (connected ? customRewards.reward_extractor != 0 : $original(root)) && !trapLocked.extractor;
+        return (connected ? customRewards.reward_extractor != 0 
+            // @ts-ignore
+            || root.hubGoals.isRewardUnlocked("reward_miner_chainable") : $original(root)) && !trapLocked.extractor;
     });
     modImpl.modInterface.replaceMethod(shapez.MetaCutterBuilding, "getIsUnlocked", function ($original, [root]) {
-        return (connected ? customRewards.reward_cutter != 0 : $original(root)) && !trapLocked.cutter;
+        // @ts-ignore
+        return (connected ? customRewards.reward_cutter != 0 || root.hubGoals.isRewardUnlocked("reward_cutter_quad") 
+            : $original(root)) && !trapLocked.cutter;
     });
     modImpl.modInterface.replaceMethod(shapez.MetaRotaterBuilding, "getIsUnlocked", function ($original, [root]) {
-        return $original(root) && !trapLocked.rotator;
+        // @ts-ignore
+        return (connected ? $original(root) || root.hubGoals.isRewardUnlocked("reward_rotater_ccw") 
+            // @ts-ignore
+            || root.hubGoals.isRewardUnlocked("reward_rotater_180") : $original(root)) && !trapLocked.rotator;
     });
     modImpl.modInterface.replaceMethod(shapez.MetaStackerBuilding, "getIsUnlocked", function ($original, [root]) {
         return $original(root) && !trapLocked.stacker;
     });
     modImpl.modInterface.replaceMethod(shapez.MetaPainterBuilding, "getIsUnlocked", function ($original, [root]) {
-        return $original(root) && !trapLocked.painter;
+        // @ts-ignore
+        return (connected ? $original(root) || root.hubGoals.isRewardUnlocked("reward_painter_double") 
+            || customRewards.reward_painter_quad != 0 : $original(root)) && !trapLocked.painter;
     });
     modImpl.modInterface.replaceMethod(shapez.MetaMixerBuilding, "getIsUnlocked", function ($original, [root]) {
         return $original(root) && !trapLocked.mixer;
@@ -164,6 +218,10 @@ export function overrideBuildings(modImpl) {
     });
     modImpl.modInterface.replaceMethod(shapez.MetaWireBuilding, "getIsUnlocked", function ($original, [root]) {
         if (connected) return customRewards.reward_wires != 0;
+        else return $original(root);
+    });
+    modImpl.modInterface.replaceMethod(shapez.MetaLeverBuilding, "getIsUnlocked", function ($original, [root]) {
+        if (connected) return customRewards.reward_switch != 0;
         else return $original(root);
     });
     // base speeds
@@ -203,12 +261,18 @@ export function overrideBuildings(modImpl) {
     // getAvailableVariants
     modImpl.modInterface.replaceMethod(shapez.MetaPainterBuilding, "getAvailableVariants", function ($original, [root]) {
         if (connected) {
-            let variants = [defaultBuildingVariant, enumPainterVariants.mirrored];
+            let variants = [];
+            // @ts-ignore
+            if (root.hubGoals.isRewardUnlocked("reward_painter")) {
+                variants.push(defaultBuildingVariant, enumPainterVariants.mirrored);
+            }
+            // @ts-ignore
             if (root.hubGoals.isRewardUnlocked("reward_painter_double")) {
                 variants.push(enumPainterVariants.double);
             }
             if (
                 customRewards.reward_painter_quad != 0 &&
+                // @ts-ignore
                 root.gameMode.getSupportsWires()
             ) {
                 variants.push(enumPainterVariants.quad);
@@ -218,16 +282,62 @@ export function overrideBuildings(modImpl) {
             return $original(root);
         }
     });
+    modImpl.modInterface.replaceMethod(shapez.MetaBalancerBuilding, "getAvailableVariants", function ($original, [root]) {
+        var available = $original(root);
+        // @ts-ignore
+        if (connected && !root.hubGoals.isRewardUnlocked("reward_balancer")) {
+            var defaultindex = available.indexOf("default");
+            if (defaultindex > -1) {
+                available.splice(defaultindex, 1);
+            }
+        }
+        return available;
+    });
+    modImpl.modInterface.replaceMethod(shapez.MetaUndergroundBeltBuilding, "getAvailableVariants", function ($original, [root]) {
+        var available = $original(root);
+        // @ts-ignore
+        if (connected && !root.hubGoals.isRewardUnlocked("reward_tunnel")) {
+            var defaultindex = available.indexOf("default");
+            if (defaultindex > -1) {
+                available.splice(defaultindex, 1);
+            }
+        }
+        return available;
+    });
+    modImpl.modInterface.replaceMethod(shapez.MetaCutterBuilding, "getAvailableVariants", function ($original, [root]) {
+        var available = $original(root);
+        if (connected && customRewards.reward_cutter == 0) {
+            var defaultindex = available.indexOf("default");
+            if (defaultindex > -1) {
+                available.splice(defaultindex, 1);
+            }
+        }
+        return available;
+    });
+    modImpl.modInterface.replaceMethod(shapez.MetaRotaterBuilding, "getAvailableVariants", function ($original, [root]) {
+        var available = $original(root);
+        // @ts-ignore
+        if (connected && !root.hubGoals.isRewardUnlocked("reward_rotater")) {
+            var defaultindex = available.indexOf("default");
+            if (defaultindex > -1) {
+                available.splice(defaultindex, 1);
+            }
+        }
+        return available;
+    });
     // shapeActions
     modImpl.modInterface.replaceMethod(shapez.ShapeDefinitionManager, "shapeActionCutHalf", function ($original, [definition]) {
         if (!trapMalfunction.cutter) {
             return $original(definition);
         }
+        // @ts-ignore
         const key = "cut-mal/" + definition.getHash();
         if (this.operationCache[key]) {
             return /** @type {[ShapeDefinition, ShapeDefinition]} */ (this.operationCache[key]);
         }
+        // @ts-ignore
         const rightSide = definition.cloneFilteredByQuadrants([3, 0]);
+        // @ts-ignore
         const leftSide = definition.cloneFilteredByQuadrants([1, 2]);
         this.root.signals.achievementCheck.dispatch(ACHIEVEMENTS.cutShape, null);
         return /** @type {[ShapeDefinition, ShapeDefinition]} */ (this.operationCache[key] = [
@@ -239,11 +349,13 @@ export function overrideBuildings(modImpl) {
         if (!trapMalfunction.cutter_quad) {
             return $original(definition);
         }
+        // @ts-ignore
         const key = "cut-quad-mal/" + definition.getHash();
         if (this.operationCache[key]) {
             return /** @type {[ShapeDefinition, ShapeDefinition, ShapeDefinition, ShapeDefinition]} */ (this
                 .operationCache[key]);
         }
+        // @ts-ignore
         const rotated = definition.cloneRotateCW();
         return /** @type {[ShapeDefinition, ShapeDefinition, ShapeDefinition, ShapeDefinition]} */ (this.operationCache[
             key
@@ -258,10 +370,12 @@ export function overrideBuildings(modImpl) {
         if (!trapMalfunction.rotator) {
             return $original(definition);
         }
+        // @ts-ignore
         const key = "rotate-ccw/" + definition.getHash();
         if (this.operationCache[key]) {
             return /** @type {ShapeDefinition} */ (this.operationCache[key]);
         }
+        // @ts-ignore
         const rotated = definition.cloneRotateCCW();
         this.root.signals.achievementCheck.dispatch(ACHIEVEMENTS.rotateShape, null);
         return /** @type {ShapeDefinition} */ (this.operationCache[key] = this.registerOrReturnHandle(
@@ -272,10 +386,12 @@ export function overrideBuildings(modImpl) {
         if (!trapMalfunction.rotator_ccw) {
             return $original(definition);
         }
+        // @ts-ignore
         const key = "rotate-fl/" + definition.getHash();
         if (this.operationCache[key]) {
             return /** @type {ShapeDefinition} */ (this.operationCache[key]);
         }
+        // @ts-ignore
         const rotated = definition.cloneRotate180();
         return /** @type {ShapeDefinition} */ (this.operationCache[key] = this.registerOrReturnHandle(
             rotated
@@ -285,10 +401,12 @@ export function overrideBuildings(modImpl) {
         if (!trapMalfunction.rotator_180) {
             return $original(definition);
         }
+        // @ts-ignore
         const key = "rotate-cw/" + definition.getHash();
         if (this.operationCache[key]) {
             return /** @type {ShapeDefinition} */ (this.operationCache[key]);
         }
+        // @ts-ignore
         const rotated = definition.cloneRotateCW();
         return /** @type {ShapeDefinition} */ (this.operationCache[key] = this.registerOrReturnHandle(
             rotated
@@ -305,6 +423,7 @@ export function overrideBuildings(modImpl) {
         if (!trapMalfunction.painter) {
             return $original(definition, color);
         }
+        // @ts-ignore
         const key = "paint-mal/" + definition.getHash() + "/" + color;
         if (this.operationCache[key]) {
             return /** @type {ShapeDefinition} */ (this.operationCache[key]);
@@ -316,6 +435,7 @@ export function overrideBuildings(modImpl) {
             Math.random() < 0.75 ? color : null,
             Math.random() < 0.75 ? color : null
         ];
+        // @ts-ignore
         const colorized = definition.cloneAndPaintWith4Colors(randomizedColors);
         return /** @type {ShapeDefinition} */ (this.operationCache[key] = this.registerOrReturnHandle(
             colorized
@@ -331,10 +451,12 @@ export function overrideBuildings(modImpl) {
             colors[Math.floor(Math.random()*4)],
             colors[Math.floor(Math.random()*4)]
         ];
+        // @ts-ignore
         const key = "paint4/" + definition.getHash() + "/" + randomizedColors.join(",");
         if (this.operationCache[key]) {
             return /** @type {ShapeDefinition} */ (this.operationCache[key]);
         }
+        // @ts-ignore
         const colorized = definition.cloneAndPaintWith4Colors(randomizedColors);
         return /** @type {ShapeDefinition} */ (this.operationCache[key] = this.registerOrReturnHandle(
             colorized
@@ -404,7 +526,7 @@ function calcLevelDefinitions() {
 
 function calcUpgradeDefinitions() {
     var multiplier = client.data.slotData["required_shapes_multiplier"].valueOf();
-    console.log("[Archipelago] Loaded multiplier from slotData: " + multiplier);
+    aplog("Loaded multiplier from slotData: " + multiplier);
     var isRandomized = client.data.slotData["randomize_upgrade_requirements"].valueOf();
     if (isRandomized) {
         var seed = client.data.slotData["seed"].valueOf();
@@ -468,7 +590,7 @@ function resyncLocationChecks(root) {
     // resync shapesanity
     for (var [hash, amount] of Object.entries(root.hubGoals.storedShapes)) {
         if ((amount || 0) > 0) {
-            getShapesanityAnalyser(root, false)(ShapeDefinition.fromShortKey(hash));
+            getShapesanityAnalyser()(ShapeDefinition.fromShortKey(hash));
         }
     }
 }

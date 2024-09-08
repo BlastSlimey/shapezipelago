@@ -1,5 +1,5 @@
 import { Mod } from "shapez/mods/mod";
-import { connected, customRewards, processedItemCount, setProcessedItems } from "./global_data";
+import { aplog, connected, customRewards, processedItemCount, setProcessedItems } from "./global_data";
 
 /**
  * 
@@ -12,6 +12,7 @@ export function registerSavingData(modImpl) {
             data.modExtraData["reward_trash"] = customRewards.reward_trash;
             data.modExtraData["reward_wires"] = customRewards.reward_wires;
             data.modExtraData["reward_painter_quad"] = customRewards.reward_painter_quad;
+            data.modExtraData["reward_switch"] = customRewards.reward_switch;
             data.modExtraData["reward_belt"] = customRewards.reward_belt;
             data.modExtraData["reward_extractor"] = customRewards.reward_extractor;
             data.modExtraData["reward_rotater"] = root.hubGoals.gainedRewards["reward_rotater"];
@@ -41,7 +42,7 @@ export function registerSavingData(modImpl) {
             data.modExtraData["improvement_processors"] = root.hubGoals.upgradeImprovements["processors"];
             data.modExtraData["improvement_painting"] = root.hubGoals.upgradeImprovements["painting"];
             data.modExtraData["processedItemCount"] = processedItemCount;
-            console.log("[Archipelago] Serialized");
+            aplog("Serialized with processed item count " + processedItemCount);
         }
     });
     modImpl.signals.gameDeserialized.add((root, data) => {
@@ -50,6 +51,7 @@ export function registerSavingData(modImpl) {
             customRewards.reward_trash = data.modExtraData["reward_trash"];
             customRewards.reward_wires = data.modExtraData["reward_wires"];
             customRewards.reward_painter_quad = data.modExtraData["reward_painter_quad"];
+            customRewards.reward_switch = data.modExtraData["reward_switch"];
             customRewards.reward_belt = data.modExtraData["reward_belt"];
             customRewards.reward_extractor = data.modExtraData["reward_extractor"];
             root.hubGoals.gainedRewards["reward_rotater"]  =   data.modExtraData["reward_rotater"] ;
@@ -79,7 +81,7 @@ export function registerSavingData(modImpl) {
             root.hubGoals.upgradeImprovements["processors"] = data.modExtraData["improvement_processors"];
             root.hubGoals.upgradeImprovements["painting"] = data.modExtraData["improvement_painting"];
             setProcessedItems(data.modExtraData["processedItemCount"]);
-            console.log("[Archipelago] Deserialized");
+            aplog("Deserialized with processed item count " + processedItemCount);
         }
     });
 }

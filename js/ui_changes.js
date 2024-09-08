@@ -1,6 +1,7 @@
 import { Mod } from "shapez/mods/mod";
-import { connected, customRewards, setConnected, setGamePackage, setProcessedItems, trapLocked, trapMalfunction, trapThrottled } from "./global_data";
+import { aplog, connected, customRewards, setConnected, setGamePackage, setLevelDefs, setProcessedItems, setUpgredeDefs, trapLocked, trapMalfunction, trapThrottled } from "./global_data";
 import { ITEMS_HANDLING_FLAGS, Client, SERVER_PACKET_TYPE } from "archipelago.js";
+import { processItemsPacket } from "./server_communication";
 
 /**
  * @param {Mod} modImpl
@@ -27,6 +28,12 @@ export function addInputContainer(modImpl, client, autoPlayer, autoAddress, auto
             for (var [key, valBool] of Object.entries(trapMalfunction)) {
                 trapMalfunction[key] = false;
             }
+            setLevelDefs(null);
+            setUpgredeDefs(null);
+            if (connected) {
+                client.removeListener(SERVER_PACKET_TYPE.RECEIVED_ITEMS, processItemsPacket);
+            }
+            // add input box
             const mainWrapper = document.body.getElementsByClassName("mainWrapper").item(0);
             const sideContainer = mainWrapper.getElementsByClassName("sideContainer").item(0);
             const inputContainer = document.createElement("div");
@@ -93,23 +100,23 @@ export function addInputContainer(modImpl, client, autoPlayer, autoAddress, auto
                         password: passwordInput.value
                     };
                     client.addListener(SERVER_PACKET_TYPE.PRINT_JSON, (packet, message) => {
-                        console.log("[Archipelago] ", message);
+                        aplog(message);
                     });
                     client.connect(connectInfo)
                         .then(() => {
-                            console.log("[Archipelago] Connected to the server");
+                            aplog("Connected to the server");
                             setConnected(true);
                             setGamePackage(client.data.package.get("shapez"));
                             statusLabel.innerText = "Connected";
                             statusButton.innerText = "Disconnect";
                         })
                         .catch((error) => {
-                            console.error("[Archipelago] Failed to connect:", error);
+                            aplog("Failed to connect: " + error);
                             statusLabel.innerText = "Connection failed";
                         });
                 } else {
                     client.disconnect();
-                    console.log("[Archipelago] Disconnected from the server");
+                    aplog("Disconnected from the server");
                     setConnected(false);
                     statusLabel.innerText = "Disconnected";
                     statusButton.innerText = "Connect";
