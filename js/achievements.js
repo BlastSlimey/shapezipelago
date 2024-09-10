@@ -22,7 +22,7 @@ export class AchievementLocationProvider extends AchievementProviderInterface {
         super(app);
         this.initialized = false;
         this.collection = new AchievementCollection(this.activate.bind(this));
-        aplog("Collection created with" + this.collection.map.size + "achievements");
+        aplog("Collection created with " + this.collection.map.size + " achievements");
     }
 
     initialize() {
@@ -34,7 +34,7 @@ export class AchievementLocationProvider extends AchievementProviderInterface {
         try {
             this.collection = new AchievementCollection(this.activate.bind(this));
             this.collection.initialize(root);
-            aplog("Initialized" + this.collection.map.size + "relevant achievements");
+            aplog("Initialized " + this.collection.map.size + " relevant achievements");
             return Promise.resolve();
         } catch (err) {
             aplog("Failed to initialize the collection");
@@ -46,11 +46,11 @@ export class AchievementLocationProvider extends AchievementProviderInterface {
         if (connected) {
             if (client.data.slotData["include_achievements"].valueOf()) {
                 if (achievementNames[key]) {
-                    checkLocation(achievementNames[key]);
+                    checkLocation("Checked", false, achievementNames[key]);
                 } else if (!client.data.slotData["exclude_softlock_achievements"].valueOf() && softlockAchievementNames[key]) {
-                    checkLocation(softlockAchievementNames[key]);
+                    checkLocation("Checked", false, softlockAchievementNames[key]);
                 } else if (!client.data.slotData["exclude_long_playtime_achievements"].valueOf() && longAchievementNames[key]) {
-                    checkLocation(longAchievementNames[key]);
+                    checkLocation("Checked", false, longAchievementNames[key]);
                 }
             }
         }

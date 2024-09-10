@@ -1,6 +1,7 @@
 import { Client } from "archipelago.js";
 
 export const client = new Client();
+export var efficiency3Interval = null;
 export var connected = false;
 export var processedItemCount = 0;
 export const customRewards = {
@@ -209,5 +210,20 @@ export function setGamePackage(pack) {
 export function aplog(...messages) {
     for (var m of messages) {
         console.log("%c[AP] " + m, "background: #dddddd; color: #0044ff");
+    }
+}
+
+export function resetShapesanityCache() {
+    shapesanityCache = {"CuCuCuCu:CuCuCuCu": true};
+}
+
+export function startEfficiency3Interval(f, ms) {
+    efficiency3Interval = setInterval(f, ms);
+}
+
+export function clearEfficiency3Interval() {
+    if (efficiency3Interval) {
+        window.clearInterval(efficiency3Interval);
+        efficiency3Interval = null;
     }
 }

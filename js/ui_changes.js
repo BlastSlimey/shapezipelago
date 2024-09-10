@@ -1,6 +1,6 @@
 import { Mod } from "shapez/mods/mod";
-import { aplog, connected, customRewards, setConnected, setGamePackage, setLevelDefs, setProcessedItems, setUpgredeDefs, trapLocked, trapMalfunction, trapThrottled } from "./global_data";
-import { ITEMS_HANDLING_FLAGS, Client, SERVER_PACKET_TYPE } from "archipelago.js";
+import { aplog, clearEfficiency3Interval, connected, customRewards, resetShapesanityCache, setConnected, setGamePackage, setLevelDefs, setProcessedItems, setUpgredeDefs, trapLocked, trapMalfunction, trapThrottled } from "./global_data";
+import { ITEMS_HANDLING_FLAGS, Client, SERVER_PACKET_TYPE, CLIENT_STATUS } from "archipelago.js";
 import { processItemsPacket } from "./server_communication";
 
 /**
@@ -30,8 +30,11 @@ export function addInputContainer(modImpl, client, autoPlayer, autoAddress, auto
             }
             setLevelDefs(null);
             setUpgredeDefs(null);
+            resetShapesanityCache();
+            clearEfficiency3Interval();
             if (connected) {
                 client.removeListener(SERVER_PACKET_TYPE.RECEIVED_ITEMS, processItemsPacket);
+                client.updateStatus(CLIENT_STATUS.CONNECTED);
             }
             // add input box
             const mainWrapper = document.body.getElementsByClassName("mainWrapper").item(0);

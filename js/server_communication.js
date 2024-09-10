@@ -1,6 +1,6 @@
 import { enumSubShapeToShortcode, ShapeDefinition } from "shapez/game/shape_definition";
 import { aplog, baseBuildingNames, client, connected, customRewards, gamePackage, getIsUnlockedForTrap, increaseProcessedItems, processedItemCount, shapesanityCache, trapLocked, trapMalfunction, trapThrottled, upgradeDefs, upgradeIdNames } from "./global_data";
-import { CLIENT_STATUS } from "archipelago.js";
+import { CLIENT_PACKET_TYPE, CLIENT_STATUS } from "archipelago.js";
 import { enumColorToShortcode } from "shapez/game/colors";
 import { GameRoot } from "shapez/game/root";
 
@@ -190,49 +190,31 @@ export function setRootAndModImpl(root, modImpl) {
 }
 
 /**
- * 
- * @param {string} name 
+ * @param {string[]} names
+ * @param {string} resyncMessage
+ * @param {boolean} goal
  */
-export function checkLocation(name, another = null, resyncMessage = "Checked") {
-    if (name === "Goal") {
+export function checkLocation(resyncMessage, goal, ...names) {
+    if (goal) 
         client.updateStatus(CLIENT_STATUS.GOAL);
-    } else {
-        if (another) {
-            client.locations.check(gamePackage.location_name_to_id[name], gamePackage.location_name_to_id[another]);
-            aplog(`${resyncMessage} location ` + name);
-            aplog(`${resyncMessage} location ` + another)
-        } else {
-            client.locations.check(gamePackage.location_name_to_id[name]);
-            aplog(`${resyncMessage} location ` + name);
-        }
-    }
+    const locids = [];
+    for (var name of names) 
+        locids.push(gamePackage.location_name_to_id[name]);
+    client.send({cmd: CLIENT_PACKET_TYPE.LOCATION_CHECKS, locations: locids});
+    for (var name of names) 
+        aplog(`${resyncMessage} location ${name}`);
 }
 
 /**
  * @param {import("archipelago.js").ReceivedItemsPacket} packet
  */
 export function processItemsPacket(packet) {
-    /**aplog(packet.index, processedItemCount)
-    if (packet.index == 0 && processedItemCount > 0) {
-        //set all gainedRewards to 0
-        for (var [reward, value] of Object.entries(storedRoot.hubGoals.gainedRewards)) {
-            storedRoot.hubGoals.gainedRewards[reward] = 0;
-        }
-        //set all upgradeImprovement to 1
-        storedRoot.hubGoals.upgradeImprovements["belt"] = 1;
-        storedRoot.hubGoals.upgradeImprovements["miner"] = 1;
-        storedRoot.hubGoals.upgradeImprovements["processors"] = 1;
-        storedRoot.hubGoals.upgradeImprovements["painting"] = 1;
-        //bundles and traps should not be resynced
-        //resync items
-        setProcessedItems(0);
-        for (var i = 0; i < packet.items.length; i++) {
-            receiveItem(packet.items[i], false, true);
-            increaseProcessedItems();
-        }
-    } else */
     aplog("Received packet with " + packet.items.length + 
-        " items, while having " + processedItemCount + " items");
+        " items and reported index " + packet.index + 
+        ", while having " + processedItemCount + " items");
+    if (packet.index != 0) {
+        return;
+    }
     if (processedItemCount + 1 >= packet.items.length) {
         for (var i = processedItemCount; i < packet.items.length; i++) {
             receiveItem(packet.items[i], true, false);
@@ -255,6 +237,7 @@ export function processItemsPacket(packet) {
 function receiveItem(item, showInfo, resynced) {
     const itemName = client.items.name("shapez", item.item);
     const message = receiveItemFunctions[itemName](storedRoot, resynced);
+    aplog("Processed item " + itemName + message);
     if (showInfo) {
         const sendingPlayerName = client.players.name(item.player);
         const foundLocationName = client.locations.name(item.player, item.location);
@@ -325,64 +308,64 @@ function shapesanityAnalyzer(shape) {
                                         if (parts[0].color === parts[1].color) { //AaAaA?A?
                                             if (parts[0].color === parts[2].color) { //AaAaAaA?
                                                 if (parts[0].color === parts[3].color) { //AaAaAaAa
-                                                    checkLocation("Shapesanity " + colorNames[parts[0].color] + " " + 
+                                                    checkLocation("Checked", false, "Shapesanity " + colorNames[parts[0].color] + " " + 
                                                         subShapeNames[parts[0].subShape]);
                                                 } else { //AaAaAaAb
-                                                    checkLocation("Shapesanity 3-1 " + toShort(parts[0]) + " " + 
+                                                    checkLocation("Checked", false, "Shapesanity 3-1 " + toShort(parts[0]) + " " + 
                                                         toShort(parts[3]));
                                                 }
                                             } else { //AaAaAbA?
                                                 if (parts[0].color === parts[3].color) { //AaAaAbAa
-                                                    checkLocation("Shapesanity 3-1 " + toShort(parts[0]) + " " + 
+                                                    checkLocation("Checked", false, "Shapesanity 3-1 " + toShort(parts[0]) + " " + 
                                                         toShort(parts[2]));
                                                 } else if (parts[2].color === parts[3].color) { //AaAaAbAb
-                                                    checkLocation("Shapesanity Half-Half " + 
+                                                    checkLocation("Checked", false, "Shapesanity Half-Half " + 
                                                         ordered(parts[0], parts[2]));
                                                 } //AaAaAbAc
                                             }
                                         } else { //AaAbA?A?
                                             if (parts[0].color === parts[2].color) { //AaAbAaA?
                                                 if (parts[0].color === parts[3].color) { //AaAbAaAa
-                                                    checkLocation("Shapesanity 3-1 " + toShort(parts[0]) + " " + 
+                                                    checkLocation("Checked", false, "Shapesanity 3-1 " + toShort(parts[0]) + " " + 
                                                         toShort(parts[1]));
                                                 } else if (parts[1].color === parts[3].color) { //AaAbAaAb
-                                                    checkLocation("Shapesanity Checkered " + 
+                                                    checkLocation("Checked", false, "Shapesanity Checkered " + 
                                                         ordered(parts[0], parts[1]));
                                                 } else { //AaAbAaAc
-                                                    checkLocation("Shapesanity Cornered 2-1-1 " + toShort(parts[0]) + " " + 
+                                                    checkLocation("Checked", false, "Shapesanity Cornered 2-1-1 " + toShort(parts[0]) + " " + 
                                                         ordered(parts[1], parts[3]));
                                                 }
                                             } else if (parts[1].color === parts[2].color) { //AaAbAbA?
                                                 if (parts[0].color === parts[3].color) { //AaAbAbAa
-                                                    checkLocation("Shapesanity Half-Half " + 
+                                                    checkLocation("Checked", false, "Shapesanity Half-Half " + 
                                                         ordered(parts[0], parts[1]));
                                                 } else if (parts[1].color === parts[3].color) { //AaAbAbAb
-                                                    checkLocation("Shapesanity 3-1 " + toShort(parts[1]) + " " + 
+                                                    checkLocation("Checked", false, "Shapesanity 3-1 " + toShort(parts[1]) + " " + 
                                                         toShort(parts[0]));
                                                 } else { //AaAbAbAc
-                                                    checkLocation("Shapesanity Adjacent 2-1-1 " + toShort(parts[1]) + " " + 
+                                                    checkLocation("Checked", false, "Shapesanity Adjacent 2-1-1 " + toShort(parts[1]) + " " + 
                                                         ordered(parts[0], parts[3]));
                                                 }
                                             } else { //AaAbAcA?
                                                 if (parts[0].color !== parts[3].color) { //AaAbAcA!(a)
                                                     if (parts[1].color !== parts[3].color) { //AaAbAcA!(a|b)
                                                         if (parts[2].color !== parts[3].color) { //AaAbAcAd
-                                                            checkLocation("Shapesanity " + orderedOnlyDifferent(
+                                                            checkLocation("Checked", false, "Shapesanity " + orderedOnlyDifferent(
                                                                 enumColorToShortcode[parts[0].color],
                                                                 enumColorToShortcode[parts[1].color],
                                                                 enumColorToShortcode[parts[2].color],
                                                                 enumColorToShortcode[parts[3].color]
                                                             ) + " " + subShapeNames[parts[0].subShape]);
                                                         } else { //AaAbAcAc
-                                                            checkLocation("Shapesanity Adjacent 2-1-1 " + toShort(parts[2]) + 
+                                                            checkLocation("Checked", false, "Shapesanity Adjacent 2-1-1 " + toShort(parts[2]) + 
                                                                 " " + ordered(parts[0], parts[1]));
                                                         }
                                                     } else { //AaAbAcAb
-                                                        checkLocation("Shapesanity Cornered 2-1-1 " + toShort(parts[1]) + " " + 
+                                                        checkLocation("Checked", false, "Shapesanity Cornered 2-1-1 " + toShort(parts[1]) + " " + 
                                                             ordered(parts[0], parts[2]));
                                                     }
                                                 } else { //AaAbAcAa
-                                                    checkLocation("Shapesanity Adjacent 2-1-1 " + toShort(parts[0]) + " " + 
+                                                    checkLocation("Checked", false, "Shapesanity Adjacent 2-1-1 " + toShort(parts[0]) + " " + 
                                                         ordered(parts[1], parts[2]));
                                                 }
                                             }
@@ -390,21 +373,21 @@ function shapesanityAnalyzer(shape) {
                                     } else { //AaA?A?B?
                                         if (parts[0].color === parts[1].color) { //AaAaA?B?
                                             if (parts[0].color === parts[2].color) { //AaAaAaB?
-                                                checkLocation("Shapesanity 3-1 " + toShort(parts[0]) + " " + 
+                                                checkLocation("Checked", false, "Shapesanity 3-1 " + toShort(parts[0]) + " " + 
                                                     toShort(parts[3]));
                                             } else { //AaAaAbB?
-                                                checkLocation("Shapesanity Adjacent 2-1-1 " + toShort(parts[0]) + " " + 
+                                                checkLocation("Checked", false, "Shapesanity Adjacent 2-1-1 " + toShort(parts[0]) + " " + 
                                                     ordered(parts[2], parts[3]));
                                             }
                                         } else { //AaAbA?B?
                                             if (parts[0].color === parts[2].color) { //AaAbAaB?
-                                                checkLocation("Shapesanity Cornered 2-1-1 " + toShort(parts[0]) + " " + 
+                                                checkLocation("Checked", false, "Shapesanity Cornered 2-1-1 " + toShort(parts[0]) + " " + 
                                                     ordered(parts[1], parts[3]));
                                             } else if (parts[1].color === parts[2].color) { //AaAbAbB?
-                                                checkLocation("Shapesanity Adjacent 2-1-1 " + toShort(parts[1]) + " " + 
+                                                checkLocation("Checked", false, "Shapesanity Adjacent 2-1-1 " + toShort(parts[1]) + " " + 
                                                     ordered(parts[0], parts[3]));
                                             } else { //AaAbAcB?
-                                                checkLocation("Shapesanity Singles " + 
+                                                checkLocation("Checked", false, "Shapesanity Singles " + 
                                                     ordered(parts[0], parts[1], parts[2], parts[3]));
                                             }
                                         }
@@ -413,47 +396,47 @@ function shapesanityAnalyzer(shape) {
                                     if (parts[0].subShape === parts[3].subShape) { //AaA?B?A?
                                         if (parts[0].color === parts[1].color) { //AaAaB?A?
                                             if (parts[0].color === parts[3].color) { //AaAaB?Aa
-                                                checkLocation("Shapesanity 3-1 " + toShort(parts[0]) + " " + 
+                                                checkLocation("Checked", false, "Shapesanity 3-1 " + toShort(parts[0]) + " " + 
                                                     toShort(parts[2]));
                                             } else { //AaAaB?Ab
-                                                checkLocation("Shapesanity Adjacent 2-1-1 " + toShort(parts[0]) + " " + 
+                                                checkLocation("Checked", false, "Shapesanity Adjacent 2-1-1 " + toShort(parts[0]) + " " + 
                                                     ordered(parts[2], parts[3]));
                                             }
                                         } else { //AaAbB?A?
                                             if (parts[0].color === parts[3].color) { //AaAbB?Aa
-                                                checkLocation("Shapesanity Adjacent 2-1-1 " + toShort(parts[0]) + " " + 
+                                                checkLocation("Checked", false, "Shapesanity Adjacent 2-1-1 " + toShort(parts[0]) + " " + 
                                                     ordered(parts[1], parts[2]));
                                             } else if (parts[1].color === parts[3].color) { //AaAbB?Ab
-                                                checkLocation("Shapesanity Cornered 2-1-1 " + toShort(parts[1]) + " " + 
+                                                checkLocation("Checked", false, "Shapesanity Cornered 2-1-1 " + toShort(parts[1]) + " " + 
                                                     ordered(parts[0], parts[2]));
                                             } else { //AaAbB?Ac
-                                                checkLocation("Shapesanity Singles " + 
+                                                checkLocation("Checked", false, "Shapesanity Singles " + 
                                                     ordered(parts[0], parts[1], parts[2], parts[3]));
                                             }
                                         }
                                     } else if (parts[2].subShape === parts[3].subShape) { //AaA?B?B?
                                         if (parts[0].color === parts[1].color) { //AaAaB?B?
                                             if (parts[2].color === parts[3].color) { //AaAaBxBx
-                                                checkLocation("Shapesanity Half-Half " + ordered(parts[0], parts[2]));
+                                                checkLocation("Checked", false, "Shapesanity Half-Half " + ordered(parts[0], parts[2]));
                                             } else { //AaAaBxB!(x)
-                                                checkLocation("Shapesanity Adjacent 2-1-1 " + toShort(parts[0]) + " " + 
+                                                checkLocation("Checked", false, "Shapesanity Adjacent 2-1-1 " + toShort(parts[0]) + " " + 
                                                     ordered(parts[2], parts[3]));
                                             }
                                         } else { //AaAbB?B?
                                             if (parts[2].color === parts[3].color) { //AaAbBxBx
-                                                checkLocation("Shapesanity Adjacent 2-1-1 " + toShort(parts[2]) + " " + 
+                                                checkLocation("Checked", false, "Shapesanity Adjacent 2-1-1 " + toShort(parts[2]) + " " + 
                                                     ordered(parts[0], parts[1]));
                                             } else { //AaAbBxB!(x)
-                                                checkLocation("Shapesanity Singles " + 
+                                                checkLocation("Checked", false, "Shapesanity Singles " + 
                                                     ordered(parts[0], parts[1], parts[2], parts[3]));
                                             }
                                         }
                                     } else { //AaA?B?C?
                                         if (parts[0].color === parts[1].color) { //AaAaB?C?
-                                            checkLocation("Shapesanity Adjacent 2-1-1 " + toShort(parts[0]) + " " + 
+                                            checkLocation("Checked", false, "Shapesanity Adjacent 2-1-1 " + toShort(parts[0]) + " " + 
                                                 ordered(parts[2], parts[3]));
                                         } else { //AaAbB?C?
-                                            checkLocation("Shapesanity Singles " + 
+                                            checkLocation("Checked", false, "Shapesanity Singles " + 
                                                 ordered(parts[0], parts[1], parts[2], parts[3]));
                                         }
                                     }
@@ -462,21 +445,21 @@ function shapesanityAnalyzer(shape) {
                                 if (parts[0].subShape === parts[2].subShape) { //AaA?A?--
                                     if (parts[0].color === parts[1].color) { //AaAaA?--
                                         if (parts[0].color === parts[2].color) { //AaAaAa--
-                                            checkLocation("Shapesanity Cut Out " + colorNames[parts[0].color] + " " + 
+                                            checkLocation("Checked", false, "Shapesanity Cut Out " + colorNames[parts[0].color] + " " + 
                                                 subShapeNames[parts[0].subShape]);
                                         } else { //AaAaAb--
-                                            checkLocation("Shapesanity Adjacent 2-1 " + toShort(parts[0]) + " " + 
+                                            checkLocation("Checked", false, "Shapesanity Adjacent 2-1 " + toShort(parts[0]) + " " + 
                                                 toShort(parts[2]));
                                         }
                                     } else { //AaAbA?--
                                         if (parts[0].color === parts[2].color) { //AaAbAa--
-                                            checkLocation("Shapesanity Cornered 2-1 " + toShort(parts[0]) + " " + 
+                                            checkLocation("Checked", false, "Shapesanity Cornered 2-1 " + toShort(parts[0]) + " " + 
                                                 toShort(parts[1]));
                                         } else if (parts[1].color === parts[2].color) { //AaAbAb--
-                                            checkLocation("Shapesanity Adjacent 2-1 " + toShort(parts[1]) + " " + 
+                                            checkLocation("Checked", false, "Shapesanity Adjacent 2-1 " + toShort(parts[1]) + " " + 
                                                 toShort(parts[0]));
                                         } else { //AaAbAc--
-                                            checkLocation("Shapesanity " + orderedOnlyDifferent(
+                                            checkLocation("Checked", false, "Shapesanity " + orderedOnlyDifferent(
                                                 enumColorToShortcode[parts[0].color],
                                                 enumColorToShortcode[parts[1].color],
                                                 enumColorToShortcode[parts[2].color]
@@ -485,10 +468,10 @@ function shapesanityAnalyzer(shape) {
                                     }
                                 } else { //AaA?B?--
                                     if (parts[0].color === parts[1].color) { //AaAaB?--
-                                        checkLocation("Shapesanity Adjacent 2-1 " + toShort(parts[0]) + " " + 
+                                        checkLocation("Checked", false, "Shapesanity Adjacent 2-1 " + toShort(parts[0]) + " " + 
                                             toShort(parts[2]));
                                     } else { //AaAbB?--
-                                        checkLocation("Shapesanity Singles " + 
+                                        checkLocation("Checked", false, "Shapesanity Singles " + 
                                             ordered(parts[0], parts[1], parts[2]));
                                     }
                                 }
@@ -497,38 +480,38 @@ function shapesanityAnalyzer(shape) {
                             if (parts[3]) { //AaA?--??
                                 if (parts[0].color === parts[1].color) { //AaAa--??
                                     if (isSame(parts[0], parts[3])) { //AaAa--Aa
-                                        checkLocation("Shapesanity Cut Out " + colorNames[parts[0].color] + " " + 
+                                        checkLocation("Checked", false, "Shapesanity Cut Out " + colorNames[parts[0].color] + " " + 
                                             subShapeNames[parts[0].subShape]);
                                     } else { //AaAa--!(Aa)
-                                        checkLocation("Shapesanity Adjacent 2-1 " + toShort(parts[0]) + " " + 
+                                        checkLocation("Checked", false, "Shapesanity Adjacent 2-1 " + toShort(parts[0]) + " " + 
                                             toShort(parts[3]));
                                     }
                                 } else { //AaAb--??
                                     if (parts[0].subShape === parts[3].subShape) { //AaAb--A?
                                         if (parts[0].color === parts[3].color) { //AaAb--Aa
-                                            checkLocation("Shapesanity Adjacent 2-1 " + toShort(parts[0]) + " " + 
+                                            checkLocation("Checked", false, "Shapesanity Adjacent 2-1 " + toShort(parts[0]) + " " + 
                                                 toShort(parts[1]));
                                         } else if (parts[1].color === parts[3].color) { //AaAb--Ab
-                                            checkLocation("Shapesanity Cornered 2-1 " + toShort(parts[1]) + " " + 
+                                            checkLocation("Checked", false, "Shapesanity Cornered 2-1 " + toShort(parts[1]) + " " + 
                                                 toShort(parts[0]));
                                         } else { //AaAb--Ac
-                                            checkLocation("Shapesanity " + orderedOnlyDifferent(
+                                            checkLocation("Checked", false, "Shapesanity " + orderedOnlyDifferent(
                                                 enumColorToShortcode[parts[0].color],
                                                 enumColorToShortcode[parts[1].color],
                                                 enumColorToShortcode[parts[3].color]
                                             ) + " " + subShapeNames[parts[0].subShape]);
                                         }
                                     } else { //AaAb--B?
-                                        checkLocation("Shapesanity Singles " + 
+                                        checkLocation("Checked", false, "Shapesanity Singles " + 
                                             ordered(parts[0], parts[1], parts[3]));
                                     }
                                 }
                             } else { //AaA?----
                                 if (parts[0].color === parts[1].color) { //AaAa----
-                                    checkLocation("Shapesanity Half " + colorNames[parts[0].color] + " " + 
+                                    checkLocation("Checked", false, "Shapesanity Half " + colorNames[parts[0].color] + " " + 
                                         subShapeNames[parts[0].subShape]);
                                 } else { //AaAb----
-                                    checkLocation("Shapesanity Adjacent Singles " + ordered(parts[0], parts[1]));
+                                    checkLocation("Checked", false, "Shapesanity Adjacent Singles " + ordered(parts[0], parts[1]));
                                 }
                             }
                         }
@@ -539,31 +522,31 @@ function shapesanityAnalyzer(shape) {
                                     if (parts[0].subShape === parts[2].subShape) { //AaBaAa
                                         if (parts[3]) { //AaBaAa??
                                             if (isSame(parts[0], parts[3])) { //AaBaAaAa
-                                                checkLocation("Shapesanity 3-1 " + toShort(parts[0]) + " " + 
+                                                checkLocation("Checked", false, "Shapesanity 3-1 " + toShort(parts[0]) + " " + 
                                                     toShort(parts[1]));
                                             } else if (isSame(parts[1], parts[3])) { //AaBaAaBa
-                                                checkLocation("Shapesanity Checkered " + ordered(parts[0], parts[1]));
+                                                checkLocation("Checked", false, "Shapesanity Checkered " + ordered(parts[0], parts[1]));
                                             } else { //AaBaAa!(Aa|Ba)
-                                                checkLocation("Shapesanity Cornered 2-1-1 " + toShort(parts[0]) + " " + 
+                                                checkLocation("Checked", false, "Shapesanity Cornered 2-1-1 " + toShort(parts[0]) + " " + 
                                                     ordered(parts[1], parts[3]));
                                             }
                                         } else { //AaBaAa--
-                                            checkLocation("Shapesanity Cornered 2-1 " + toShort(parts[0]) + " " + 
+                                            checkLocation("Checked", false, "Shapesanity Cornered 2-1 " + toShort(parts[0]) + " " + 
                                                 toShort(parts[1]));
                                         }
                                     } else if (parts[1].subShape === parts[2].subShape) { //AaBaBa
                                         if (parts[3]) { //AaBaBa??
                                             if (isSame(parts[0], parts[3])) { //AaBaBaAa
-                                                checkLocation("Shapesanity Half-Half " + ordered(parts[0], parts[1]));
+                                                checkLocation("Checked", false, "Shapesanity Half-Half " + ordered(parts[0], parts[1]));
                                             } else if (isSame(parts[1], parts[3])) { //AaBaBaBa
-                                                checkLocation("Shapesanity 3-1 " + toShort(parts[1]) + " " + 
+                                                checkLocation("Checked", false, "Shapesanity 3-1 " + toShort(parts[1]) + " " + 
                                                     toShort(parts[0]));
                                             } else { //AaBaBa!(Aa|Ba)
-                                                checkLocation("Shapesanity Adjacent 2-1-1 " + toShort(parts[1]) + " " + 
+                                                checkLocation("Checked", false, "Shapesanity Adjacent 2-1-1 " + toShort(parts[1]) + " " + 
                                                     ordered(parts[0], parts[3]));
                                             }
                                         } else { //AaBaBa--
-                                            checkLocation("Shapesanity Adjacent 2-1 " + toShort(parts[1]) + " " + 
+                                            checkLocation("Checked", false, "Shapesanity Adjacent 2-1 " + toShort(parts[1]) + " " + 
                                                 toShort(parts[0]));
                                         }
                                     } else { //AaBaCa
@@ -572,30 +555,30 @@ function shapesanityAnalyzer(shape) {
                                                 if (parts[0].subShape !== parts[3].subShape) { //AaBaCa!(A)a
                                                     if (parts[1].subShape !== parts[3].subShape) { //AaBaCa!(A|B)a
                                                         if (parts[2].subShape !== parts[3].subShape) { //AaBaCaDa
-                                                            checkLocation("Shapesanity " + colorNames[parts[0].color] + 
+                                                            checkLocation("Checked", false, "Shapesanity " + colorNames[parts[0].color] + 
                                                                 " " + orderedOnlyDifferent(
                                                                     enumSubShapeToShortcode[parts[0].subShape],
                                                                     enumSubShapeToShortcode[parts[1].subShape],
                                                                     enumSubShapeToShortcode[parts[2].subShape],
                                                                     enumSubShapeToShortcode[parts[3].subShape]));
                                                         } else { //AaBaCaCa
-                                                            checkLocation("Shapesanity Adjacent 2-1-1 " + toShort(parts[2]) + " " + 
+                                                            checkLocation("Checked", false, "Shapesanity Adjacent 2-1-1 " + toShort(parts[2]) + " " + 
                                                                 ordered(parts[0], parts[1]));
                                                         }
                                                     } else { //AaBaCaBa
-                                                        checkLocation("Shapesanity Cornered 2-1-1 " + toShort(parts[1]) + " " + 
+                                                        checkLocation("Checked", false, "Shapesanity Cornered 2-1-1 " + toShort(parts[1]) + " " + 
                                                             ordered(parts[0], parts[2]));
                                                     }
                                                 } else { //AaBaCaAa
-                                                    checkLocation("Shapesanity Adjacent 2-1-1 " + toShort(parts[0]) + " " + 
+                                                    checkLocation("Checked", false, "Shapesanity Adjacent 2-1-1 " + toShort(parts[0]) + " " + 
                                                         ordered(parts[1], parts[2]));
                                                 }
                                             } else { //AaBaCa?b
-                                                checkLocation("Shapesanity Singles " + 
+                                                checkLocation("Checked", false, "Shapesanity Singles " + 
                                                     ordered(parts[0], parts[1], parts[2], parts[3]));
                                             }
                                         } else { //AaBaCa--
-                                            checkLocation("Shapesanity " + colorNames[parts[0].color] + " " + 
+                                            checkLocation("Checked", false, "Shapesanity " + colorNames[parts[0].color] + " " + 
                                                 orderedOnlyDifferent(enumSubShapeToShortcode[parts[0].subShape],
                                                     enumSubShapeToShortcode[parts[1].subShape],
                                                     enumSubShapeToShortcode[parts[2].subShape]));
@@ -604,20 +587,20 @@ function shapesanityAnalyzer(shape) {
                                 } else { //AaBa?b
                                     if (parts[3]) { //AaBa?b??
                                         if (isSame(parts[0], parts[3])) { //AaBa?bAa
-                                            checkLocation("Shapesanity Adjacent 2-1-1 " + toShort(parts[0]) + " " + 
+                                            checkLocation("Checked", false, "Shapesanity Adjacent 2-1-1 " + toShort(parts[0]) + " " + 
                                                 ordered(parts[1], parts[2]));
                                         } else if (isSame(parts[1], parts[3])) { //AaBa?bBa
-                                            checkLocation("Shapesanity Cornered 2-1-1 " + toShort(parts[1]) + " " + 
+                                            checkLocation("Checked", false, "Shapesanity Cornered 2-1-1 " + toShort(parts[1]) + " " + 
                                                 ordered(parts[0], parts[2]));
                                         } else if (isSame(parts[2], parts[3])) { //AaBaXbXb
-                                            checkLocation("Shapesanity Adjacent 2-1-1 " + toShort(parts[2]) + " " + 
+                                            checkLocation("Checked", false, "Shapesanity Adjacent 2-1-1 " + toShort(parts[2]) + " " + 
                                                 ordered(parts[0], parts[1]));
                                         } else { //AaBa?b!(Aa|Ba|-//-)
-                                            checkLocation("Shapesanity Singles " + 
+                                            checkLocation("Checked", false, "Shapesanity Singles " + 
                                                 ordered(parts[0], parts[1], parts[2], parts[3]));
                                         }
                                     } else { //AaBa?b--
-                                        checkLocation("Shapesanity Singles " + 
+                                        checkLocation("Checked", false, "Shapesanity Singles " + 
                                             ordered(parts[0], parts[1], parts[2]));
                                     }
                                 }
@@ -625,23 +608,23 @@ function shapesanityAnalyzer(shape) {
                                 if (parts[3]) { //AaBa--??
                                     if (parts[0].color === parts[3].color) { //AaBa--?a
                                         if (parts[0].subShape === parts[3].subShape) { //AaBa--Aa
-                                            checkLocation("Shapesanity Adjacent 2-1 " + toShort(parts[0]) + " " + 
+                                            checkLocation("Checked", false, "Shapesanity Adjacent 2-1 " + toShort(parts[0]) + " " + 
                                                 toShort(parts[1]));
                                         } else if (parts[1].subShape === parts[3].subShape) { //AaBa--Ba
-                                            checkLocation("Shapesanity Cornered 2-1 " + toShort(parts[1]) + " " + 
+                                            checkLocation("Checked", false, "Shapesanity Cornered 2-1 " + toShort(parts[1]) + " " + 
                                                 toShort(parts[0]));
                                         } else { //AaBa--Ca
-                                            checkLocation("Shapesanity " + colorNames[parts[0].color] + " " + 
+                                            checkLocation("Checked", false, "Shapesanity " + colorNames[parts[0].color] + " " + 
                                                 orderedOnlyDifferent(enumSubShapeToShortcode[parts[0].subShape],
                                                     enumSubShapeToShortcode[parts[1].subShape],
                                                     enumSubShapeToShortcode[parts[3].subShape]));
                                         }
                                     } else { //AaBa--?b
-                                        checkLocation("Shapesanity Singles " + 
+                                        checkLocation("Checked", false, "Shapesanity Singles " + 
                                             ordered(parts[0], parts[1], parts[3]));
                                     }
                                 } else { //AaBa----
-                                    checkLocation("Shapesanity Adjacent Singles " + ordered(parts[0], parts[1]));
+                                    checkLocation("Checked", false, "Shapesanity Adjacent Singles " + ordered(parts[0], parts[1]));
                                 }
                             }
                         } else { //AaBb
@@ -649,67 +632,67 @@ function shapesanityAnalyzer(shape) {
                                 if (isSame(parts[0], parts[2])) { //AaBbAa
                                     if (parts[3]) { //AaBbAa??
                                         if (isSame(parts[0], parts[3])) { //AaBbAaAa
-                                            checkLocation("Shapesanity 3-1 " + toShort(parts[0]) + " " + 
+                                            checkLocation("Checked", false, "Shapesanity 3-1 " + toShort(parts[0]) + " " + 
                                                 toShort(parts[1]));
                                         } else if (isSame(parts[1], parts[3])) { //AaBbAaBb
-                                            checkLocation("Shapesanity Checkered " + ordered(parts[0], parts[1]));
+                                            checkLocation("Checked", false, "Shapesanity Checkered " + ordered(parts[0], parts[1]));
                                         } else { //AaBbAa!(Aa|Bb)
-                                            checkLocation("Shapesanity Cornered 2-1-1 " + toShort(parts[0]) + " " + 
+                                            checkLocation("Checked", false, "Shapesanity Cornered 2-1-1 " + toShort(parts[0]) + " " + 
                                                 ordered(parts[1], parts[3]));
                                         }
                                     } else { //AaBbAa--
-                                        checkLocation("Shapesanity Cornered 2-1 " + toShort(parts[0]) + " " + 
+                                        checkLocation("Checked", false, "Shapesanity Cornered 2-1 " + toShort(parts[0]) + " " + 
                                             toShort(parts[1]));
                                     }
                                 } else if (isSame(parts[1], parts[2])) { //AaBbBb
                                     if (parts[3]) { //AaBbBb??
                                         if (isSame(parts[0], parts[3])) { //AaBbBbAa
-                                            checkLocation("Shapesanity Half-Half " + ordered(parts[0], parts[1]));
+                                            checkLocation("Checked", false, "Shapesanity Half-Half " + ordered(parts[0], parts[1]));
                                         } else if (isSame(parts[1], parts[3])) { //AaBbBbBb
-                                            checkLocation("Shapesanity 3-1 " + toShort(parts[1]) + " " + 
+                                            checkLocation("Checked", false, "Shapesanity 3-1 " + toShort(parts[1]) + " " + 
                                                 toShort(parts[0]));
                                         } else { //AaBbBb!(Aa|Bb)
-                                            checkLocation("Shapesanity Adjacent 2-1-1 " + toShort(parts[1]) + " " + 
+                                            checkLocation("Checked", false, "Shapesanity Adjacent 2-1-1 " + toShort(parts[1]) + " " + 
                                                 ordered(parts[0], parts[3]));
                                         }
                                     } else { //AaBbBb--
-                                        checkLocation("Shapesanity Adjacent 2-1 " + toShort(parts[1]) + " " + 
+                                        checkLocation("Checked", false, "Shapesanity Adjacent 2-1 " + toShort(parts[1]) + " " + 
                                             toShort(parts[0]));
                                     }
                                 } else { //AaBb!(Aa|Bb)
                                     if (parts[3]) { //AaBb!(Aa|Bb)??
                                         if (isSame(parts[0], parts[3])) { //AaBb!(Aa|Bb)Aa
-                                            checkLocation("Shapesanity Adjacent 2-1-1 " + toShort(parts[0]) + " " + 
+                                            checkLocation("Checked", false, "Shapesanity Adjacent 2-1-1 " + toShort(parts[0]) + " " + 
                                                 ordered(parts[1], parts[2]));
                                         } else if (isSame(parts[1], parts[3])) { //AaBb!(Aa|Bb)Bb
-                                            checkLocation("Shapesanity Cornered 2-1-1 " + toShort(parts[1]) + " " + 
+                                            checkLocation("Checked", false, "Shapesanity Cornered 2-1-1 " + toShort(parts[1]) + " " + 
                                                 ordered(parts[0], parts[2]));
                                         } else if (isSame(parts[2], parts[3])) { //AaBb!(Aa|Bb)(-//-)
-                                            checkLocation("Shapesanity Adjacent 2-1-1 " + toShort(parts[2]) + " " + 
+                                            checkLocation("Checked", false, "Shapesanity Adjacent 2-1-1 " + toShort(parts[2]) + " " + 
                                                 ordered(parts[0], parts[1]));
                                         } else { //AaBb!(Aa|Bb)!(Aa|Bb|-//-)
-                                            checkLocation("Shapesanity Singles " + 
+                                            checkLocation("Checked", false, "Shapesanity Singles " + 
                                                 ordered(parts[0], parts[1], parts[2], parts[3]));
                                         }
                                     } else { //AaBb!(Aa|Bb)--
-                                        checkLocation("Shapesanity Singles " + 
+                                        checkLocation("Checked", false, "Shapesanity Singles " + 
                                             ordered(parts[0], parts[1], parts[2]));
                                     }
                                 }
                             } else { //AaBb--
                                 if (parts[3]) { //AaBb--??
                                     if (isSame(parts[0], parts[3])) { //AaBb--Aa
-                                        checkLocation("Shapesanity Adjacent 2-1 " + toShort(parts[0]) + " " + 
+                                        checkLocation("Checked", false, "Shapesanity Adjacent 2-1 " + toShort(parts[0]) + " " + 
                                             toShort(parts[1]));
                                     } else if (isSame(parts[1], parts[3])) { //AaBb--Bb
-                                        checkLocation("Shapesanity Cornered 2-1 " + toShort(parts[1]) + " " + 
+                                        checkLocation("Checked", false, "Shapesanity Cornered 2-1 " + toShort(parts[1]) + " " + 
                                             toShort(parts[0]));
                                     } else { //AaBb--!(Aa|Bb)
-                                        checkLocation("Shapesanity Singles " + 
+                                        checkLocation("Checked", false, "Shapesanity Singles " + 
                                             ordered(parts[0], parts[1], parts[3]));
                                     }
                                 } else { //AaBb----
-                                    checkLocation("Shapesanity Adjacent Singles " + ordered(parts[0], parts[1]));
+                                    checkLocation("Checked", false, "Shapesanity Adjacent Singles " + ordered(parts[0], parts[1]));
                                 }
                             }
                         }
@@ -720,38 +703,38 @@ function shapesanityAnalyzer(shape) {
                             if (parts[0].color === parts[2].color) { //Aa--Aa
                                 if (parts[3]) { //Aa--Aa??
                                     if (isSame(parts[0], parts[3])) { //Aa--AaAa
-                                        checkLocation("Shapesanity Cut Out " + colorNames[parts[0].color] + " " + 
+                                        checkLocation("Checked", false, "Shapesanity Cut Out " + colorNames[parts[0].color] + " " + 
                                             subShapeNames[parts[0].subShape]);
                                     } else { //Aa--Aa!(Aa)
-                                        checkLocation("Shapesanity Cornered 2-1 " + toShort(parts[0]) + " " + 
+                                        checkLocation("Checked", false, "Shapesanity Cornered 2-1 " + toShort(parts[0]) + " " + 
                                             toShort(parts[3]));
                                     }
                                 } else { //Aa--Aa--
-                                    checkLocation("Shapesanity Cornered " + colorNames[parts[0].color] + " " + 
+                                    checkLocation("Checked", false, "Shapesanity Cornered " + colorNames[parts[0].color] + " " + 
                                         subShapeNames[parts[0].subShape]);
                                 }
                             } else { //Aa--Ab
                                 if (parts[3]) { //Aa--Ab??
                                     if (parts[0].subShape === parts[3].subShape) { //Aa--AbA?
                                         if (parts[0].color === parts[3].color) { //Aa--AbAa
-                                            checkLocation("Shapesanity Adjacent 2-1 " + toShort(parts[0]) + " " + 
+                                            checkLocation("Checked", false, "Shapesanity Adjacent 2-1 " + toShort(parts[0]) + " " + 
                                                 toShort(parts[2]));
                                         } else if (parts[2].color === parts[3].color) { //Aa--AbAb
-                                            checkLocation("Shapesanity Adjacent 2-1 " + toShort(parts[2]) + " " + 
+                                            checkLocation("Checked", false, "Shapesanity Adjacent 2-1 " + toShort(parts[2]) + " " + 
                                                 toShort(parts[0]));
                                         } else { //Aa--AbAc
-                                            checkLocation("Shapesanity " + orderedOnlyDifferent(
+                                            checkLocation("Checked", false, "Shapesanity " + orderedOnlyDifferent(
                                                 enumColorToShortcode[parts[0].color],
                                                 enumColorToShortcode[parts[2].color],
                                                 enumColorToShortcode[parts[3].color]
                                             ) + " " + subShapeNames[parts[0].subShape]);
                                         }
                                     } else { //Aa--AbB?
-                                        checkLocation("Shapesanity Singles " + 
+                                        checkLocation("Checked", false, "Shapesanity Singles " + 
                                             ordered(parts[0], parts[2], parts[3]));
                                     }
                                 } else { //Aa--Ab--
-                                    checkLocation("Shapesanity Cornered Singles " + ordered(parts[0], parts[2]));
+                                    checkLocation("Checked", false, "Shapesanity Cornered Singles " + ordered(parts[0], parts[2]));
                                 }
                             }
                         } else { //Aa--B?
@@ -759,23 +742,23 @@ function shapesanityAnalyzer(shape) {
                                 if (parts[3]) { //Aa--Ba??
                                     if (parts[0].color === parts[3].color) { //Aa--Ba?a
                                         if (parts[0].subShape === parts[3].subShape) { //Aa--BaAa
-                                            checkLocation("Shapesanity Adjacent 2-1 " + toShort(parts[0]) + " " + 
+                                            checkLocation("Checked", false, "Shapesanity Adjacent 2-1 " + toShort(parts[0]) + " " + 
                                                 toShort(parts[2]));
                                         } else if (parts[2].subShape === parts[3].subShape) { //Aa--BaBa
-                                            checkLocation("Shapesanity Adjacent 2-1 " + toShort(parts[2]) + " " + 
+                                            checkLocation("Checked", false, "Shapesanity Adjacent 2-1 " + toShort(parts[2]) + " " + 
                                                 toShort(parts[0]));
                                         } else { //Aa--BaCa
-                                            checkLocation("Shapesanity " + colorNames[parts[0].color] + " " + 
+                                            checkLocation("Checked", false, "Shapesanity " + colorNames[parts[0].color] + " " + 
                                                 orderedOnlyDifferent(enumSubShapeToShortcode[parts[0].subShape],
                                                     enumSubShapeToShortcode[parts[2].subShape],
                                                     enumSubShapeToShortcode[parts[3].subShape]));
                                         }
                                     } else { //Aa--Ba?b
-                                        checkLocation("Shapesanity Singles " + 
+                                        checkLocation("Checked", false, "Shapesanity Singles " + 
                                             ordered(parts[0], parts[2], parts[3]));
                                     }
                                 } else { //Aa--Ba--
-                                    checkLocation("Shapesanity Cornered Singles " + ordered(parts[0], parts[2]));
+                                    checkLocation("Checked", false, "Shapesanity Cornered Singles " + ordered(parts[0], parts[2]));
                                 }
                             } else { //Aa--Bb
                                 if (parts[3]) { //Aa--Bb??
@@ -783,31 +766,31 @@ function shapesanityAnalyzer(shape) {
 
                                     } else if (parts[2].subShape === parts[3].subShape) { //Aa--BbB?
                                         if (parts[2].color === parts[3].color) { //Aa--BbBb
-                                            checkLocation("Shapesanity Adjacent 2-1 " + toShort(parts[2]) + " " + 
+                                            checkLocation("Checked", false, "Shapesanity Adjacent 2-1 " + toShort(parts[2]) + " " + 
                                                 toShort(parts[0]));
                                         } else { //Aa--BbB!(b)
-                                            checkLocation("Shapesanity Singles " + 
+                                            checkLocation("Checked", false, "Shapesanity Singles " + 
                                                 ordered(parts[0], parts[2], parts[3]));
                                         }
                                     } else { //Aa--BbC?
-                                        checkLocation("Shapesanity Singles " + 
+                                        checkLocation("Checked", false, "Shapesanity Singles " + 
                                             ordered(parts[0], parts[2], parts[3]));
                                     }
                                 } else { //Aa--Bb--
-                                    checkLocation("Shapesanity Cornered Singles " + ordered(parts[0], parts[2]));
+                                    checkLocation("Checked", false, "Shapesanity Cornered Singles " + ordered(parts[0], parts[2]));
                                 }
                             }
                         }
                     } else { //Aa----
                         if (parts[3]) { //Aa----??
                             if (isSame(parts[0], parts[3])) { //Aa----Aa
-                                checkLocation("Shapesanity Half " + colorNames[parts[0].color] + " " + 
+                                checkLocation("Checked", false, "Shapesanity Half " + colorNames[parts[0].color] + " " + 
                                     subShapeNames[parts[3].subShape]);
                             } else { //Aa----!(Aa)
-                                checkLocation("Shapesanity Adjacent Singles " + ordered(parts[0], parts[3]));
+                                checkLocation("Checked", false, "Shapesanity Adjacent Singles " + ordered(parts[0], parts[3]));
                             }
                         } else { //Aa------
-                            checkLocation("Shapesanity " + colorNames[parts[0].color] + " " + 
+                            checkLocation("Checked", false, "Shapesanity " + colorNames[parts[0].color] + " " + 
                                 subShapeNames[parts[0].subShape] + " Piece");
                         }
                     }
@@ -819,38 +802,38 @@ function shapesanityAnalyzer(shape) {
                             if (parts[1].color === parts[2].color) { //--AaAa
                                 if (parts[3]) { //--AaAa??
                                     if (isSame(parts[1], parts[3])) { //--AaAaAa
-                                        checkLocation("Shapesanity Cut Out " + colorNames[parts[1].color] + " " + 
+                                        checkLocation("Checked", false, "Shapesanity Cut Out " + colorNames[parts[1].color] + " " + 
                                             subShapeNames[parts[1].subShape]);
                                     } else { //--AaAa!(Aa)
-                                        checkLocation("Shapesanity Adjacent 2-1 " + toShort(parts[1]) + " " + 
+                                        checkLocation("Checked", false, "Shapesanity Adjacent 2-1 " + toShort(parts[1]) + " " + 
                                             toShort(parts[3]));
                                     }
                                 } else { //--AaAa--
-                                    checkLocation("Shapesanity Half " + colorNames[parts[1].color] + " " + 
+                                    checkLocation("Checked", false, "Shapesanity Half " + colorNames[parts[1].color] + " " + 
                                         subShapeNames[parts[1].subShape]);
                                 }
                             } else { //--AaAb
                                 if (parts[3]) { //--AaAb??
                                     if (parts[1].subShape === parts[3].subShape) { //--AaAbA?
                                         if (parts[1].color === parts[3].color) { //--AaAbAa
-                                            checkLocation("Shapesanity Cornered 2-1 " + toShort(parts[1]) + " " + 
+                                            checkLocation("Checked", false, "Shapesanity Cornered 2-1 " + toShort(parts[1]) + " " + 
                                                 toShort(parts[2]));
                                         } else if (parts[2].color === parts[3].color) { //--AaAbAb
-                                            checkLocation("Shapesanity Adjacent 2-1 " + toShort(parts[2]) + " " + 
+                                            checkLocation("Checked", false, "Shapesanity Adjacent 2-1 " + toShort(parts[2]) + " " + 
                                                 toShort(parts[1]));
                                         } else { //--AaAbAc
-                                            checkLocation("Shapesanity " + orderedOnlyDifferent(
+                                            checkLocation("Checked", false, "Shapesanity " + orderedOnlyDifferent(
                                                 enumColorToShortcode[parts[1].color],
                                                 enumColorToShortcode[parts[2].color],
                                                 enumColorToShortcode[parts[3].color]
                                             ) + " " + subShapeNames[parts[1].subShape]);
                                         }
                                     } else { //--AaAbB?
-                                        checkLocation("Shapesanity Singles " + 
+                                        checkLocation("Checked", false, "Shapesanity Singles " + 
                                             ordered(parts[1], parts[2], parts[3]));
                                     }
                                 } else { //--AaAb--
-                                    checkLocation("Shapesanity Adjacent Singles " + ordered(parts[1], parts[2]));
+                                    checkLocation("Checked", false, "Shapesanity Adjacent Singles " + ordered(parts[1], parts[2]));
                                 }
                             }
                         } else { //--AaB?
@@ -858,47 +841,47 @@ function shapesanityAnalyzer(shape) {
                                 if (parts[1].color === parts[2].color) { //--AaBa??
                                     if (parts[1].color === parts[3].color) { //--AaBa?a
                                         if (parts[1].subShape === parts[3].subShape) { //--AaBaAa
-                                            checkLocation("Shapesanity Cornered 2-1 " + toShort(parts[1]) + " " + 
+                                            checkLocation("Checked", false, "Shapesanity Cornered 2-1 " + toShort(parts[1]) + " " + 
                                                 toShort(parts[2]));
                                         } else if (parts[2].subShape === parts[3].subShape) { //--AaBaBa
-                                            checkLocation("Shapesanity Adjacent 2-1 " + toShort(parts[2]) + " " + 
+                                            checkLocation("Checked", false, "Shapesanity Adjacent 2-1 " + toShort(parts[2]) + " " + 
                                                 toShort(parts[1]));
                                         } else { //--AaBaCa
-                                            checkLocation("Shapesanity " + colorNames[parts[1].color] + " " + 
+                                            checkLocation("Checked", false, "Shapesanity " + colorNames[parts[1].color] + " " + 
                                                 orderedOnlyDifferent(enumSubShapeToShortcode[parts[1].subShape],
                                                     enumSubShapeToShortcode[parts[2].subShape],
                                                     enumSubShapeToShortcode[parts[3].subShape]));
                                         }
                                     } else { //--AaBa?b
-                                        checkLocation("Shapesanity Singles " + 
+                                        checkLocation("Checked", false, "Shapesanity Singles " + 
                                             ordered(parts[1], parts[2], parts[3]));
                                     }
                                 } else { //--AaBb??
                                     if (isSame(parts[1], parts[3])) { //--AaBbAa
-                                        checkLocation("Shapesanity Cornered 2-1 " + toShort(parts[1]) + " " + 
+                                        checkLocation("Checked", false, "Shapesanity Cornered 2-1 " + toShort(parts[1]) + " " + 
                                             toShort(parts[2]));
                                     } else if (isSame(parts[2], parts[3])) { //--AaBbBb
-                                        checkLocation("Shapesanity Adjacent 2-1 " + toShort(parts[2]) + " " + 
+                                        checkLocation("Checked", false, "Shapesanity Adjacent 2-1 " + toShort(parts[2]) + " " + 
                                             toShort(parts[1]));
                                     } else { //--AaBb!(Aa|Bb)
-                                        checkLocation("Shapesanity Singles " + 
+                                        checkLocation("Checked", false, "Shapesanity Singles " + 
                                             ordered(parts[1], parts[2], parts[3]));
                                     }
                                 }
                             } else { //--AaB?--
-                                checkLocation("Shapesanity Adjacent Singles " + ordered(parts[1], parts[2]));
+                                checkLocation("Checked", false, "Shapesanity Adjacent Singles " + ordered(parts[1], parts[2]));
                             }
                         }
                     } else { //--Aa--
                         if (parts[3]) { //--Aa--??
                             if (isSame(parts[1], parts[3])) { //--Aa--Aa
-                                checkLocation("Shapesanity Cornered " + colorNames[parts[1].color] + " " + 
+                                checkLocation("Checked", false, "Shapesanity Cornered " + colorNames[parts[1].color] + " " + 
                                     subShapeNames[parts[1].subShape]);
                             } else { //--Aa--!(Aa)
-                                checkLocation("Shapesanity Cornered Singles " + ordered(parts[1], parts[3]));
+                                checkLocation("Checked", false, "Shapesanity Cornered Singles " + ordered(parts[1], parts[3]));
                             }
                         } else { //--Aa----
-                            checkLocation("Shapesanity " + colorNames[parts[1].color] + " " + 
+                            checkLocation("Checked", false, "Shapesanity " + colorNames[parts[1].color] + " " + 
                                 subShapeNames[parts[1].subShape] + " Piece");
                         }
                     }
@@ -906,17 +889,17 @@ function shapesanityAnalyzer(shape) {
                     if (parts[2]) { //----Aa
                         if (parts[3]) { //----Aa??
                             if (isSame(parts[2], parts[3])) { //----AaAa
-                                checkLocation("Shapesanity Half " + colorNames[parts[2].color] + " " + 
+                                checkLocation("Checked", false, "Shapesanity Half " + colorNames[parts[2].color] + " " + 
                                     subShapeNames[parts[2].subShape]);
                             } else { //----Aa!(Aa)
-                                checkLocation("Shapesanity Adjacent Singles " + ordered(parts[2], parts[3]));
+                                checkLocation("Checked", false, "Shapesanity Adjacent Singles " + ordered(parts[2], parts[3]));
                             }
                         } else { //----Aa--
-                            checkLocation("Shapesanity " + colorNames[parts[2].color] + " " + 
+                            checkLocation("Checked", false, "Shapesanity " + colorNames[parts[2].color] + " " + 
                                 subShapeNames[parts[2].subShape] + " Piece");
                         }
                     } else { //------ => ------Aa
-                        checkLocation("Shapesanity " + colorNames[parts[3].color] + " " + 
+                        checkLocation("Checked", false, "Shapesanity " + colorNames[parts[3].color] + " " + 
                             subShapeNames[parts[3].subShape] + " Piece");
                     }
                 }

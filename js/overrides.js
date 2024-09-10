@@ -1,5 +1,5 @@
 import { Mod } from "shapez/mods/mod";
-import { aplog, client, connected, customRewards, leveldefs, roman, setLevelDefs, setUpgredeDefs, trapLocked, trapMalfunction, trapThrottled, upgradeDefs, upgradeIdNames } from "./global_data";
+import { aplog, client, connected, customRewards, leveldefs, roman, setLevelDefs, setUpgredeDefs, startEfficiency3Interval, trapLocked, trapMalfunction, trapThrottled, upgradeDefs, upgradeIdNames } from "./global_data";
 import { RandomNumberGenerator } from "shapez/core/rng";
 import { categoryRandomUpgradeShapes, categoryUpgradeShapes, hardcoreUpgradeShapes, linearUpgradeShapes, randomizedHardcoreShapes, randomizedQuickShapes, randomizedRandomStepsShapes, randomizedStretchedShapes, randomizedVanillaStepsShapes, vanillaLikeUpgradeShapes, vanillaShapes, vanillaUpgradeShapes } from "./requirement_definitions";
 import { MOD_SIGNALS } from "shapez/mods/mod_signals";
@@ -7,7 +7,7 @@ import { checkLocation, getShapesanityAnalyser, processItemsPacket, setRootAndMo
 import { enumAnalyticsDataSource } from "shapez/game/production_analytics";
 import { defaultBuildingVariant } from "shapez/game/meta_building";
 import { enumPainterVariants } from "shapez/game/buildings/painter";
-import { CLIENT_PACKET_TYPE, SERVER_PACKET_TYPE } from "archipelago.js";
+import { CLIENT_PACKET_TYPE, CLIENT_STATUS, SERVER_PACKET_TYPE } from "archipelago.js";
 import { ShapeDefinition } from "shapez/game/shape_definition";
 import { enumItemProcessorTypes } from "shapez/game/components/item_processor";
 import { ACHIEVEMENTS } from "shapez/platform/achievement_provider";
@@ -59,16 +59,15 @@ export function overrideLocationsListenToItems(modImpl) {
             var goal = client.data.slotData["goal"].valueOf();
             this.root.app.gameAnalytics.handleLevelCompleted(this.level);
             if (this.level == 1) {
-                checkLocation("Level 1", "Level 1 Additional");
+                checkLocation("Checked", false, "Level 1", "Level 1 Additional");
             } else if (this.level == 20) {
-                checkLocation("Level 20", "Level 20 Additional");
-                checkLocation("Level 20 Additional 2");
+                checkLocation("Checked", false, "Level 20", "Level 20 Additional", "Level 20 Additional 2");
             } else {
-                checkLocation("Level " + this.level);
+                checkLocation("Checked", false, "Level " + this.level);
             }
             if (goal === "vanilla" || goal === "mam") {
                 if (client.data.slotData["maxlevel"].valueOf() == this.level - 1) {
-                    checkLocation("Goal");
+                    checkLocation("Checked", true);
                 }
             }
             ++this.level;
@@ -97,7 +96,7 @@ export function overrideLocationsListenToItems(modImpl) {
             // @ts-ignore
             this.upgradeLevels[upgradeId] = (this.upgradeLevels[upgradeId] || 0) + 1;
             const upgradeNames = {belt: "Belt", miner: "Miner", processors: "Processors", painting: "Painting"};
-            checkLocation(upgradeNames[upgradeId] + " Upgrade Tier " + roman(currentLevel+2));
+            checkLocation("Checked", false, upgradeNames[upgradeId] + " Upgrade Tier " + roman(currentLevel+2));
             this.root.signals.upgradePurchased.dispatch(upgradeId);
             this.root.app.gameAnalytics.handleUpgradeUnlocked(upgradeId, currentLevel);
         } else {
@@ -135,13 +134,6 @@ export function overrideLocationsListenToItems(modImpl) {
     });
     modImpl.signals.gameStarted.add(function (root) {
         root.signals.shapeDelivered.add(getShapesanityAnalyser());
-        root.signals.shapeDelivered.add(function (shape) {
-            if (connected && client.data.slotData["goal"].valueOf() === "efficiency_iii" && root.productionAnalytics.getCurrentShapeRateRaw(
-                enumAnalyticsDataSource.delivered, root.shapeDefinitionMgr.getShapeFromShortKey("CbCbCbRb:CwCwCwCw")
-                ) / 10 >= 256) {
-                checkLocation("Goal");
-            }
-        });
         root.signals.upgradePurchased.add(function (upgrade) {
             if (connected && client.data.slotData["goal"].valueOf() === "even_fasterer") {
                 var finaltier = client.data.slotData["finaltier"].valueOf();
@@ -149,19 +141,28 @@ export function overrideLocationsListenToItems(modImpl) {
                 && root.hubGoals.getUpgradeLevel("miner") >= finaltier 
                 && root.hubGoals.getUpgradeLevel("processors") >= finaltier 
                 && root.hubGoals.getUpgradeLevel("painting") >= finaltier) {
-                    checkLocation("Goal");
+                    checkLocation("Checked", true);
                 }
             }
         });
         setRootAndModImpl(root, modImpl);
-        client.addListener(SERVER_PACKET_TYPE.RECEIVED_ITEMS, processItemsPacket);
         if (connected) {
+            client.addListener(SERVER_PACKET_TYPE.RECEIVED_ITEMS, processItemsPacket);
             if (!client.data.slotData["lock_belt_and_extractor"].valueOf()) {
                 customRewards.reward_belt = 1;
                 customRewards.reward_extractor = 1;
             }
             client.send({cmd: CLIENT_PACKET_TYPE.SYNC});
             resyncLocationChecks(root);
+            client.updateStatus(CLIENT_STATUS.PLAYING);
+            if (client.data.slotData["goal"].valueOf() === "efficiency_iii") {
+                startEfficiency3Interval(() => {
+                    if (root.productionAnalytics.getCurrentShapeRateRaw(enumAnalyticsDataSource.delivered, 
+                            root.shapeDefinitionMgr.getShapeFromShortKey("CbCbCbRb:CwCwCwCw")) / 10 >= 256) {
+                        checkLocation("Checked", true);
+                    }
+                }, 5000);
+            }
         }
     });
 }
@@ -217,6 +218,10 @@ export function overrideBuildings(modImpl) {
         return (connected ? customRewards.reward_trash != 0 : $original(root)) && !trapLocked.trash;
     });
     modImpl.modInterface.replaceMethod(shapez.MetaWireBuilding, "getIsUnlocked", function ($original, [root]) {
+        if (connected) return customRewards.reward_wires != 0;
+        else return $original(root);
+    });
+    modImpl.modInterface.replaceMethod(shapez.MetaWireTunnelBuilding, "getIsUnlocked", function ($original, [root]) {
         if (connected) return customRewards.reward_wires != 0;
         else return $original(root);
     });
@@ -573,24 +578,38 @@ function calcUpgradeDefinitions() {
 function resyncLocationChecks(root) {
     // resync levels
     for (var i = 1; i < root.hubGoals.level; i++) { // current level is what is to be completed
-        checkLocation(`Level ${i}`, null, "Resynced");
+        checkLocation("Resynced", false, `Level ${i}`);
     }
     if (root.hubGoals.level > 20) {
-        checkLocation("Level 1 Additional", "Level 20 Additional", "Resynced");
+        checkLocation("Resynced", false, "Level 1 Additional", "Level 20 Additional");
     } else if (root.hubGoals.level > 1) {
-        checkLocation("Level 1 Additional", null, "Resynced");
+        checkLocation("Resynced", false, "Level 1 Additional");
     }
     // resync upgrades
     for (var upgradeId of ["belt", "miner", "processors", "painting"]) {
         const currentLevel = root.hubGoals.getUpgradeLevel(upgradeId);
         for (var i = 1; i <= currentLevel; i++) {
-            checkLocation(upgradeIdNames[upgradeId] + " Upgrade Tier " + roman(i+1), null, "Resynced");
+            checkLocation("Resynced", false, upgradeIdNames[upgradeId] + " Upgrade Tier " + roman(i+1));
         }
     }
     // resync shapesanity
     for (var [hash, amount] of Object.entries(root.hubGoals.storedShapes)) {
         if ((amount || 0) > 0) {
             getShapesanityAnalyser()(ShapeDefinition.fromShortKey(hash));
+        }
+    }
+    // resync goals
+    const goal = client.data.slotData["goal"].valueOf();
+    if (goal === "vanilla" || goal === "mam") {
+        if (client.data.slotData["maxlevel"].valueOf() == root.hubGoals.level - 1) 
+            checkLocation("Checked", true);
+    } else if (goal === "even_fasterer") {
+        const finaltier = Number(client.data.slotData["finaltier"].valueOf());
+        if (root.hubGoals.getUpgradeLevel("belt") >= finaltier 
+                && root.hubGoals.getUpgradeLevel("miner") >= finaltier 
+                && root.hubGoals.getUpgradeLevel("processors") >= finaltier 
+                && root.hubGoals.getUpgradeLevel("painting") >= finaltier) {
+            checkLocation("Checked", true);
         }
     }
 }
