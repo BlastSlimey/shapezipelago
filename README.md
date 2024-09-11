@@ -3,6 +3,7 @@ Client mod for the Archipelago multiworld randomizer.
 
 ## TODO list
 ### APWorld
+- Second apworld with reduced data package
 ### Client mod
 - Needed for 1.0 release:
   - Text box (read only), received non-progression items only there
