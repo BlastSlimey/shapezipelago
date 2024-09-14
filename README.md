@@ -3,7 +3,6 @@ Client mod for the Archipelago multiworld randomizer.
 
 ## TODO list
 ### APWorld
-- Second apworld with reduced data package
 ### Client mod
 - Needed for 1.0 release:
   - Text box (read only), received non-progression items only there
@@ -13,7 +12,7 @@ Client mod for the Archipelago multiworld randomizer.
   - Offline playing
   - Randomize blueprint shape
   - Details when checking Level location, custom hubGoal reward, override hud
-  - shapesanity checks display
+  - shapesanity checks display examples
   - Translations
 ### Both
 - FEATURE:      Add bounty goal: collect mcguffins, enough of them give a hint towards bounty (always shapesanity stitched mixed), checking that gives bounty item, which sends goal
