@@ -1,6 +1,6 @@
 import { GameRoot } from "shapez/game/root";
 import { AchievementCollection, AchievementProviderInterface } from "shapez/platform/achievement_provider";
-import { achievementNames, aplog, client, connected, longAchievementNames, softlockAchievementNames } from "./global_data";
+import { achievementNames, aplog, connected, longAchievementNames, softlockAchievementNames } from "./global_data";
 import { checkLocation } from "./server_communication";
 import { AchievementProxy } from "shapez/game/achievement_proxy";
 
@@ -44,14 +44,12 @@ export class AchievementLocationProvider extends AchievementProviderInterface {
 
     activate(key) {
         if (connected) {
-            if (client.data.slotData["include_achievements"].valueOf()) {
-                if (achievementNames[key]) {
-                    checkLocation("Checked", false, achievementNames[key]);
-                } else if (!client.data.slotData["exclude_softlock_achievements"].valueOf() && softlockAchievementNames[key]) {
-                    checkLocation("Checked", false, softlockAchievementNames[key]);
-                } else if (!client.data.slotData["exclude_long_playtime_achievements"].valueOf() && longAchievementNames[key]) {
-                    checkLocation("Checked", false, longAchievementNames[key]);
-                }
+            if (achievementNames[key]) {
+                checkLocation("Checked", false, achievementNames[key]);
+            } else if (softlockAchievementNames[key]) {
+                checkLocation("Checked", false, softlockAchievementNames[key]);
+            } else if (longAchievementNames[key]) {
+                checkLocation("Checked", false, longAchievementNames[key]);
             }
         }
         return Promise.resolve();

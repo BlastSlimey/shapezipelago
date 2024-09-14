@@ -1,8 +1,7 @@
 import { enumSubShapeToShortcode, ShapeDefinition } from "shapez/game/shape_definition";
-import { aplog, baseBuildingNames, client, connected, customRewards, gamePackage, getIsUnlockedForTrap, increaseProcessedItems, processedItemCount, shapesanityCache, trapLocked, trapMalfunction, trapThrottled, upgradeDefs, upgradeIdNames } from "./global_data";
+import { aplog, baseBuildingNames, client, connected, customRewards, gamePackage, getIsUnlockedForTrap, increaseProcessedItems, processedItemCount, shapesanity_names, shapesanityCache, trapLocked, trapMalfunction, trapThrottled, upgradeDefs, upgradeIdNames } from "./global_data";
 import { CLIENT_PACKET_TYPE, CLIENT_STATUS } from "archipelago.js";
 import { enumColorToShortcode } from "shapez/game/colors";
-import { GameRoot } from "shapez/game/root";
 
 export var storedRoot = null;
 export var storedModImpl = null;
@@ -94,6 +93,12 @@ export const receiveItemFunctions = {
             randomID = upgradeIds[Math.floor(Math.random()*4)];
             requiredShapes = upgradeDefs[randomID][root.hubGoals.getUpgradeLevel(randomID)].required;
             requirement = requiredShapes[Math.floor(Math.random()*requiredShapes.length)];
+            for (var tries2 = 0; tries2 < 10 && 
+                    requirement.shape === root.hubGoals.currentGoal.definition.getHash(); tries2++) {
+                randomID = upgradeIds[Math.floor(Math.random()*4)];
+                requiredShapes = upgradeDefs[randomID][root.hubGoals.getUpgradeLevel(randomID)].required;
+                requirement = requiredShapes[Math.floor(Math.random()*requiredShapes.length)];
+            }
             stored = root.hubGoals.storedShapes[requirement.shape] || 0;
             addedAmount = Math.floor((requirement.amount - stored) / 2);
         }
@@ -198,11 +203,18 @@ export function checkLocation(resyncMessage, goal, ...names) {
     if (goal) 
         client.updateStatus(CLIENT_STATUS.GOAL);
     const locids = [];
-    for (var name of names) 
+    const namesCopy = names.slice();
+    for (var name of namesCopy) {
+        if (name.startsWith("Shapesanity")) {
+            names.push("Shapesanity " + (shapesanity_names.indexOf(name.substring("Shapesanity ".length))+1));
+        }
+    }
+    for (var name of names)  {
         locids.push(gamePackage.location_name_to_id[name]);
+    }
     client.send({cmd: CLIENT_PACKET_TYPE.LOCATION_CHECKS, locations: locids});
     for (var name of names) 
-        aplog(`${resyncMessage} location ${name}`);
+        aplog(`${resyncMessage} location ${name} with ID ${gamePackage.location_name_to_id[name]}`);
 }
 
 /**

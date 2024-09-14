@@ -1,7 +1,14 @@
 import { Mod } from "shapez/mods/mod";
-import { aplog, clearEfficiency3Interval, connected, customRewards, resetShapesanityCache, setConnected, setGamePackage, setLevelDefs, setProcessedItems, setUpgredeDefs, trapLocked, trapMalfunction, trapThrottled } from "./global_data";
-import { ITEMS_HANDLING_FLAGS, Client, SERVER_PACKET_TYPE, CLIENT_STATUS } from "archipelago.js";
+import { aplog, clearEfficiency3Interval, client, connected, customRewards, resetShapesanityCache, setConnected, setGamePackage, setLevelDefs, setProcessedItems, setShapesanityNames, setUpgredeDefs, shapesanity_names, trapLocked, trapMalfunction, trapThrottled } from "./global_data";
+import { ITEMS_HANDLING_FLAGS, Client, SERVER_PACKET_TYPE, CLIENT_STATUS, CREATE_AS_HINT_MODE } from "archipelago.js";
 import { processItemsPacket } from "./server_communication";
+import { makeDiv, removeAllChildren } from "shapez/core/utils";
+import { BaseHUDPart } from "shapez/game/hud/base_hud_part";
+import { DynamicDomAttach } from "shapez/game/hud/dynamic_dom_attach";
+import { InputReceiver } from "shapez/core/input_receiver";
+import { KeyActionMapper, KEYMAPPINGS } from "shapez/game/key_action_mapper";
+
+var scouted = [true, true, false];
 
 /**
  * @param {Mod} modImpl
@@ -124,92 +131,126 @@ export function addInputContainer(modImpl, client, autoPlayer, autoAddress, auto
                     statusLabel.innerText = "Disconnected";
                     statusButton.innerText = "Connect";
                 }
-                
             });
             statusContainer.appendChild(statusLabel);
             statusContainer.appendChild(statusButton);
         }
     });
-    modImpl.modInterface.registerCss(`
-            #state_MainMenuState .inputContainer {
-                display: flex;
-                width: 90%;
-                flex-direction: column;
-                grid-gap: calc(5px*var(--ui-scale));
-                background: #65a4b3;
-                border-radius: calc(6px*var(--ui-scale));
-                justify-content: center;
-                align-items: flex-start;
-                padding: calc(10px * var(--ui-scale));
-                box-shadow: 0 calc(5px * var(--ui-scale)) calc(15px * var(--ui-scale)) rgba(0, 0, 0, 0.2);
+    modImpl.modInterface.registerHudElement("ingame_HUD_Shapesanity", HUDShapesanity);
+    modImpl.signals.gameStarted.add((/** @type {import("shapez/game/root").GameRoot} */ root) => {
+        if (connected) {
+            const shapesanity_slotData = client.data.slotData["shapesanity"];
+            setShapesanityNames(shapesanity_slotData ? shapesanity_slotData.valueOf() : []);
+            var ingame_HUD_GameMenu;
+            for (var index = 0; index < document.body.children.length; index++) {
+                if (document.body.children.item(index).id === "ingame_HUD_GameMenu") {
+                    ingame_HUD_GameMenu = document.body.children.item(index);
+                }
             }
-            #state_MainMenuState .playerContainer {
-                display: flex;
-                width: 100%;
-                flex-direction: row;
-                grid-gap: calc(5px*var(--ui-scale));
-                background: #65a4b3;
-                align-items: center;
-                justify-content: flex-end;
+            const shapesanityButton = document.createElement("button");
+            shapesanityButton.classList.add("shapesanityButton");
+            shapesanityButton.addEventListener("mousedown", () => {
+                shapesanityButton.classList.add("pressed");
+            });
+            shapesanityButton.addEventListener("mouseout", () => {
+                shapesanityButton.classList.remove("pressed");
+            });
+            shapesanityButton.addEventListener("mouseup", () => {
+                shapesanityButton.classList.remove("pressed");
+                root.hud.parts["ingame_HUD_Shapesanity"].show();
+            });
+            ingame_HUD_GameMenu.appendChild(shapesanityButton);
+        }
+    });
+}
+
+class HUDShapesanity extends BaseHUDPart {
+
+    createElements(parent) {
+        this.background = makeDiv(parent, "ingame_HUD_Shapesanity", ["ingameDialog"]);
+        this.dialogInner = makeDiv(this.background, null, ["dialogInner"]);
+        this.title = makeDiv(this.dialogInner, null, ["title"], "Shapesanity");
+        this.closeButton = makeDiv(this.title, null, ["closeButton"]);
+        this.trackClicks(this.closeButton, this.close);
+        this.contentDiv = makeDiv(this.dialogInner, null, ["content"]);
+        this.visible = false;
+    }
+
+    /**
+     * @param {Array<String>} [shapesanityNames]
+     */
+    rerenderFull(shapesanityNames) {
+        removeAllChildren(this.contentDiv);
+        for (var index = 0; index < shapesanityNames.length; index++) {
+            var nextName = document.createElement("span");
+            nextName.classList.add("shapesanityRow");
+            nextName.innerText = `${index+1}: ${shapesanityNames[index]}`;
+            if (this.visible && (index < scouted.length ? scouted[index] : false)) {
+                nextName.style.backgroundColor = "#325259";
             }
-            #state_MainMenuState .addressContainer {
-                display: flex;
-                width: 100%;
-                flex-direction: row;
-                grid-gap: calc(5px*var(--ui-scale));
-                background: #65a4b3;
-                align-items: center;
-                justify-content: flex-end;
+            this.contentDiv.appendChild(nextName);
+        }
+    }
+
+    initialize() {
+        this.domAttach = new DynamicDomAttach(this.root, this.background, {
+            attachClass: "visible",
+        });
+        this.inputReciever = new InputReceiver("shapesanity");
+        this.keyActionMapper = new KeyActionMapper(this.root, this.inputReciever);
+        this.keyActionMapper.getBinding(KEYMAPPINGS.general.back).add(this.close, this);
+        this.keyActionMapper.getBinding(KEYMAPPINGS.ingame.menuClose).add(this.close, this);
+        this.lastFullRerender = 0;
+        this.close();
+        this.rerenderFull(shapesanity_names);
+    }
+
+    scout() {
+        scouted = new Array(shapesanity_names.length).fill(false);
+        for (var checked of client.locations.checked) {
+            var name = client.locations.name(client.data.slot, checked).split(" ");
+            if (name[0] === "Shapesanity") {
+                var index = Number(name[1]);
+                if (!Number.isNaN(index)) {
+                    scouted[index-1] = true;
+                }
             }
-            #state_MainMenuState .portContainer {
-                display: flex;
-                width: 100%;
-                flex-direction: row;
-                grid-gap: calc(5px*var(--ui-scale));
-                background: #65a4b3;
-                align-items: center;
-                justify-content: flex-end;
+        }
+    }
+
+    show() {
+        this.visible = true;
+        this.root.app.inputMgr.makeSureAttachedAndOnTop(this.inputReciever);
+        if (connected) this.scout();
+        this.update();
+    }
+
+    close() {
+        this.visible = false;
+        this.root.app.inputMgr.makeSureDetached(this.inputReciever);
+        this.update();
+    }
+
+    update() {
+        this.domAttach.update(this.visible);
+        if (this.visible) {
+            if (this.root.time.now() - this.lastFullRerender > 1) {
+                this.lastFullRerender = this.root.time.now();
+                this.rerenderFull(shapesanity_names);
             }
-            #state_MainMenuState .passwordContainer {
-                display: flex;
-                width: 100%;
-                flex-direction: row;
-                grid-gap: calc(5px*var(--ui-scale));
-                background: #65a4b3;
-                align-items: center;
-                justify-content: flex-end;
-            }
-            #state_MainMenuState .statusContainer {
-                display: flex;
-                width: 100%;
-                flex-direction: row;
-                grid-gap: calc(5px*var(--ui-scale));
-                background: #65a4b3;
-                align-items: center;
-                justify-content: flex-end;
-            }
-            #state_MainMenuState .playerInput {
-                color: #000;
-                padding: calc(1px * var(--ui-scale)) calc(3px * var(--ui-scale));
-                margin: calc(0px * var(--ui-scale)) calc(0px * var(--ui-scale));
-            }
-            #state_MainMenuState .addressInput {
-                color: #000;
-                padding: calc(1px * var(--ui-scale)) calc(3px * var(--ui-scale));
-                margin: calc(0px * var(--ui-scale)) calc(0px * var(--ui-scale));
-            }
-            #state_MainMenuState .portInput {
-                padding: calc(1px * var(--ui-scale)) calc(3px * var(--ui-scale));
-                margin: calc(0px * var(--ui-scale)) calc(0px * var(--ui-scale));
-            }
-            #state_MainMenuState .passwordInput {
-                padding: calc(1px * var(--ui-scale)) calc(3px * var(--ui-scale));
-                margin: calc(0px * var(--ui-scale)) calc(0px * var(--ui-scale));
-            }
-            #state_MainMenuState .statusButton {
-                padding: calc(1px * var(--ui-scale)) calc(3px * var(--ui-scale));
-                margin: calc(0px * var(--ui-scale)) calc(0px * var(--ui-scale));
-                background-color: red;
-            }
-        `);
+        }
+    }
+    
+    isBlockingOverlay() {
+        return this.visible;
+    }
+    
+}
+
+/**
+ * @param {String} name
+ */
+function shapesanityExample(name) {
+    var words = name.split(" ");
+    // TODO
 }

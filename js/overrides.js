@@ -65,7 +65,7 @@ export function overrideLocationsListenToItems(modImpl) {
             } else {
                 checkLocation("Checked", false, "Level " + this.level);
             }
-            if (goal === "vanilla" || goal === "mam") {
+            if (goal === "vanilla" || goal === "mam" || goal === 0 || goal === 1) {
                 if (client.data.slotData["maxlevel"].valueOf() == this.level - 1) {
                     checkLocation("Checked", true);
                 }
@@ -135,7 +135,8 @@ export function overrideLocationsListenToItems(modImpl) {
     modImpl.signals.gameStarted.add(function (root) {
         root.signals.shapeDelivered.add(getShapesanityAnalyser());
         root.signals.upgradePurchased.add(function (upgrade) {
-            if (connected && client.data.slotData["goal"].valueOf() === "even_fasterer") {
+            const goal = client.data.slotData["goal"].valueOf();
+            if (connected && goal === "even_fasterer" || goal === 2) {
                 var finaltier = client.data.slotData["finaltier"].valueOf();
                 if (root.hubGoals.getUpgradeLevel("belt") >= finaltier 
                 && root.hubGoals.getUpgradeLevel("miner") >= finaltier 
@@ -148,14 +149,16 @@ export function overrideLocationsListenToItems(modImpl) {
         setRootAndModImpl(root, modImpl);
         if (connected) {
             client.addListener(SERVER_PACKET_TYPE.RECEIVED_ITEMS, processItemsPacket);
-            if (!client.data.slotData["lock_belt_and_extractor"].valueOf()) {
+            const lockBeltExtractor = client.data.slotData["lock_belt_and_extractor"];
+            if ((lockBeltExtractor ? !lockBeltExtractor.valueOf() : true)) {
                 customRewards.reward_belt = 1;
                 customRewards.reward_extractor = 1;
             }
             client.send({cmd: CLIENT_PACKET_TYPE.SYNC});
             resyncLocationChecks(root);
             client.updateStatus(CLIENT_STATUS.PLAYING);
-            if (client.data.slotData["goal"].valueOf() === "efficiency_iii") {
+            const goal = client.data.slotData["goal"].valueOf();
+            if (goal === "efficiency_iii" || goal === 3) {
                 startEfficiency3Interval(() => {
                     if (root.productionAnalytics.getCurrentShapeRateRaw(enumAnalyticsDataSource.delivered, 
                             root.shapeDefinitionMgr.getShapeFromShortKey("CbCbCbRb:CwCwCwCw")) / 10 >= 256) {
@@ -493,20 +496,22 @@ function calcLevelDefinitions() {
         var seed = client.data.slotData["seed"].valueOf();
         const randomizer = new RandomNumberGenerator(Number(seed));
         var maxlevel = 25;
-        if (client.data.slotData["goal"].valueOf() === "mam") {
+        const goal = client.data.slotData["goal"].valueOf();
+        if (goal !== "vanilla" && goal !== 0) {
             maxlevel = Number(client.data.slotData["maxlevel"].valueOf());
         }
         var logic = client.data.slotData["randomize_level_logic"].valueOf().toString();
-        var throughputratio = Number(client.data.slotData["throughput_levels_ratio"].valueOf());
+        const throughput_slotdata = client.data.slotData["throughput_levels_ratio"];
+        var throughputratio = throughput_slotdata ? Number(throughput_slotdata.valueOf()) : -1;
         var building1 = client.data.slotData["Level building 1"].valueOf();
         var building2 = client.data.slotData["Level building 2"].valueOf();
         var building3 = client.data.slotData["Level building 3"].valueOf();
         var building4 = client.data.slotData["Level building 4"].valueOf();
         var building5 = client.data.slotData["Level building 5"].valueOf();
-        if (logic.startsWith("vanilla")) {
+        if (logic.startsWith("vanilla") || logic === "0" || logic === "1") {
             return randomizedVanillaStepsShapes(randomizer, maxlevel, throughputratio, multiplier, 
                 building1, building2, building3, building4, building5);
-        } else if (logic.startsWith("stretched")) {
+        } else if (logic.startsWith("stretched") || logic === "2" || logic === "3") {
             return randomizedStretchedShapes(randomizer, maxlevel, throughputratio, multiplier, 
                 building1, building2, building3, building4, building5);
         } else if (logic.startsWith("quick")) {
@@ -531,13 +536,13 @@ function calcLevelDefinitions() {
 
 function calcUpgradeDefinitions() {
     var multiplier = client.data.slotData["required_shapes_multiplier"].valueOf();
-    aplog("Loaded multiplier from slotData: " + multiplier);
     var isRandomized = client.data.slotData["randomize_upgrade_requirements"].valueOf();
     if (isRandomized) {
         var seed = client.data.slotData["seed"].valueOf();
         const randomizer = new RandomNumberGenerator(Number(seed));
         var finaltier = 8;
-        if (client.data.slotData["goal"].valueOf() === "even_fasterer") {
+        const goal = client.data.slotData["goal"].valueOf();
+        if (goal === "even_fasterer" || goal === 2) {
             finaltier = Number(client.data.slotData["finaltier"].valueOf());
         }
         var samelate = client.data.slotData["same_late_upgrade_requirements"].valueOf();
@@ -547,10 +552,10 @@ function calcUpgradeDefinitions() {
         var building3 = client.data.slotData["Upgrade building 3"].valueOf();
         var building4 = client.data.slotData["Upgrade building 4"].valueOf();
         var building5 = client.data.slotData["Upgrade building 5"].valueOf();
-        if (logic === "vanilla_like") {
+        if (logic === "vanilla_like" || logic === "0") {
             return vanillaLikeUpgradeShapes(multiplier, randomizer, finaltier, samelate, 
                 building1, building2, building3, building4, building5);
-        } else if (logic === "linear") {
+        } else if (logic === "linear" || logic === "1") {
             return linearUpgradeShapes(multiplier, randomizer, finaltier, samelate, 
                 building1, building2, building3, building4, building5);
         } else if (logic === "category") {
@@ -600,7 +605,7 @@ function resyncLocationChecks(root) {
     }
     // resync goals
     const goal = client.data.slotData["goal"].valueOf();
-    if (goal === "vanilla" || goal === "mam") {
+    if (goal === "vanilla" || goal === "mam" || goal === 0 || goal === 1) {
         if (client.data.slotData["maxlevel"].valueOf() == root.hubGoals.level - 1) 
             checkLocation("Checked", true);
     } else if (goal === "even_fasterer") {

@@ -16,6 +16,7 @@ export const customRewards = {
 export var upgradeDefs = null;
 export var leveldefs = null;
 export var gamePackage = null;
+export var shapesanity_names = ["Placeholder", "Placeholder", "Placeholder"];
 export const upgradeIdNames = {
     belt: "Belt",
     miner: "Miner",
@@ -226,4 +227,8 @@ export function clearEfficiency3Interval() {
         window.clearInterval(efficiency3Interval);
         efficiency3Interval = null;
     }
+}
+
+export function setShapesanityNames(arr) {
+    shapesanity_names = arr;
 }
