@@ -204,14 +204,12 @@ export function checkLocation(resyncMessage, goal, ...names) {
         client.updateStatus(CLIENT_STATUS.GOAL);
     const locids = [];
     const namesCopy = names.slice();
-    for (var name of namesCopy) {
-        if (name.startsWith("Shapesanity")) {
+    for (var name of namesCopy)
+        if (name.startsWith("Shapesanity"))
             names.push("Shapesanity " + (shapesanity_names.indexOf(name.substring("Shapesanity ".length))+1));
-        }
-    }
-    for (var name of names)  {
-        locids.push(gamePackage.location_name_to_id[name]);
-    }
+    for (var name of names)
+        if (gamePackage.location_name_to_id[name])
+            locids.push(gamePackage.location_name_to_id[name]);
     client.send({cmd: CLIENT_PACKET_TYPE.LOCATION_CHECKS, locations: locids});
     for (var name of names) 
         aplog(`${resyncMessage} location ${name} with ID ${gamePackage.location_name_to_id[name]}`);
@@ -224,9 +222,8 @@ export function processItemsPacket(packet) {
     aplog("Received packet with " + packet.items.length + 
         " items and reported index " + packet.index + 
         ", while having " + processedItemCount + " items");
-    if (packet.index != 0) {
+    if (packet.index != 0)
         return;
-    }
     if (processedItemCount + 1 >= packet.items.length) {
         for (var i = processedItemCount; i < packet.items.length; i++) {
             receiveItem(packet.items[i], true, false);

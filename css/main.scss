@@ -17,6 +17,25 @@
 #ingame_HUD_Shapesanity {
     z-index: 420;
 }
+#ingame_HUD_Shapesanity .shapesanityRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: calc(6px*var(--ui-scale));
+    padding-left: calc(10px*var(--ui-scale));
+    padding-right: calc(10px*var(--ui-scale));
+    padding-top: calc(2px*var(--ui-scale));
+    padding-bottom: calc(2px*var(--ui-scale));
+}
+html[data-theme=dark] .ingameDialog > .dialogInner > .content > .locationChecked, .ingameDialog > .dialogInner > .content > .locationChecked[data-theme=dark] {
+    background-color: #007d91;
+}
+html[data-theme=light] .ingameDialog > .dialogInner > .content > .locationChecked, .ingameDialog > .dialogInner > .content > .locationChecked[data-theme=light] {
+    background-color: #96f6ff;
+}
+#ingame_HUD_Shapesanity .shapesanityName {
+    padding-right: calc(10px * var(--ui-scale));
+}
 #ingame_HUD_Shapesanity .content {
     margin-top: calc(10px * var(--ui-scale));
     padding-right: calc(10px * var(--ui-scale));
@@ -24,7 +43,8 @@
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
-    width: calc(300px * var(--ui-scale));
+    justify-items: stretch;
+    width: fit-content;
     height: calc(350px * var(--ui-scale));
 }
 #state_MainMenuState .inputContainer {

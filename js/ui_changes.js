@@ -1,6 +1,6 @@
 import { Mod } from "shapez/mods/mod";
 import { aplog, clearEfficiency3Interval, client, connected, customRewards, resetShapesanityCache, setConnected, setGamePackage, setLevelDefs, setProcessedItems, setShapesanityNames, setUpgredeDefs, shapesanity_names, trapLocked, trapMalfunction, trapThrottled } from "./global_data";
-import { ITEMS_HANDLING_FLAGS, Client, SERVER_PACKET_TYPE, CLIENT_STATUS, CREATE_AS_HINT_MODE } from "archipelago.js";
+import { ITEMS_HANDLING_FLAGS, Client, SERVER_PACKET_TYPE, CLIENT_STATUS } from "archipelago.js";
 import { processItemsPacket } from "./server_communication";
 import { makeDiv, removeAllChildren } from "shapez/core/utils";
 import { BaseHUDPart } from "shapez/game/hud/base_hud_part";
@@ -9,6 +9,7 @@ import { InputReceiver } from "shapez/core/input_receiver";
 import { KeyActionMapper, KEYMAPPINGS } from "shapez/game/key_action_mapper";
 
 var scouted = [true, true, false];
+var examples = [];
 
 /**
  * @param {Mod} modImpl
@@ -141,6 +142,10 @@ export function addInputContainer(modImpl, client, autoPlayer, autoAddress, auto
         if (connected) {
             const shapesanity_slotData = client.data.slotData["shapesanity"];
             setShapesanityNames(shapesanity_slotData ? shapesanity_slotData.valueOf() : []);
+            examples = [];
+            for (var name of shapesanity_names) {
+                examples.push(root.shapeDefinitionMgr.getShapeFromShortKey(shapesanityExample(name)).generateAsCanvas(50));
+            }
             var ingame_HUD_GameMenu;
             for (var index = 0; index < document.body.children.length; index++) {
                 if (document.body.children.item(index).id === "ingame_HUD_GameMenu") {
@@ -181,14 +186,18 @@ class HUDShapesanity extends BaseHUDPart {
      */
     rerenderFull(shapesanityNames) {
         removeAllChildren(this.contentDiv);
-        for (var index = 0; index < shapesanityNames.length; index++) {
-            var nextName = document.createElement("span");
-            nextName.classList.add("shapesanityRow");
-            nextName.innerText = `${index+1}: ${shapesanityNames[index]}`;
-            if (this.visible && (index < scouted.length ? scouted[index] : false)) {
-                nextName.style.backgroundColor = "#325259";
+        if (this.visible) {
+            for (var index = 0; index < shapesanityNames.length; index++) {
+                var divElem = makeDiv(this.contentDiv, null, ["shapesanityRow"]);
+                var nextName = document.createElement("span");
+                nextName.classList.add("shapesanityName");
+                nextName.innerText = `${index+1}: ${shapesanityNames[index]}`;
+                if (index < scouted.length ? scouted[index] : false) {
+                    divElem.classList.add("locationChecked");
+                }
+                divElem.appendChild(nextName);
+                divElem.appendChild(examples[index]);
             }
-            this.contentDiv.appendChild(nextName);
         }
     }
 
@@ -223,6 +232,7 @@ class HUDShapesanity extends BaseHUDPart {
         this.root.app.inputMgr.makeSureAttachedAndOnTop(this.inputReciever);
         if (connected) this.scout();
         this.update();
+        this.rerenderFull(shapesanity_names);
     }
 
     close() {
@@ -233,12 +243,6 @@ class HUDShapesanity extends BaseHUDPart {
 
     update() {
         this.domAttach.update(this.visible);
-        if (this.visible) {
-            if (this.root.time.now() - this.lastFullRerender > 1) {
-                this.lastFullRerender = this.root.time.now();
-                this.rerenderFull(shapesanity_names);
-            }
-        }
     }
     
     isBlockingOverlay() {
@@ -247,10 +251,108 @@ class HUDShapesanity extends BaseHUDPart {
     
 }
 
+const capitalColorNames = {
+    "Uncolored": "u",
+    "Red": "r",
+    "Green": "g",
+    "Blue": "b",
+    "Yellow": "y",
+    "Cyan": "c",
+    "Purple": "p",
+    "White": "w"
+};
+const capitalShapeNames = {
+    "Circle": "C",
+    "Square": "R",
+    "Star": "S",
+    "Windmill": "W"
+};
+const oneWordLen3 = {
+    "Half": (words) => {
+        const code = capitalShapeNames[words[2]]+capitalColorNames[words[1]]; 
+        return "----"+code+code;
+    },
+    "Cornered": (words) => {
+        const code = capitalShapeNames[words[2]]+capitalColorNames[words[1]]; 
+        return "--"+code+"--"+code;
+    },
+    "3-1": (words) => {
+        return words[2]+words[1]+words[1]+words[1];
+    },
+    "Half-Half": (words) => {
+        return words[2]+words[2]+words[1]+words[1];
+    },
+    "Checkered": (words) => {
+        return words[2]+words[1]+words[2]+words[1];
+    }
+};
+const twoWordLen4 = {
+    "AdjacentSingles": (words) => {
+        return "--"+words[3]+words[2]+"--";
+    },
+    "Adjacent2-1": (words) => {
+        return "--"+words[3]+words[2]+words[2];
+    },
+    "CorneredSingles": (words) => {
+        return words[3]+"--"+words[2]+"--";
+    },
+    "Cornered2-1": (words) => {
+        return words[2]+words[3]+words[2]+"--";
+    }
+}
+
 /**
  * @param {String} name
  */
 function shapesanityExample(name) {
-    var words = name.split(" ");
-    // TODO
+    const words = name.split(" ");
+    if (capitalColorNames[words[0]]) {
+        if (capitalShapeNames[words[1]]) {
+            if (words[2] === "Piece") {
+                return capitalShapeNames[words[1]]+capitalColorNames[words[0]]+"------";
+            } else {
+                var code = capitalShapeNames[words[1]]+capitalColorNames[words[0]];
+                return code+code+code+code;
+            }
+        } else {
+            const col = capitalColorNames[words[0]];
+            var ret = "";
+            for (var i = 0; i < 4; i++) {
+                if (words[1].charAt(i) == "-")
+                    ret = ret+"--";
+                else
+                    ret = ret+words[1].charAt(i)+col;
+            }
+            return ret;
+        }
+    } else if (words[0] === "Singles") {
+        if (words.length == 4)
+            return "--"+words[1]+words[2]+words[3];
+        if (words.length == 5)
+            return words[1]+words[2]+words[3]+words[4];
+    } else if (words.length == 3) {
+        return oneWordLen3[words[0]](words);
+    } else if (words.length == 4) {
+        if (words[0] === "Cut" && words[1] === "Out") {
+            var code = capitalShapeNames[words[3]]+capitalColorNames[words[2]];
+            return "--"+code+code+code;
+        }
+        return twoWordLen4[words[0]+words[1]](words);
+    } else if (words.length == 5 && words[1] === "2-1-1") {
+        if (words[0] === "Cornered")
+            return words[2]+words[3]+words[2]+words[4];
+        if (words[0] === "Adjacent")
+            return words[2]+words[3]+words[4]+words[2];
+    } else {
+        const shap = capitalShapeNames[words[1]];
+        var ret = "";
+        for (var i = 0; i < 4; i++) {
+            if (words[0].charAt(i) == "-")
+                ret = ret+"--";
+            else
+                ret = ret+shap+words[0].charAt(i);
+        }
+        return ret;
+    }
+    return "";
 }
