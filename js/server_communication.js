@@ -1,59 +1,39 @@
 import { enumSubShapeToShortcode, ShapeDefinition } from "shapez/game/shape_definition";
-import { aplog, baseBuildingNames, client, connected, customRewards, gamePackage, getIsUnlockedForTrap, increaseProcessedItems, processedItemCount, shapesanity_names, shapesanityCache, trapLocked, trapMalfunction, trapThrottled, upgradeDefs, upgradeIdNames } from "./global_data";
-import { CLIENT_PACKET_TYPE, CLIENT_STATUS } from "archipelago.js";
+import { apdebuglog, baseBuildingNames, colorNames, connection, currentIngame, customRewards, getIsUnlockedForTrap, modImpl, subShapeNames, upgradeIdNames } from "./global_data";
+import { CLIENT_STATUS } from "archipelago.js";
 import { enumColorToShortcode } from "shapez/game/colors";
-
-export var storedRoot = null;
-export var storedModImpl = null;
-const subShapeNames = {
-    rect: "Square",
-    circle: "Circle",
-    star: "Star",
-    windmill: "Windmill",
-};
-const colorNames = {
-    red: "Red",
-    green: "Green",
-    blue: "Blue",
-
-    yellow: "Yellow",
-    purple: "Purple",
-    cyan: "Cyan",
-
-    white: "White",
-    uncolored: "Uncolored",
-};
+import { enumHubGoalRewards } from "shapez/game/tutorial_goals";
 
 export const receiveItemFunctions = {
-    "Belt": (root, resynced) => {customRewards.reward_belt = 1; return "";},
-    "Extractor": (root, resynced) => {customRewards.reward_extractor = 1; return "";},
-    "Cutter": (root, resynced) => {customRewards.reward_cutter = 1; return "";},
-    "Rotator": (root, resynced) => {root.hubGoals.gainedRewards["reward_rotater"] = 1; return "";},
-    "Painter": (root, resynced) => {root.hubGoals.gainedRewards["reward_painter"] = 1; return "";},
-    "Rotator (CCW)": (root, resynced) => {root.hubGoals.gainedRewards["reward_rotater_ccw"] = 1; return "";},
-    "Color Mixer": (root, resynced) => {root.hubGoals.gainedRewards["reward_mixer"] = 1; return "";},
-    "Stacker": (root, resynced) => {root.hubGoals.gainedRewards["reward_stacker"] = 1; return "";},
-    "Quad Cutter": (root, resynced) => {root.hubGoals.gainedRewards["reward_cutter_quad"] = 1; return "";},
-    "Double Painter": (root, resynced) => {root.hubGoals.gainedRewards["reward_painter_double"] = 1; return "";},
-    "Rotator (180°)": (root, resynced) => {root.hubGoals.gainedRewards["reward_rotater_180"] = 1; return "";},
-    "Quad Painter": (root, resynced) => {customRewards.reward_painter_quad = 1; return "";},
-    "Balancer": (root, resynced) => {root.hubGoals.gainedRewards["reward_balancer"] = 1; return "";},
-    "Tunnel": (root, resynced) => {root.hubGoals.gainedRewards["reward_tunnel"] = 1; return "";},
-    "Compact Merger": (root, resynced) => {root.hubGoals.gainedRewards["reward_merger"] = 1; return "";},
-    "Tunnel Tier II": (root, resynced) => {root.hubGoals.gainedRewards["reward_underground_belt_tier_2"] = 1; return "";},
-    "Compact Splitter": (root, resynced) => {root.hubGoals.gainedRewards["reward_splitter"] = 1; return "";},
-    "Trash": (root, resynced) => {customRewards.reward_trash = 1; return "";},
-    "Chaining Extractor": (root, resynced) => {root.hubGoals.gainedRewards["reward_miner_chainable"] = 1; return "";},
-    "Belt Reader": (root, resynced) => {root.hubGoals.gainedRewards["reward_belt_reader"] = 1; return "";},
-    "Storage": (root, resynced) => {root.hubGoals.gainedRewards["reward_storage"] = 1; return "";},
-    "Switch": (root, resynced) => {customRewards.reward_switch = 1; return "";},
-    "Item Filter": (root, resynced) => {root.hubGoals.gainedRewards["reward_filter"] = 1; return "";},
-    "Display": (root, resynced) => {root.hubGoals.gainedRewards["reward_display"] = 1; return "";},
-    "Wires": (root, resynced) => {customRewards.reward_wires = 1; return "";},
-    "Constant Signal": (root, resynced) => {root.hubGoals.gainedRewards["reward_constant_signal"] = 1; return "";},
-    "Logic Gates": (root, resynced) => {root.hubGoals.gainedRewards["reward_logic_gates"] = 1; return "";},
-    "Virtual Processing": (root, resynced) => {root.hubGoals.gainedRewards["reward_virtual_processing"] = 1; return "";},
-    "Blueprints": (root, resynced) => {root.hubGoals.gainedRewards["reward_blueprints"] = 1; return "";},
+    "Belt": (root, resynced) => {root.hubGoals.gainedRewards[customRewards.belt] = 1; return "";},
+    "Extractor": (root, resynced) => {root.hubGoals.gainedRewards[customRewards.extractor] = 1; return "";},
+    "Cutter": (root, resynced) => {root.hubGoals.gainedRewards[customRewards.cutter] = 1; return "";},
+    "Rotator": (root, resynced) => {root.hubGoals.gainedRewards[enumHubGoalRewards.reward_rotater] = 1; return "";},
+    "Painter": (root, resynced) => {root.hubGoals.gainedRewards[enumHubGoalRewards.reward_painter] = 1; return "";},
+    "Rotator (CCW)": (root, resynced) => {root.hubGoals.gainedRewards[enumHubGoalRewards.reward_rotater_ccw] = 1; return "";},
+    "Color Mixer": (root, resynced) => {root.hubGoals.gainedRewards[enumHubGoalRewards.reward_mixer] = 1; return "";},
+    "Stacker": (root, resynced) => {root.hubGoals.gainedRewards[enumHubGoalRewards.reward_stacker] = 1; return "";},
+    "Quad Cutter": (root, resynced) => {root.hubGoals.gainedRewards[enumHubGoalRewards.reward_cutter_quad] = 1; return "";},
+    "Double Painter": (root, resynced) => {root.hubGoals.gainedRewards[enumHubGoalRewards.reward_painter_double] = 1; return "";},
+    "Rotator (180°)": (root, resynced) => {root.hubGoals.gainedRewards[enumHubGoalRewards.reward_rotater_180] = 1; return "";},
+    "Quad Painter": (root, resynced) => {root.hubGoals.gainedRewards[customRewards.painter_quad] = 1; return "";},
+    "Balancer": (root, resynced) => {root.hubGoals.gainedRewards[enumHubGoalRewards.reward_balancer] = 1; return "";},
+    "Tunnel": (root, resynced) => {root.hubGoals.gainedRewards[enumHubGoalRewards.reward_tunnel] = 1; return "";},
+    "Compact Merger": (root, resynced) => {root.hubGoals.gainedRewards[enumHubGoalRewards.reward_merger] = 1; return "";},
+    "Tunnel Tier II": (root, resynced) => {root.hubGoals.gainedRewards[enumHubGoalRewards.reward_underground_belt_tier_2] = 1; return "";},
+    "Compact Splitter": (root, resynced) => {root.hubGoals.gainedRewards[enumHubGoalRewards.reward_splitter] = 1; return "";},
+    "Trash": (root, resynced) => {root.hubGoals.gainedRewards[customRewards.trash] = 1; return "";},
+    "Chaining Extractor": (root, resynced) => {root.hubGoals.gainedRewards[enumHubGoalRewards.reward_miner_chainable] = 1; return "";},
+    "Belt Reader": (root, resynced) => {root.hubGoals.gainedRewards[enumHubGoalRewards.reward_belt_reader] = 1; return "";},
+    "Storage": (root, resynced) => {root.hubGoals.gainedRewards[enumHubGoalRewards.reward_storage] = 1; return "";},
+    "Switch": (root, resynced) => {root.hubGoals.gainedRewards[customRewards.switch] = 1; return "";},
+    "Item Filter": (root, resynced) => {root.hubGoals.gainedRewards[enumHubGoalRewards.reward_filter] = 1; return "";},
+    "Display": (root, resynced) => {root.hubGoals.gainedRewards[enumHubGoalRewards.reward_display] = 1; return "";},
+    "Wires": (root, resynced) => {root.hubGoals.gainedRewards[customRewards.wires] = 1; return "";},
+    "Constant Signal": (root, resynced) => {root.hubGoals.gainedRewards[enumHubGoalRewards.reward_constant_signal] = 1; return "";},
+    "Logic Gates": (root, resynced) => {root.hubGoals.gainedRewards[enumHubGoalRewards.reward_logic_gates] = 1; return "";},
+    "Virtual Processing": (root, resynced) => {root.hubGoals.gainedRewards[enumHubGoalRewards.reward_virtual_processing] = 1; return "";},
+    "Blueprints": (root, resynced) => {root.hubGoals.gainedRewards[enumHubGoalRewards.reward_blueprints] = 1; return "";},
     "Big Belt Upgrade": (root, resynced) => {root.hubGoals.upgradeImprovements["belt"] += 1; return "";},
     "Big Miner Upgrade": (root, resynced) => {root.hubGoals.upgradeImprovements["miner"] += 1; return "";},
     "Big Processors Upgrade": (root, resynced) => {root.hubGoals.upgradeImprovements["processors"] += 1; return "";},
@@ -64,9 +44,9 @@ export const receiveItemFunctions = {
     "Small Painting Upgrade": (root, resynced) => {root.hubGoals.upgradeImprovements["painting"] += 0.1; return "";},
     "Blueprint Shapes Bundle": (root, resynced) => {
         if (resynced) return "";
-        root.hubGoals.storedShapes["CbCbCbRb:CwCwCwCw"] = (root.hubGoals.storedShapes["CbCbCbRb:CwCwCwCw"] || 0) + 1000; 
-        if (root.hubGoals.storedShapes["CbCbCbRb:CwCwCwCw"] > 0) {
-            getShapesanityAnalyser()(ShapeDefinition.fromShortKey("CbCbCbRb:CwCwCwCw"));
+        root.hubGoals.storedShapes[connection.blueprintShape] = (root.hubGoals.storedShapes[connection.blueprintShape] || 0) + 1000; 
+        if (root.hubGoals.storedShapes[connection.blueprintShape] > 0) {
+            getShapesanityAnalyser()(ShapeDefinition.fromShortKey(connection.blueprintShape));
         }
         return ": 1000";
     },
@@ -91,12 +71,12 @@ export const receiveItemFunctions = {
         var addedAmount = 0, randomID, requiredShapes, requirement, stored;
         for (var tries = 0; tries < 10 && addedAmount <= 0; tries++) {
             randomID = upgradeIds[Math.floor(Math.random()*4)];
-            requiredShapes = upgradeDefs[randomID][root.hubGoals.getUpgradeLevel(randomID)].required;
+            requiredShapes = currentIngame.upgradeDefs[randomID][root.hubGoals.getUpgradeLevel(randomID)].required;
             requirement = requiredShapes[Math.floor(Math.random()*requiredShapes.length)];
             for (var tries2 = 0; tries2 < 10 && 
                     requirement.shape === root.hubGoals.currentGoal.definition.getHash(); tries2++) {
                 randomID = upgradeIds[Math.floor(Math.random()*4)];
-                requiredShapes = upgradeDefs[randomID][root.hubGoals.getUpgradeLevel(randomID)].required;
+                requiredShapes = currentIngame.upgradeDefs[randomID][root.hubGoals.getUpgradeLevel(randomID)].required;
                 requirement = requiredShapes[Math.floor(Math.random()*requiredShapes.length)];
             }
             stored = root.hubGoals.storedShapes[requirement.shape] || 0;
@@ -124,8 +104,8 @@ export const receiveItemFunctions = {
     },
     "Blueprint Shapes Draining Trap": (root, resynced) => {
         if (resynced) return "";
-        var storedBlueprint = root.hubGoals.storedShapes["CbCbCbRb:CwCwCwCw"] || 0;
-        root.hubGoals.storedShapes["CbCbCbRb:CwCwCwCw"] = Math.floor(storedBlueprint / 2);
+        var storedBlueprint = root.hubGoals.storedShapes[connection.blueprintShape] || 0;
+        root.hubGoals.storedShapes[connection.blueprintShape] = Math.floor(storedBlueprint / 2);
         return "";
     },
     "Level Shapes Draining Trap": (root, resynced) => {
@@ -139,7 +119,7 @@ export const receiveItemFunctions = {
         if (resynced) return "";
         const upgradeIds = ["belt", "miner", "processors", "painting"];
         const randomID = upgradeIds[Math.floor(Math.random()*4)];
-        const requiredShapes = upgradeDefs[randomID][root.hubGoals.getUpgradeLevel(randomID)].required;
+        const requiredShapes = currentIngame.upgradeDefs[randomID][root.hubGoals.getUpgradeLevel(randomID)].required;
         const requirement = requiredShapes[Math.floor(Math.random()*requiredShapes.length)];
         const stored = root.hubGoals.storedShapes[requirement.shape] || 0;
         root.hubGoals.storedShapes[requirement.shape] = Math.floor((stored || 0) / 2);
@@ -147,52 +127,47 @@ export const receiveItemFunctions = {
     },
     "Locked Building Trap": (root, resynced) => {
         if (resynced) return "";
-        const keys = Object.keys(trapLocked);
+        const keys = Object.keys(currentIngame.trapLocked);
         var randomBuilding = keys[Math.floor(Math.random()*keys.length)];
         for (var tries = 0; tries < 10 && !getIsUnlockedForTrap[randomBuilding](root); tries++) {
             randomBuilding = keys[Math.floor(Math.random()*keys.length)];
         }
         const randomTimeSec = Math.floor(Math.random()*46) + 15;
-        trapLocked[randomBuilding] = true;
+        currentIngame.trapLocked[randomBuilding] = true;
         setTimeout(() => {
-            trapLocked[randomBuilding] = false;
+            currentIngame.trapLocked[randomBuilding] = false;
         }, randomTimeSec*1000);
         return `: ${baseBuildingNames[randomBuilding]} for ${randomTimeSec} seconds`;
     },
     "Throttled Building Trap": (root, resynced) => {
         if (resynced) return "";
-        const keys = Object.keys(trapThrottled);
+        const keys = Object.keys(currentIngame.trapThrottled);
         var randomBuilding = keys[Math.floor(Math.random()*keys.length)];
         for (var tries = 0; tries < 10 && !getIsUnlockedForTrap[randomBuilding](root); tries++) {
             randomBuilding = keys[Math.floor(Math.random()*keys.length)];
         }
         const randomTimeSec = Math.floor(Math.random()*46) + 15;
-        trapThrottled[randomBuilding] = true;
+        currentIngame.trapThrottled[randomBuilding] = true;
         setTimeout(() => {
-            trapThrottled[randomBuilding] = false;
+            currentIngame.trapThrottled[randomBuilding] = false;
         }, randomTimeSec*1000);
         return `: ${baseBuildingNames[randomBuilding]} for ${randomTimeSec} seconds`;
     },
     "Malfunctioning Trap": (root, resynced) => {
         if (resynced) return "";
-        const keys = Object.keys(trapMalfunction);
+        const keys = Object.keys(currentIngame.trapMalfunction);
         var randomBuilding = keys[Math.floor(Math.random()*keys.length)];
         for (var tries = 0; tries < 10 && !getIsUnlockedForTrap[randomBuilding](root); tries++) {
             randomBuilding = keys[Math.floor(Math.random()*keys.length)];
         }
         const randomTimeSec = Math.floor(Math.random()*46) + 15;
-        trapMalfunction[randomBuilding] = true;
+        currentIngame.trapMalfunction[randomBuilding] = true;
         setTimeout(() => {
-            trapMalfunction[randomBuilding] = false;
+            currentIngame.trapMalfunction[randomBuilding] = false;
         }, randomTimeSec*1000);
         return `: ${baseBuildingNames[randomBuilding]} for ${randomTimeSec} seconds`;
     }
 };
-
-export function setRootAndModImpl(root, modImpl) {
-    storedModImpl = modImpl;
-    storedRoot = root;
-}
 
 /**
  * @param {string[]} names
@@ -200,42 +175,45 @@ export function setRootAndModImpl(root, modImpl) {
  * @param {boolean} goal
  */
 export function checkLocation(resyncMessage, goal, ...names) {
+    apdebuglog(`Checking ${names.length} locations (goal==${goal})`);
     if (goal) 
-        client.updateStatus(CLIENT_STATUS.GOAL);
+        connection.reportStatusToServer(CLIENT_STATUS.GOAL);
     const locids = [];
     const namesCopy = names.slice();
     for (var name of namesCopy)
         if (name.startsWith("Shapesanity"))
-            names.push("Shapesanity " + (shapesanity_names.indexOf(name.substring("Shapesanity ".length))+1));
+            names.push("Shapesanity " + (connection.shapesanityNames.indexOf(name.substring("Shapesanity ".length))+1));
     for (var name of names)
-        if (gamePackage.location_name_to_id[name])
-            locids.push(gamePackage.location_name_to_id[name]);
-    client.send({cmd: CLIENT_PACKET_TYPE.LOCATION_CHECKS, locations: locids});
-    for (var name of names) 
-        aplog(`${resyncMessage} location ${name} with ID ${gamePackage.location_name_to_id[name]}`);
+        if (connection.gamepackage.location_name_to_id[name]) {
+            locids.push(connection.gamepackage.location_name_to_id[name]);
+            apdebuglog(`${resyncMessage} location ${name} with ID ${connection.gamepackage.location_name_to_id[name]}`);
+        }
+    connection.sendLocationChecks(locids);
 }
 
 /**
  * @param {import("archipelago.js").ReceivedItemsPacket} packet
  */
 export function processItemsPacket(packet) {
-    aplog("Received packet with " + packet.items.length + 
+    if (!currentIngame)
+        return;
+    apdebuglog("Received packet with " + packet.items.length + 
         " items and reported index " + packet.index + 
-        ", while having " + processedItemCount + " items");
+        ", while having " + currentIngame.processedItemCount + " items");
     if (packet.index != 0)
         return;
-    if (processedItemCount + 1 >= packet.items.length) {
-        for (var i = processedItemCount; i < packet.items.length; i++) {
+    if (currentIngame.processedItemCount + 1 >= packet.items.length) {
+        for (var i = currentIngame.processedItemCount; i < packet.items.length; i++) {
             receiveItem(packet.items[i], true, false);
-            increaseProcessedItems();
+            currentIngame.processedItemCount++;
         }
     } else {
         var itemCounting = [];
-        for (var i = processedItemCount; i < packet.items.length; i++) {
+        for (var i = currentIngame.processedItemCount; i < packet.items.length; i++) {
             itemCounting.push(receiveItem(packet.items[i], false, false));
-            increaseProcessedItems();
+            currentIngame.processedItemCount++;
         }
-        storedModImpl.dialogs.showInfo("Items received!", itemCounting.join("<br />"));
+        modImpl.dialogs.showInfo("Items received!", itemCounting.join("<br />"));
     }
 }
 
@@ -244,13 +222,13 @@ export function processItemsPacket(packet) {
  * @param {import("archipelago.js").NetworkItem} item 
  */
 function receiveItem(item, showInfo, resynced) {
-    const itemName = client.items.name("shapez", item.item);
-    const message = receiveItemFunctions[itemName](storedRoot, resynced);
-    aplog("Processed item " + itemName + message);
+    const itemName = connection.getItemName(item.item);
+    const message = receiveItemFunctions[itemName](currentIngame.root, resynced);
+    apdebuglog("Processed item " + itemName + message);
     if (showInfo) {
-        const sendingPlayerName = client.players.name(item.player);
-        const foundLocationName = client.locations.name(item.player, item.location);
-        storedModImpl.dialogs.showInfo("Item received!", 
+        const sendingPlayerName = connection.getPlayername(item.player);
+        const foundLocationName = connection.getLocationName(item.player, item.location);
+        modImpl.dialogs.showInfo("Item received!", 
             itemName + message + "<br />found by " + sendingPlayerName + " at " + foundLocationName);
         return "";
     } else {
@@ -298,11 +276,8 @@ export function getShapesanityAnalyser() {
  * @param {ShapeDefinition} shape
  */
 function shapesanityAnalyzer(shape) {
-    if (!connected) {
-        return;
-    }
     if (shape.layers.length == 1) {
-        if (shapesanityCache[shape.getHash()]) {
+        if (connection.shapesanityCache[shape.getHash()]) {
             return;
         }
         if (true) { //leftover from old code
@@ -914,6 +889,6 @@ function shapesanityAnalyzer(shape) {
                 }
             }
         }
-        shapesanityCache[shape.getHash()] = true;
+        connection.shapesanityCache[shape.getHash()] = true;
     }
 }

@@ -1,49 +1,27 @@
-import { Mod } from "shapez/mods/mod";
-import { aplog, clearEfficiency3Interval, client, connected, customRewards, resetShapesanityCache, setConnected, setGamePackage, setLevelDefs, setProcessedItems, setShapesanityNames, setUpgredeDefs, shapesanity_names, trapLocked, trapMalfunction, trapThrottled } from "./global_data";
-import { ITEMS_HANDLING_FLAGS, Client, SERVER_PACKET_TYPE, CLIENT_STATUS } from "archipelago.js";
+import { apdebuglog, Connection, connection, modImpl } from "./global_data";
+import { ITEMS_HANDLING_FLAGS } from "archipelago.js";
 import { processItemsPacket } from "./server_communication";
 import { makeDiv, removeAllChildren } from "shapez/core/utils";
 import { BaseHUDPart } from "shapez/game/hud/base_hud_part";
 import { DynamicDomAttach } from "shapez/game/hud/dynamic_dom_attach";
 import { InputReceiver } from "shapez/core/input_receiver";
 import { KeyActionMapper, KEYMAPPINGS } from "shapez/game/key_action_mapper";
+import { GameRoot } from "shapez/game/root";
 
 var scouted = [true, true, false];
 var examples = [];
 
 /**
- * @param {Mod} modImpl
- * @param {Client} client
  * @param {string} autoPlayer
  * @param {string} autoAddress
  * @param {string} autoPort
  * @param {string} autoPassword
  */
-export function addInputContainer(modImpl, client, autoPlayer, autoAddress, autoPort, autoPassword) {
+export function addInputContainer(autoPlayer, autoAddress, autoPort, autoPassword) {
+    apdebuglog("Calling addInputContainer");
     modImpl.signals.stateEntered.add(state => {
         if (state.key === "MainMenuState") {
-            // reset custom global data
-            setProcessedItems(0);
-            for (var [key, valNum] of Object.entries(customRewards)) {
-                customRewards[key] = 0;
-            }
-            for (var [key, valBool] of Object.entries(trapLocked)) {
-                trapLocked[key] = false;
-            }
-            for (var [key, valBool] of Object.entries(trapThrottled)) {
-                trapThrottled[key] = false;
-            }
-            for (var [key, valBool] of Object.entries(trapMalfunction)) {
-                trapMalfunction[key] = false;
-            }
-            setLevelDefs(null);
-            setUpgredeDefs(null);
-            resetShapesanityCache();
-            clearEfficiency3Interval();
-            if (connected) {
-                client.removeListener(SERVER_PACKET_TYPE.RECEIVED_ITEMS, processItemsPacket);
-                client.updateStatus(CLIENT_STATUS.CONNECTED);
-            }
+            apdebuglog("Creating input box");
             // add input box
             const mainWrapper = document.body.getElementsByClassName("mainWrapper").item(0);
             const sideContainer = mainWrapper.getElementsByClassName("sideContainer").item(0);
@@ -97,11 +75,11 @@ export function addInputContainer(modImpl, client, autoPlayer, autoAddress, auto
             passwordContainer.appendChild(passwordInput);
             const statusLabel = document.createElement("h4");
             const statusButton = document.createElement("button");
-            statusLabel.innerText = connected ? "Connected" : "Not Connected";
-            statusButton.innerText = connected ? "Disconnect" : "Connect";
+            statusLabel.innerText = connection ? "Connected" : "Not Connected";
+            statusButton.innerText = connection ? "Disconnect" : "Connect";
             statusButton.classList.add("styledButton", "statusButton");
             statusButton.addEventListener("click", () => {
-                if (!connected) {
+                if (!connection) {
                     var connectInfo = {
                         hostname: addressInput.value,
                         port: portInput.valueAsNumber, 
@@ -110,25 +88,16 @@ export function addInputContainer(modImpl, client, autoPlayer, autoAddress, auto
                         items_handling: ITEMS_HANDLING_FLAGS.REMOTE_ALL,
                         password: passwordInput.value
                     };
-                    client.addListener(SERVER_PACKET_TYPE.PRINT_JSON, (packet, message) => {
-                        aplog(message);
-                    });
-                    client.connect(connectInfo)
-                        .then(() => {
-                            aplog("Connected to the server");
-                            setConnected(true);
-                            setGamePackage(client.data.package.get("shapez"));
+                    new Connection().tryConnect(connectInfo, processItemsPacket, () => {
+                        if (connection) {
                             statusLabel.innerText = "Connected";
                             statusButton.innerText = "Disconnect";
-                        })
-                        .catch((error) => {
-                            aplog("Failed to connect: " + error);
+                        } else {
                             statusLabel.innerText = "Connection failed";
-                        });
+                        }
+                    });
                 } else {
-                    client.disconnect();
-                    aplog("Disconnected from the server");
-                    setConnected(false);
+                    connection.disconnect();
                     statusLabel.innerText = "Disconnected";
                     statusButton.innerText = "Connect";
                 }
@@ -138,12 +107,11 @@ export function addInputContainer(modImpl, client, autoPlayer, autoAddress, auto
         }
     });
     modImpl.modInterface.registerHudElement("ingame_HUD_Shapesanity", HUDShapesanity);
-    modImpl.signals.gameStarted.add((/** @type {import("shapez/game/root").GameRoot} */ root) => {
-        if (connected) {
-            const shapesanity_slotData = client.data.slotData["shapesanity"];
-            setShapesanityNames(shapesanity_slotData ? shapesanity_slotData.valueOf() : []);
+    modImpl.signals.gameStarted.add((/** @type {GameRoot} */ root) => {
+        if (connection) {
+            apdebuglog("Creating shapesanity button");
             examples = [];
-            for (var name of shapesanity_names) {
+            for (var name of connection.shapesanityNames) {
                 examples.push(root.shapeDefinitionMgr.getShapeFromShortKey(shapesanityExample(name)).generateAsCanvas(50));
             }
             var ingame_HUD_GameMenu;
@@ -181,17 +149,14 @@ class HUDShapesanity extends BaseHUDPart {
         this.visible = false;
     }
 
-    /**
-     * @param {Array<String>} [shapesanityNames]
-     */
-    rerenderFull(shapesanityNames) {
+    rerenderFull() {
         removeAllChildren(this.contentDiv);
         if (this.visible) {
-            for (var index = 0; index < shapesanityNames.length; index++) {
+            for (var index = 0; index < connection.shapesanityNames.length; index++) {
                 var divElem = makeDiv(this.contentDiv, null, ["shapesanityRow"]);
                 var nextName = document.createElement("span");
                 nextName.classList.add("shapesanityName");
-                nextName.innerText = `${index+1}: ${shapesanityNames[index]}`;
+                nextName.innerText = `${index+1}: ${connection.shapesanityNames[index]}`;
                 if (index < scouted.length ? scouted[index] : false) {
                     divElem.classList.add("locationChecked");
                 }
@@ -211,13 +176,13 @@ class HUDShapesanity extends BaseHUDPart {
         this.keyActionMapper.getBinding(KEYMAPPINGS.ingame.menuClose).add(this.close, this);
         this.lastFullRerender = 0;
         this.close();
-        this.rerenderFull(shapesanity_names);
+        this.rerenderFull();
     }
 
     scout() {
-        scouted = new Array(shapesanity_names.length).fill(false);
-        for (var checked of client.locations.checked) {
-            var name = client.locations.name(client.data.slot, checked).split(" ");
+        scouted = new Array(connection.shapesanityNames.length).fill(false);
+        for (var checked of connection.getCheckedLocationNames()) {
+            const name = checked.split(" ");
             if (name[0] === "Shapesanity") {
                 var index = Number(name[1]);
                 if (!Number.isNaN(index)) {
@@ -228,11 +193,12 @@ class HUDShapesanity extends BaseHUDPart {
     }
 
     show() {
+        apdebuglog("Showing shapesanity checklist");
         this.visible = true;
         this.root.app.inputMgr.makeSureAttachedAndOnTop(this.inputReciever);
-        if (connected) this.scout();
+        if (connection) this.scout();
         this.update();
-        this.rerenderFull(shapesanity_names);
+        this.rerenderFull();
     }
 
     close() {

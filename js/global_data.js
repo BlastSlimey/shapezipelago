@@ -1,28 +1,32 @@
-import { Client } from "archipelago.js";
+import { Client, CLIENT_PACKET_TYPE, CLIENT_STATUS, SERVER_PACKET_TYPE } from "archipelago.js";
+import { GameRoot } from "shapez/game/root";
+import { enumHubGoalRewards } from "shapez/game/tutorial_goals";
+import { Mod } from "shapez/mods/mod";
 
-export const client = new Client();
-export var efficiency3Interval = null;
-export var connected = false;
-export var processedItemCount = 0;
+export const methodNames = {
+    metaBuildings: {
+        getAvailableVariants: "getAvailableVariants",
+        getIsUnlocked: "getIsUnlocked"
+    }
+}
+
 export const customRewards = {
-    reward_cutter: 0,
-    reward_trash: 0,
-    reward_wires: 0,
-    reward_painter_quad: 0,
-    reward_switch: 0,
-    reward_belt: 0,
-    reward_extractor: 0
-};
-export var upgradeDefs = null;
-export var leveldefs = null;
-export var gamePackage = null;
-export var shapesanity_names = ["Placeholder", "Placeholder", "Placeholder"];
+    belt: "reward_belt",
+    extractor: "reward_extractor",
+    cutter: "rewards_cutter",
+    wires: "reward_wires",
+    switch: "reward_switch",
+    trash: "reward_trash",
+    painter_quad: "reward_painter_quad"
+}
+
 export const upgradeIdNames = {
     belt: "Belt",
     miner: "Miner",
     processors: "Processors",
     painting: "Painting"
 };
+
 export const achievementNames = {
     "belt500Tiles": "I need trains",
     "blueprint100k": "It's piling up",
@@ -61,19 +65,16 @@ export const achievementNames = {
     "unlockWires": "Wires",
     "upgradesTier5": "Faster",
     "upgradesTier8": "Even faster",
-    "darkMode": "My eyes no longer hurt"
-};
-export const softlockAchievementNames = {
+    "darkMode": "My eyes no longer hurt",
     "speedrunBp30": "Speedrun Master",
     "speedrunBp60": "Speedrun Novice",
     "speedrunBp120": "Not an idle game",
     "noBeltUpgradesUntilBp": "It's so slow",
-    "noInverseRotater": "King of Inefficiency"
-};
-export const longAchievementNames = {
+    "noInverseRotater": "King of Inefficiency",
     "play10h": "It's been a long time",
     "play20h": "Addicted"
 };
+
 const translate = [
     {key: 1000, val: "M"},
     {key: 900, val: "CM"},
@@ -89,39 +90,7 @@ const translate = [
     {key: 4, val: "IV"},
     {key: 1, val: "I"}
 ];
-export const trapLocked = {
-    belt: false,
-    balancer: false,
-    tunnel: false,
-    extractor: false,
-    cutter: false,
-    rotator: false,
-    stacker: false,
-    painter: false,
-    mixer: false,
-    trash: false
-};
-export const trapThrottled = {
-    belt: false,
-    balancer: false,
-    tunnel: false,
-    extractor: false,
-    cutter: false,
-    rotator: false,
-    stacker: false,
-    painter: false,
-    mixer: false
-};
-export const trapMalfunction = {
-    cutter: false,
-    cutter_quad: false,
-    rotator: false,
-    rotator_ccw: false,
-    rotator_180: false,
-    stacker: false,
-    painter: false,
-    painter_quad: false
-};
+
 export const baseBuildingNames = {
     belt: "Belt",
     balancer: "Balancer",
@@ -138,26 +107,47 @@ export const baseBuildingNames = {
     mixer: "Color Mixer",
     trash: "Trash"
 };
-export const getIsUnlockedForTrap = {
-    belt: (root) => {return customRewards.reward_belt != 0},
-    balancer: (root) => {return root.hubGoals.isRewardUnlocked("reward_balancer")},
-    tunnel: (root) => {return root.hubGoals.isRewardUnlocked("reward_tunnel")},
-    extractor: (root) => {return customRewards.reward_extractor != 0},
-    cutter: (root) => {return customRewards.reward_cutter != 0},
-    cutter_quad: (root) => {return root.hubGoals.isRewardUnlocked("reward_cutter_quad")},
-    rotator: (root) => {return root.hubGoals.isRewardUnlocked("reward_rotater")},
-    rotator_ccw: (root) => {return root.hubGoals.isRewardUnlocked("reward_rotater_ccw")},
-    rotator_180: (root) => {return root.hubGoals.isRewardUnlocked("reward_rotater_180")},
-    stacker: (root) => {return root.hubGoals.isRewardUnlocked("reward_stacker")},
-    painter: (root) => {return root.hubGoals.isRewardUnlocked("reward_painter")},
-    painter_quad: (root) => {return customRewards.reward_painter_quad != 0},
-    mixer: (root) => {return root.hubGoals.isRewardUnlocked("reward_mixer")},
-    trash: (root) => {return customRewards.reward_trash != 0}
-}
-export var shapesanityCache = {
-    "CuCuCuCu:CuCuCuCu": true
+
+export const subShapeNames = {
+    rect: "Square",
+    circle: "Circle",
+    star: "Star",
+    windmill: "Windmill",
 };
 
+export const colorNames = {
+    red: "Red",
+    green: "Green",
+    blue: "Blue",
+
+    yellow: "Yellow",
+    purple: "Purple",
+    cyan: "Cyan",
+
+    white: "White",
+    uncolored: "Uncolored",
+};
+
+export const getIsUnlockedForTrap = {
+    belt: (root) => {return root.hubGoals.isRewardUnlocked(customRewards.belt)},
+    balancer: (root) => {return root.hubGoals.isRewardUnlocked(enumHubGoalRewards.reward_balancer)},
+    tunnel: (root) => {return root.hubGoals.isRewardUnlocked(enumHubGoalRewards.reward_tunnel)},
+    extractor: (root) => {return root.hubGoals.isRewardUnlocked(customRewards.extractor)},
+    cutter: (root) => {return root.hubGoals.isRewardUnlocked(customRewards.cutter)},
+    cutter_quad: (root) => {return root.hubGoals.isRewardUnlocked(enumHubGoalRewards.reward_cutter_quad)},
+    rotator: (root) => {return root.hubGoals.isRewardUnlocked(enumHubGoalRewards.reward_rotater)},
+    rotator_ccw: (root) => {return root.hubGoals.isRewardUnlocked(enumHubGoalRewards.reward_rotater_ccw)},
+    rotator_180: (root) => {return root.hubGoals.isRewardUnlocked(enumHubGoalRewards.reward_rotater_180)},
+    stacker: (root) => {return root.hubGoals.isRewardUnlocked(enumHubGoalRewards.reward_stacker)},
+    painter: (root) => {return root.hubGoals.isRewardUnlocked(enumHubGoalRewards.reward_painter)},
+    painter_quad: (root) => {return root.hubGoals.isRewardUnlocked(customRewards.painter_quad)},
+    mixer: (root) => {return root.hubGoals.isRewardUnlocked(enumHubGoalRewards.reward_mixer)},
+    trash: (root) => {return root.hubGoals.isRewardUnlocked(customRewards.trash)}
+};
+
+/**
+ * @param {number} number
+ */
 export function roman(number) {
     var rom = "";
     for (var i = 0; i < translate.length; i++) {
@@ -169,66 +159,393 @@ export function roman(number) {
     return rom;
 }
 
-export function setUpgredeDefs(defs) {
-    upgradeDefs = defs;
+/**
+ * @param {string} message
+ */
+export function apuserlog(message) {
+    console.log("%c[AP] " + message, "background: #dddddd; color: #0044ff");
 }
 
-export function setLevelDefs(defs) {
-    leveldefs = defs;
+export function apdebuglog(message) {
+    console.log("%c[AP] " + message, "color: #8d07b6");
 }
 
 /**
- * 
- * @param {boolean} con 
+ * @param {boolean} condition
+ * @param {string} message
  */
-export function setConnected(con) {
-    connected = con;
-}
-
-/**
- * 
- * @param {number} amount 
- */
-export function setProcessedItems(amount) {
-    processedItemCount = amount;
-}
-
-export function increaseProcessedItems() {
-    processedItemCount++;
-}
-
-/**
- * 
- * @param {import("archipelago.js").GamePackage} pack 
- */
-export function setGamePackage(pack) {
-    gamePackage = pack;
-}
-
-/**
- * @param {string[]} messages
- */
-export function aplog(...messages) {
-    for (var m of messages) {
-        console.log("%c[AP] " + m, "background: #dddddd; color: #0044ff");
+export function apassert(condition, message) {
+    if (!condition) {
+        alert(message);
     }
+    throw new Error(message);
 }
 
-export function resetShapesanityCache() {
-    shapesanityCache = {"CuCuCuCu:CuCuCuCu": true};
+/**
+ * @type {Mod}
+ */
+export var modImpl;
+
+/**
+ * @param {Mod} m
+ */
+export function setModImpl(m) {
+    modImpl = m;
 }
 
-export function startEfficiency3Interval(f, ms) {
-    efficiency3Interval = setInterval(f, ms);
-}
+/**
+ * @type {Connection}
+ */
+export var connection;
 
-export function clearEfficiency3Interval() {
-    if (efficiency3Interval) {
-        window.clearInterval(efficiency3Interval);
-        efficiency3Interval = null;
+export class Connection {
+
+    client = new Client();
+
+    /**
+     * @param {{hostname: string;port: number;game: string;name: string;items_handling: number;password: string;protocol?: "ws" | "wss";version?: {major: number;minor: number;build: number;};uuid?: string;tags?: string[];}} connectinfo
+     * @param {{(packet: import("archipelago.js").ReceivedItemsPacket): void;(packet: import("archipelago.js").ReceivedItemsPacket): void;}} processItemsPacket
+     * @param {() => void} updateHUD
+     */
+    tryConnect(connectinfo, processItemsPacket, updateHUD) {
+        apdebuglog("Trying to connect to server");
+        this.client.connect(connectinfo)
+            .then(() => {
+
+                apuserlog("Connected to the server");
+                connection = this;
+                this.reportStatusToServer(CLIENT_STATUS.CONNECTED);
+                updateHUD();
+
+                this.client.addListener(SERVER_PACKET_TYPE.PRINT_JSON, (packet, message) => {
+                    apuserlog(message);
+                });
+                this.client.addListener(SERVER_PACKET_TYPE.RECEIVED_ITEMS, processItemsPacket);
+                
+                this.gamepackage = this.client.data.package.get("shapez");
+
+                const slotData = this.client.data.slotData;
+                var datacache = null;
+
+                datacache = slotData["shapesanity"];
+                if (datacache) datacache = datacache.valueOf();
+                if (datacache instanceof Array) this.shapesanityNames = datacache;
+
+                datacache = slotData["goal"].valueOf().toString();
+                if (datacache === "0") this.goal = "vanilla";
+                else if (datacache === "1") this.goal = "mam";
+                else if (datacache === "2") this.goal = "even_fasterer";
+                else if (datacache === "3") this.goal = "efficiency_iii";
+                else this.goal = datacache;
+
+                datacache = Number(slotData["maxlevel"].valueOf());
+                if (this.goal === "vanilla" || this.goal === "mam") this.levelsToGenerate = datacache+1;
+                else this.levelsToGenerate = datacache;
+
+                this.tiersToGenerate = Number(slotData["finaltier"].valueOf());
+
+                this.slotId = this.client.data.slot;
+
+                this.randomStepsLength = new Array(5);
+                for (var phasenumber = 0; phasenumber < 5; phasenumber++) {
+                    datacache = slotData[`Phase ${phasenumber} length`];
+                    if (datacache) this.randomStepsLength[phasenumber] = Number(datacache.valueOf());
+                    else this.randomStepsLength[phasenumber] = 1;
+                }
+
+                for (var phasenumber = 1; phasenumber <= 5; phasenumber++) {
+                    this.positionOfLevelBuilding[slotData[`Level building ${phasenumber}`].valueOf().toString()] = phasenumber;
+                    this.positionOfUpgradeBuilding[slotData[`Upgrade building ${phasenumber}`].valueOf().toString()] = phasenumber;
+                }
+
+                datacache = slotData["throughput_levels_ratio"];
+                if (datacache) this.throughputLevelsRatio = Number(datacache.valueOf());
+                else this.throughputLevelsRatio = -1;
+
+                datacache = slotData["randomize_level_logic"].valueOf().toString();
+                if (datacache === "0" || datacache === "1") this.levelsLogic = "vanilla";
+                else if (datacache === "2" || datacache === "3") this.levelsLogic = "stretched";
+                else if (datacache === "4") this.levelsLogic = "hardcore";
+                else this.levelsLogic = datacache;
+
+                datacache = slotData["randomize_upgrade_logic"].valueOf().toString();
+                if (datacache === "0") this.upgradesLogic = "vanilla_like";
+                else if (datacache === "1") this.upgradesLogic = "linear";
+                else if (datacache === "2") this.upgradesLogic = "hardcore";
+                else this.upgradesLogic = datacache;
+
+                this.clientSeed = Number(slotData["seed"].valueOf());
+
+                this.requiredShapesMultiplier = Number(slotData["required_shapes_multiplier"].valueOf());
+
+                this.israndomizedLevels = Boolean(slotData["randomize_level_requirements"].valueOf());
+
+                this.isRandomizedUpgrades = Boolean(slotData["randomize_upgrade_requirements"].valueOf());
+
+                for (var cat of ["belt", "miner", "processors", "painting"]) {
+                    datacache = slotData[`${cat} category buildings amount`];
+                    if (datacache) this.categoryRandomBuildingsAmounts[cat] = Number(datacache.valueOf());
+                }
+
+                this.isSameLate = Boolean(slotData["same_late_upgrade_requirements"].valueOf());
+
+                datacache = slotData["lock_belt_and_extractor"];
+                if (datacache) this.isBeltExtractorLocked = Boolean(datacache.valueOf());
+                else this.isBeltExtractorLocked = false;
+
+            })
+            .catch((error) => {
+                apuserlog("Failed to connect: " + error);
+                updateHUD();
+            });
     }
+
+    disconnect() {
+        apuserlog("Disconnecting from the server");
+        this.client.disconnect();
+        connection = null;
+    }
+
+    /**
+     * @type {String}
+     */
+    goal;
+    /**
+     * @type {number}
+     */
+    levelsToGenerate;
+    /**
+     * @type {number}
+     */
+    tiersToGenerate;
+    /**
+     * @type {number} 
+     */
+    requiredShapesMultiplier;
+    /**
+     * @type {boolean}
+     */
+    israndomizedLevels;
+    /**
+     * @type {boolean}
+     */
+    isRandomizedUpgrades;
+    /**
+     * @type {string}
+     */
+    levelsLogic;
+    /**
+     * @type {string}
+     */
+    upgradesLogic;
+    /**
+     * @type {number}
+     */
+    throughputLevelsRatio;
+    /**
+     * @type {boolean}
+     */
+    isSameLate;
+    /**
+     * @type {boolean}
+     */
+    isBeltExtractorLocked;
+    positionOfLevelBuilding = {
+        "Cutter": 0,
+        "Rotator": 0,
+        "Stacker": 0,
+        "Painter": 0,
+        "Color Mixer": 0
+    };
+    positionOfUpgradeBuilding = {
+        "Cutter": 0,
+        "Rotator": 0,
+        "Stacker": 0,
+        "Painter": 0,
+        "Color Mixer": 0
+    };
+    /**
+     * @type {number[]}
+     */
+    randomStepsLength;
+    categoryRandomBuildingsAmounts = {
+        belt: 0,
+        miner: 0,
+        processors: 0,
+        painting: 0
+    };
+    /**
+     * @type {number}
+     */
+    clientSeed;
+    /**
+     * @type {string[]}
+     */
+    shapesanityNames;
+    /**
+     * @type {import("archipelago.js").GamePackage}
+     */
+    gamepackage;
+    /**
+     * @type {{[x:string]: boolean}}
+     */
+    shapesanityCache = {};
+    /**
+     * @type {number}
+     */
+    slotId;
+    blueprintShape = "CbCbCbRb:CwCwCwCw";
+
+    /**
+     * 
+     * @returns {String[]}
+     */
+    getCheckedLocationNames() {
+        var names = [];
+        const checkedList = this.client.locations.checked;
+        for (var checkedId of checkedList)
+            names.push(this.client.locations.name(this.slotId, checkedId));
+        return names;
+    }
+
+    requestItemPackage() {
+        this.client.send({cmd: CLIENT_PACKET_TYPE.SYNC});
+    }
+
+    /**
+     * @param {import("archipelago.js").ClientStatus} status
+     */
+    reportStatusToServer(status) {
+        this.client.updateStatus(status);
+    }
+
+    /**
+     * @param {number[]} locids
+     */
+    sendLocationChecks(locids) {
+        this.client.send({cmd: CLIENT_PACKET_TYPE.LOCATION_CHECKS, locations: locids});
+    }
+
+    /**
+     * @param {number} id
+     */
+    getItemName(id) {
+        return this.client.items.name("shapez", id);
+    }
+
+    /**
+     * @param {number} id
+     */
+    getPlayername(id) {
+        return this.client.players.name(id);
+    }
+
+    /**
+     * @param {number} playerid
+     * @param {number} locid
+     */
+    getLocationName(playerid, locid) {
+        return connection.client.locations.name(playerid, locid);
+    }
+
 }
 
-export function setShapesanityNames(arr) {
-    shapesanity_names = arr;
+/**
+ * @type {Ingame}
+ */
+export var currentIngame;
+
+export class Ingame {
+
+    /**
+     * @type {GameRoot}
+     */
+    root;
+    /**
+     * @type {boolean}
+     */
+    isAPSave;
+    /**
+     * @type {number}
+     */
+    processedItemCount = 0;
+    /**
+     * @type {NodeJS.Timer}
+     */
+    efficiency3Interval;
+    trapLocked = {
+        belt: false,
+        balancer: false,
+        tunnel: false,
+        extractor: false,
+        cutter: false,
+        rotator: false,
+        stacker: false,
+        painter: false,
+        mixer: false,
+        trash: false
+    };
+    trapThrottled = {
+        belt: false,
+        balancer: false,
+        tunnel: false,
+        extractor: false,
+        cutter: false,
+        rotator: false,
+        stacker: false,
+        painter: false,
+        mixer: false
+    };
+    trapMalfunction = {
+        cutter: false,
+        cutter_quad: false,
+        rotator: false,
+        rotator_ccw: false,
+        rotator_180: false,
+        stacker: false,
+        painter: false,
+        painter_quad: false
+    };
+    /**
+     * @type {{shape: string; required: number; reward: string; throughputOnly: boolean;}[]}
+     */
+    levelDefs;
+    /**
+     * @type {{belt: {required: {shape: any; amount: number;}[]; excludePrevious: boolean; improvement: number;}[]; miner: {required: {shape: any; amount: number;}[]; excludePrevious: boolean; improvement: number;}[]; processors: {required: {shape: any; amount: number;}[]; excludePrevious: boolean; improvement: number;}[]; painting: {required: {shape: any; amount: number;}[]; excludePrevious: boolean; improvement: number;}[];}}
+     */
+    upgradeDefs;
+    /**
+     * @type {boolean}
+     */
+    isItemsResynced = false;
+
+    constructor() {
+        apdebuglog("Constructing Ingame object");
+        currentIngame = this;
+        if (connection) connection.reportStatusToServer(CLIENT_STATUS.PLAYING);
+    }
+
+    leave() {
+        apdebuglog("Leaving and destroying Ingame object");
+        if (connection) connection.reportStatusToServer(CLIENT_STATUS.CONNECTED);
+        this.clearEfficiency3Interval();
+        currentIngame = null;
+    }
+
+    /**
+     * @param {() => void} f
+     * @param {number} ms
+     */
+    startEfficiency3Interval(f, ms) {
+        apdebuglog("Starting efficiency3Interval");
+        this.efficiency3Interval = setInterval(f, ms);
+    }
+
+    clearEfficiency3Interval() {
+        if (this.efficiency3Interval) {
+            window.clearInterval(this.efficiency3Interval);
+            this.efficiency3Interval = null;
+        }
+    }
+
 }

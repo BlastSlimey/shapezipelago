@@ -1,51 +1,50 @@
 import { RandomNumberGenerator } from "shapez/core/rng";
+import { connection } from "./global_data";
+import { enumHubGoalRewards } from "shapez/game/tutorial_goals";
 
-export function vanillaShapes(multiplier) {
+export function vanillaShapes() {
+    const multiplier = connection.requiredShapesMultiplier;
     return [
-        {shape: "CuCuCuCu", required: Math.ceil(30*multiplier/10), reward: "no_reward",},
-        {shape: "----CuCu", required: Math.ceil(40*multiplier/10), reward: "no_reward",},
-        {shape: "RuRuRuRu", required: Math.ceil(70*multiplier/10), reward: "no_reward",},
-        {shape: "RuRu----", required: Math.ceil(70*multiplier/10), reward: "no_reward",},
-        {shape: "Cu----Cu", required: Math.ceil(170*multiplier/10), reward: "no_reward",},
-        {shape: "Cu------", required: Math.ceil(270*multiplier/10), reward: "no_reward",},
-        {shape: "CrCrCrCr", required: Math.ceil(300*multiplier/10), reward: "no_reward",},
-        {shape: "RbRb----", required: Math.ceil(480*multiplier/10), reward: "no_reward",},
-        {shape: "CpCpCpCp", required: Math.ceil(600*multiplier/10), reward: "no_reward",},
-        {shape: "ScScScSc", required: Math.ceil(800*multiplier/10), reward: "no_reward",},
-        {shape: "CgScScCg", required: Math.ceil(1000*multiplier/10), reward: "no_reward",},
-        {shape: "CbCbCbRb:CwCwCwCw", required: Math.ceil(1000*multiplier/10), reward: "no_reward",},
-        {shape: "RpRpRpRp:CwCwCwCw", required: Math.ceil(3800*multiplier/10), reward: "no_reward",},
-        {shape: "--Cg----:--Cr----", required: Math.ceil(8*multiplier/10), reward: "no_reward", throughputOnly: true,},
-        {shape: "SrSrSrSr:CyCyCyCy", required: Math.ceil(10000*multiplier/10), reward: "no_reward",},
-        {shape: "SrSrSrSr:CyCyCyCy:SwSwSwSw", required: Math.ceil(6000*multiplier/10), reward: "no_reward",},
-        {shape: "CbRbRbCb:CwCwCwCw:WbWbWbWb", required: Math.ceil(20000*multiplier/10), reward: "no_reward",},
-        {shape: "Sg----Sg:CgCgCgCg:--CyCy--", required: Math.ceil(20000*multiplier/10), reward: "no_reward",},
-        {shape: "CpRpCp--:SwSwSwSw", required: Math.ceil(25000*multiplier/10), reward: "no_reward",},
-        {shape: "RuCw--Cw:----Ru--", required: Math.ceil(25000*multiplier/10), reward: "no_reward",},
-        {shape: "CrCwCrCw:CwCrCwCr:CrCwCrCw:CwCrCwCr", required: Math.ceil(25000*multiplier/10), reward: "no_reward",},
-        {shape: "Cg----Cr:Cw----Cw:Sy------:Cy----Cy", required: Math.ceil(25000*multiplier/10), reward: "no_reward",},
-        {shape: "CcSyCcSy:SyCcSyCc:CcSyCcSy", required: Math.ceil(25000*multiplier/10), reward: "no_reward",},
-        {shape: "CcRcCcRc:RwCwRwCw:Sr--Sw--:CyCyCyCy", required: Math.ceil(25000*multiplier/10), reward: "no_reward",},
-        {shape: "Rg--Rg--:CwRwCwRw:--Rg--Rg", required: Math.ceil(25000*multiplier/10), reward: "no_reward",},
-        {shape: "CbCuCbCu:Sr------:--CrSrCr:CwCwCwCw", required: Math.ceil(50000*multiplier/10), reward: "no_reward",}
+        {shape: "CuCuCuCu", required: Math.ceil(30*multiplier/10), reward: enumHubGoalRewards.no_reward, throughputOnly: false},
+        {shape: "----CuCu", required: Math.ceil(40*multiplier/10), reward: enumHubGoalRewards.no_reward, throughputOnly: false},
+        {shape: "RuRuRuRu", required: Math.ceil(70*multiplier/10), reward: enumHubGoalRewards.no_reward, throughputOnly: false},
+        {shape: "RuRu----", required: Math.ceil(70*multiplier/10), reward: enumHubGoalRewards.no_reward, throughputOnly: false},
+        {shape: "Cu----Cu", required: Math.ceil(170*multiplier/10), reward: enumHubGoalRewards.no_reward, throughputOnly: false},
+        {shape: "Cu------", required: Math.ceil(270*multiplier/10), reward: enumHubGoalRewards.no_reward, throughputOnly: false},
+        {shape: "CrCrCrCr", required: Math.ceil(300*multiplier/10), reward: enumHubGoalRewards.no_reward, throughputOnly: false},
+        {shape: "RbRb----", required: Math.ceil(480*multiplier/10), reward: enumHubGoalRewards.no_reward, throughputOnly: false},
+        {shape: "CpCpCpCp", required: Math.ceil(600*multiplier/10), reward: enumHubGoalRewards.no_reward, throughputOnly: false},
+        {shape: "ScScScSc", required: Math.ceil(800*multiplier/10), reward: enumHubGoalRewards.no_reward, throughputOnly: false},
+        {shape: "CgScScCg", required: Math.ceil(1000*multiplier/10), reward: enumHubGoalRewards.no_reward, throughputOnly: false},
+        {shape: "CbCbCbRb:CwCwCwCw", required: Math.ceil(1000*multiplier/10), reward: enumHubGoalRewards.no_reward, throughputOnly: false},
+        {shape: "RpRpRpRp:CwCwCwCw", required: Math.ceil(3800*multiplier/10), reward: enumHubGoalRewards.no_reward, throughputOnly: false},
+        {shape: "--Cg----:--Cr----", required: Math.ceil(8*multiplier/10), reward: enumHubGoalRewards.no_reward, throughputOnly: true},
+        {shape: "SrSrSrSr:CyCyCyCy", required: Math.ceil(10000*multiplier/10), reward: enumHubGoalRewards.no_reward, throughputOnly: false},
+        {shape: "SrSrSrSr:CyCyCyCy:SwSwSwSw", required: Math.ceil(6000*multiplier/10), reward: enumHubGoalRewards.no_reward, throughputOnly: false},
+        {shape: "CbRbRbCb:CwCwCwCw:WbWbWbWb", required: Math.ceil(20000*multiplier/10), reward: enumHubGoalRewards.no_reward, throughputOnly: false},
+        {shape: "Sg----Sg:CgCgCgCg:--CyCy--", required: Math.ceil(20000*multiplier/10), reward: enumHubGoalRewards.no_reward, throughputOnly: false},
+        {shape: "CpRpCp--:SwSwSwSw", required: Math.ceil(25000*multiplier/10), reward: enumHubGoalRewards.no_reward, throughputOnly: false},
+        {shape: "RuCw--Cw:----Ru--", required: Math.ceil(25000*multiplier/10), reward: enumHubGoalRewards.no_reward, throughputOnly: false},
+        {shape: "CrCwCrCw:CwCrCwCr:CrCwCrCw:CwCrCwCr", required: Math.ceil(25000*multiplier/10), reward: enumHubGoalRewards.no_reward, throughputOnly: false},
+        {shape: "Cg----Cr:Cw----Cw:Sy------:Cy----Cy", required: Math.ceil(25000*multiplier/10), reward: enumHubGoalRewards.no_reward, throughputOnly: false},
+        {shape: "CcSyCcSy:SyCcSyCc:CcSyCcSy", required: Math.ceil(25000*multiplier/10), reward: enumHubGoalRewards.no_reward, throughputOnly: false},
+        {shape: "CcRcCcRc:RwCwRwCw:Sr--Sw--:CyCyCyCy", required: Math.ceil(25000*multiplier/10), reward: enumHubGoalRewards.no_reward, throughputOnly: false},
+        {shape: "Rg--Rg--:CwRwCwRw:--Rg--Rg", required: Math.ceil(25000*multiplier/10), reward: enumHubGoalRewards.no_reward, throughputOnly: false},
+        {shape: "CbCuCbCu:Sr------:--CrSrCr:CwCwCwCw", required: Math.ceil(50000*multiplier/10), reward: enumHubGoalRewards.no_reward, throughputOnly: false}
     ];
 }
 
 /**
  * 
  * @param {RandomNumberGenerator} randomizer
- * @param {number} throughputratio
  */
-export function randomizedVanillaStepsShapes(randomizer, maxlevel, throughputratio, multiplier, building1, building2, building3, building4, building5) {
-    var phase = {"Cutter": 0, "Rotator": 0, "Stacker": 0, "Painter": 0, "Color Mixer": 0};
-    phase[building1] = 1;
-    phase[building2] = 2;
-    phase[building3] = 3;
-    phase[building4] = 4;
-    phase[building5] = 5;
+export function randomizedVanillaStepsShapes(randomizer) {
+    const multiplier = connection.requiredShapesMultiplier;
+    const throughputratio = connection.throughputLevelsRatio;
+    const phase = connection.positionOfLevelBuilding;
     var levelsdefs = [
         {shape: calcRandomShape(randomizer, false, false, false, false, false), 
-            required: Math.ceil(30*multiplier/10), reward: "no_reward",
+            required: Math.ceil(30*multiplier/10), reward: enumHubGoalRewards.no_reward,
             throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio},
         {shape: calcRandomShape(randomizer, 
             phase["Cutter"] == 1, 
@@ -53,7 +52,7 @@ export function randomizedVanillaStepsShapes(randomizer, maxlevel, throughputrat
             phase["Stacker"] == 1, 
             phase["Painter"] == 1, 
             phase["Color Mixer"] == 1), 
-            required: Math.ceil(40*multiplier/10), reward: "no_reward",
+            required: Math.ceil(40*multiplier/10), reward: enumHubGoalRewards.no_reward,
             throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio},
         {shape: calcRandomShape(randomizer, 
             phase["Cutter"] == 1, 
@@ -61,7 +60,7 @@ export function randomizedVanillaStepsShapes(randomizer, maxlevel, throughputrat
             phase["Stacker"] == 1, 
             phase["Painter"] == 1, 
             phase["Color Mixer"] == 1), 
-            required: Math.ceil(70*multiplier/10), reward: "no_reward",
+            required: Math.ceil(70*multiplier/10), reward: enumHubGoalRewards.no_reward,
             throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio},
         {shape: calcRandomShape(randomizer, 
             phase["Cutter"] == 1, 
@@ -69,7 +68,7 @@ export function randomizedVanillaStepsShapes(randomizer, maxlevel, throughputrat
             phase["Stacker"] == 1, 
             phase["Painter"] == 1, 
             phase["Color Mixer"] == 1), 
-            required: Math.ceil(70*multiplier/10), reward: "no_reward",
+            required: Math.ceil(70*multiplier/10), reward: enumHubGoalRewards.no_reward,
             throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio},
         {shape: calcRandomShape(randomizer, 
             phase["Cutter"] <= 2, 
@@ -77,7 +76,7 @@ export function randomizedVanillaStepsShapes(randomizer, maxlevel, throughputrat
             phase["Stacker"] <= 2, 
             phase["Painter"] <= 2, 
             phase["Color Mixer"] <= 2), 
-            required: Math.ceil(170*multiplier/10), reward: "no_reward",
+            required: Math.ceil(170*multiplier/10), reward: enumHubGoalRewards.no_reward,
             throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio},
         {shape: calcRandomShape(randomizer, 
             phase["Cutter"] <= 2, 
@@ -85,7 +84,7 @@ export function randomizedVanillaStepsShapes(randomizer, maxlevel, throughputrat
             phase["Stacker"] <= 2, 
             phase["Painter"] <= 2, 
             phase["Color Mixer"] <= 2), 
-            required: Math.ceil(270*multiplier/10), reward: "no_reward",
+            required: Math.ceil(270*multiplier/10), reward: enumHubGoalRewards.no_reward,
             throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio},
         {shape: calcRandomShape(randomizer, 
             phase["Cutter"] <= 3, 
@@ -93,7 +92,7 @@ export function randomizedVanillaStepsShapes(randomizer, maxlevel, throughputrat
             phase["Stacker"] <= 3, 
             phase["Painter"] <= 3, 
             phase["Color Mixer"] <= 3), 
-            required: Math.ceil(300*multiplier/10), reward: "no_reward",
+            required: Math.ceil(300*multiplier/10), reward: enumHubGoalRewards.no_reward,
             throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio},
         {shape: calcRandomShape(randomizer, 
             phase["Cutter"] <= 3, 
@@ -101,7 +100,7 @@ export function randomizedVanillaStepsShapes(randomizer, maxlevel, throughputrat
             phase["Stacker"] <= 3, 
             phase["Painter"] <= 3, 
             phase["Color Mixer"] <= 3), 
-            required: Math.ceil(480*multiplier/10), reward: "no_reward",
+            required: Math.ceil(480*multiplier/10), reward: enumHubGoalRewards.no_reward,
             throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio},
         {shape: calcRandomShape(randomizer, 
             phase["Cutter"] <= 4, 
@@ -109,7 +108,7 @@ export function randomizedVanillaStepsShapes(randomizer, maxlevel, throughputrat
             phase["Stacker"] <= 4, 
             phase["Painter"] <= 4, 
             phase["Color Mixer"] <= 4), 
-            required: Math.ceil(600*multiplier/10), reward: "no_reward",
+            required: Math.ceil(600*multiplier/10), reward: enumHubGoalRewards.no_reward,
             throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio},
         {shape: calcRandomShape(randomizer, 
             phase["Cutter"] <= 4, 
@@ -117,60 +116,60 @@ export function randomizedVanillaStepsShapes(randomizer, maxlevel, throughputrat
             phase["Stacker"] <= 4, 
             phase["Painter"] <= 4, 
             phase["Color Mixer"] <= 4), 
-            required: Math.ceil(800*multiplier/10), reward: "no_reward",
+            required: Math.ceil(800*multiplier/10), reward: enumHubGoalRewards.no_reward,
             throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio},
-            {shape: calcRandomShape(randomizer, true, true, true, true, true), 
-                required: Math.ceil(1000*multiplier/10), reward: "no_reward",
-                throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio},
-            {shape: calcRandomShape(randomizer, true, true, true, true, true), 
-                required: Math.ceil(1000*multiplier/10), reward: "no_reward",
-                throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio},
-            {shape: calcRandomShape(randomizer, true, true, true, true, true), 
-                required: Math.ceil(3800*multiplier/10), reward: "no_reward",
-                throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio},
-            {shape: calcRandomShape(randomizer, true, true, true, true, true), 
-                required: Math.ceil(5000*multiplier/10), reward: "no_reward", // Default required is 8 throughput
-                throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio || throughputratio == -1},
-            {shape: calcRandomShape(randomizer, true, true, true, true, true), 
-                required: Math.ceil(10000*multiplier/10), reward: "no_reward",
-                throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio},
-            {shape: calcRandomShape(randomizer, true, true, true, true, true), 
-                required: Math.ceil(6000*multiplier/10), reward: "no_reward",
-                throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio},
-            {shape: calcRandomShape(randomizer, true, true, true, true, true), 
-                required: Math.ceil(20000*multiplier/10), reward: "no_reward",
-                throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio},
-            {shape: calcRandomShape(randomizer, true, true, true, true, true), 
-                required: Math.ceil(20000*multiplier/10), reward: "no_reward",
-                throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio},
-            {shape: calcRandomShape(randomizer, true, true, true, true, true), 
-                required: Math.ceil(25000*multiplier/10), reward: "no_reward",
-                throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio},
-            {shape: calcRandomShape(randomizer, true, true, true, true, true), 
-                required: Math.ceil(25000*multiplier/10), reward: "no_reward",
-                throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio},
-            {shape: calcRandomShape(randomizer, true, true, true, true, true), 
-                required: Math.ceil(25000*multiplier/10), reward: "no_reward",
-                throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio},
-            {shape: calcRandomShape(randomizer, true, true, true, true, true), 
-                required: Math.ceil(25000*multiplier/10), reward: "no_reward",
-                throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio},
-            {shape: calcRandomShape(randomizer, true, true, true, true, true), 
-                required: Math.ceil(25000*multiplier/10), reward: "no_reward",
-                throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio},
-            {shape: calcRandomShape(randomizer, true, true, true, true, true), 
-                required: Math.ceil(25000*multiplier/10), reward: "no_reward",
-                throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio},
-            {shape: calcRandomShape(randomizer, true, true, true, true, true), 
-                required: Math.ceil(25000*multiplier/10), reward: "no_reward",
-                throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio},
-            {shape: calcRandomShape(randomizer, true, true, true, true, true), 
-                required: Math.ceil(50000*multiplier/10), reward: "no_reward",
-                throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio}
+        {shape: calcRandomShape(randomizer, true, true, true, true, true), 
+            required: Math.ceil(1000*multiplier/10), reward: enumHubGoalRewards.no_reward,
+            throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio},
+        {shape: calcRandomShape(randomizer, true, true, true, true, true), 
+            required: Math.ceil(1000*multiplier/10), reward: enumHubGoalRewards.no_reward,
+            throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio},
+        {shape: calcRandomShape(randomizer, true, true, true, true, true), 
+            required: Math.ceil(3800*multiplier/10), reward: enumHubGoalRewards.no_reward,
+            throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio},
+        {shape: calcRandomShape(randomizer, true, true, true, true, true), 
+            required: Math.ceil(5000*multiplier/10), reward: enumHubGoalRewards.no_reward, // Default required is 8 throughput
+            throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio || throughputratio == -1},
+        {shape: calcRandomShape(randomizer, true, true, true, true, true), 
+            required: Math.ceil(10000*multiplier/10), reward: enumHubGoalRewards.no_reward,
+            throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio},
+        {shape: calcRandomShape(randomizer, true, true, true, true, true), 
+            required: Math.ceil(6000*multiplier/10), reward: enumHubGoalRewards.no_reward,
+            throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio},
+        {shape: calcRandomShape(randomizer, true, true, true, true, true), 
+            required: Math.ceil(20000*multiplier/10), reward: enumHubGoalRewards.no_reward,
+            throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio},
+        {shape: calcRandomShape(randomizer, true, true, true, true, true), 
+            required: Math.ceil(20000*multiplier/10), reward: enumHubGoalRewards.no_reward,
+            throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio},
+        {shape: calcRandomShape(randomizer, true, true, true, true, true), 
+            required: Math.ceil(25000*multiplier/10), reward: enumHubGoalRewards.no_reward,
+            throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio},
+        {shape: calcRandomShape(randomizer, true, true, true, true, true), 
+            required: Math.ceil(25000*multiplier/10), reward: enumHubGoalRewards.no_reward,
+            throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio},
+        {shape: calcRandomShape(randomizer, true, true, true, true, true), 
+            required: Math.ceil(25000*multiplier/10), reward: enumHubGoalRewards.no_reward,
+            throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio},
+        {shape: calcRandomShape(randomizer, true, true, true, true, true), 
+            required: Math.ceil(25000*multiplier/10), reward: enumHubGoalRewards.no_reward,
+            throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio},
+        {shape: calcRandomShape(randomizer, true, true, true, true, true), 
+            required: Math.ceil(25000*multiplier/10), reward: enumHubGoalRewards.no_reward,
+            throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio},
+        {shape: calcRandomShape(randomizer, true, true, true, true, true), 
+            required: Math.ceil(25000*multiplier/10), reward: enumHubGoalRewards.no_reward,
+            throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio},
+        {shape: calcRandomShape(randomizer, true, true, true, true, true), 
+            required: Math.ceil(25000*multiplier/10), reward: enumHubGoalRewards.no_reward,
+            throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio},
+        {shape: calcRandomShape(randomizer, true, true, true, true, true), 
+            required: Math.ceil(50000*multiplier/10), reward: enumHubGoalRewards.no_reward,
+            throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio}
     ];
-    for (var i = 27; i <= maxlevel+1; i++) {
+    for (var i = 27; i <= connection.levelsToGenerate; i++) {
         levelsdefs.push({shape: calcRandomShape(randomizer, true, true, true, true, true), 
-            required: Math.ceil((4+0.25*(i-27))*multiplier/10), reward: "no_reward",
+            required: Math.ceil((4+0.25*(i-27))*multiplier/10), reward: enumHubGoalRewards.no_reward,
             throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio || throughputratio == -1});
     };
     for (var i = 0; i < 26; i++) {
@@ -186,18 +185,16 @@ export function randomizedVanillaStepsShapes(randomizer, maxlevel, throughputrat
     return levelsdefs;
 }
 
-export function randomizedStretchedShapes(randomizer, maxlevel, throughputratio, multiplier, building1, building2, building3, building4, building5) {
+export function randomizedStretchedShapes(randomizer) {
     var levelsdefs = [];
-    var phase = {"Cutter": 0, "Rotator": 0, "Stacker": 0, "Painter": 0, "Color Mixer": 0};
-    phase[building1] = 1;
-    phase[building2] = 2;
-    phase[building3] = 3;
-    phase[building4] = 4;
-    phase[building5] = 5;
-    const phaselength = Math.floor(maxlevel/6);
+    const levelstogenerate = connection.levelsToGenerate;
+    const phaselength = Math.floor(levelstogenerate/6);
+    const multiplier = connection.requiredShapesMultiplier;
+    const throughputratio = connection.throughputLevelsRatio;
+    const phase = connection.positionOfLevelBuilding;
     for (var i = 0; i < phaselength; i++) {
         levelsdefs.push({shape: calcRandomShape(randomizer, false, false, false, false, false), 
-            required: Math.ceil((30+30*i)*multiplier/10), reward: "no_reward",
+            required: Math.ceil((30+30*i)*multiplier/10), reward: enumHubGoalRewards.no_reward,
                 throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio});
     }
     for (var i = 0; i < phaselength; i++) {
@@ -207,7 +204,7 @@ export function randomizedStretchedShapes(randomizer, maxlevel, throughputratio,
             phase["Stacker"] == 1, 
             phase["Painter"] == 1, 
             phase["Color Mixer"] == 1), 
-            required: Math.ceil((40+10*i)*multiplier/10), reward: "no_reward",
+            required: Math.ceil((40+10*i)*multiplier/10), reward: enumHubGoalRewards.no_reward,
             throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio});
     }
     for (var i = 0; i < phaselength; i++) {
@@ -217,7 +214,7 @@ export function randomizedStretchedShapes(randomizer, maxlevel, throughputratio,
             phase["Stacker"] <= 2, 
             phase["Painter"] <= 2, 
             phase["Color Mixer"] <= 2), 
-            required: Math.ceil((170+30*i)*multiplier/10), reward: "no_reward",
+            required: Math.ceil((170+30*i)*multiplier/10), reward: enumHubGoalRewards.no_reward,
             throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio});
     }
     for (var i = 0; i < phaselength; i++) {
@@ -227,7 +224,7 @@ export function randomizedStretchedShapes(randomizer, maxlevel, throughputratio,
             phase["Stacker"] <= 3, 
             phase["Painter"] <= 3, 
             phase["Color Mixer"] <= 3), 
-            required: Math.ceil((300+60*i)*multiplier/10), reward: "no_reward",
+            required: Math.ceil((300+60*i)*multiplier/10), reward: enumHubGoalRewards.no_reward,
             throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio});
     }
     for (var i = 0; i < phaselength; i++) {
@@ -237,12 +234,12 @@ export function randomizedStretchedShapes(randomizer, maxlevel, throughputratio,
             phase["Stacker"] <= 4, 
             phase["Painter"] <= 4, 
             phase["Color Mixer"] <= 4), 
-            required: Math.ceil((600+120*i)*multiplier/10), reward: "no_reward",
+            required: Math.ceil((600+120*i)*multiplier/10), reward: enumHubGoalRewards.no_reward,
             throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio});
     }
-    for (var ii = levelsdefs.length; ii <= maxlevel; ii++) {
+    for (var ii = levelsdefs.length+1; ii <= levelstogenerate; ii++) {
         levelsdefs.push({shape: calcRandomShape(randomizer, true, true, true, true, true), 
-            required: Math.ceil(((ii+1)*50*1000/(maxlevel+1))*multiplier/10), reward: "no_reward",
+            required: Math.ceil(((ii)*50*1000/(levelstogenerate))*multiplier/10), reward: enumHubGoalRewards.no_reward,
             throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio});
     };
     if (throughputratio == -1) {
@@ -259,16 +256,14 @@ export function randomizedStretchedShapes(randomizer, maxlevel, throughputratio,
     return levelsdefs;
 }
 
-export function randomizedQuickShapes(randomizer, maxlevel, throughputratio, multiplier, building1, building2, building3, building4, building5) {
-    var phase = {"Cutter": 0, "Rotator": 0, "Stacker": 0, "Painter": 0, "Color Mixer": 0};
-    phase[building1] = 1;
-    phase[building2] = 2;
-    phase[building3] = 3;
-    phase[building4] = 4;
-    phase[building5] = 5;
+export function randomizedQuickShapes(randomizer) {
+    const multiplier = connection.requiredShapesMultiplier;
+    const throughputratio = connection.throughputLevelsRatio;
+    const phase = connection.positionOfLevelBuilding;
+    const levelstogenerate = connection.levelsToGenerate;
     var levelsdefs = [
         {shape: calcRandomShape(randomizer, false, false, false, false, false), 
-            required: Math.ceil(30*multiplier/10), reward: "no_reward",
+            required: Math.ceil(30*multiplier/10), reward: enumHubGoalRewards.no_reward,
             throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio},
         {shape: calcRandomShape(randomizer, 
             phase["Cutter"] == 1, 
@@ -276,7 +271,7 @@ export function randomizedQuickShapes(randomizer, maxlevel, throughputratio, mul
             phase["Stacker"] == 1, 
             phase["Painter"] == 1, 
             phase["Color Mixer"] == 1), 
-            required: Math.ceil(40*multiplier/10), reward: "no_reward",
+            required: Math.ceil(40*multiplier/10), reward: enumHubGoalRewards.no_reward,
             throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio},
         {shape: calcRandomShape(randomizer, 
             phase["Cutter"] <= 2, 
@@ -284,7 +279,7 @@ export function randomizedQuickShapes(randomizer, maxlevel, throughputratio, mul
             phase["Stacker"] <= 2, 
             phase["Painter"] <= 2, 
             phase["Color Mixer"] <= 2), 
-            required: Math.ceil(70*multiplier/10), reward: "no_reward",
+            required: Math.ceil(70*multiplier/10), reward: enumHubGoalRewards.no_reward,
             throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio},
         {shape: calcRandomShape(randomizer, 
             phase["Cutter"] <= 3, 
@@ -292,7 +287,7 @@ export function randomizedQuickShapes(randomizer, maxlevel, throughputratio, mul
             phase["Stacker"] <= 3, 
             phase["Painter"] <= 3, 
             phase["Color Mixer"] <= 3), 
-            required: Math.ceil(70*multiplier/10), reward: "no_reward",
+            required: Math.ceil(70*multiplier/10), reward: enumHubGoalRewards.no_reward,
             throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio},
         {shape: calcRandomShape(randomizer, 
             phase["Cutter"] <= 4, 
@@ -300,75 +295,75 @@ export function randomizedQuickShapes(randomizer, maxlevel, throughputratio, mul
             phase["Stacker"] <= 4, 
             phase["Painter"] <= 4, 
             phase["Color Mixer"] <= 4), 
-            required: Math.ceil(170*multiplier/10), reward: "no_reward",
+            required: Math.ceil(170*multiplier/10), reward: enumHubGoalRewards.no_reward,
             throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio},
         {shape: calcRandomShape(randomizer, true, true, true, true, true), 
-            required: Math.ceil(270*multiplier/10), reward: "no_reward",
+            required: Math.ceil(270*multiplier/10), reward: enumHubGoalRewards.no_reward,
             throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio},
         {shape: calcRandomShape(randomizer, true, true, true, true, true), 
-            required: Math.ceil(300*multiplier/10), reward: "no_reward",
+            required: Math.ceil(300*multiplier/10), reward: enumHubGoalRewards.no_reward,
             throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio},
         {shape: calcRandomShape(randomizer, true, true, true, true, true), 
-            required: Math.ceil(480*multiplier/10), reward: "no_reward",
+            required: Math.ceil(480*multiplier/10), reward: enumHubGoalRewards.no_reward,
             throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio},
         {shape: calcRandomShape(randomizer, true, true, true, true, true), 
-            required: Math.ceil(600*multiplier/10), reward: "no_reward",
+            required: Math.ceil(600*multiplier/10), reward: enumHubGoalRewards.no_reward,
             throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio},
         {shape: calcRandomShape(randomizer, true, true, true, true, true), 
-            required: Math.ceil(800*multiplier/10), reward: "no_reward",
+            required: Math.ceil(800*multiplier/10), reward: enumHubGoalRewards.no_reward,
             throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio},
         {shape: calcRandomShape(randomizer, true, true, true, true, true), 
-            required: Math.ceil(1000*multiplier/10), reward: "no_reward",
+            required: Math.ceil(1000*multiplier/10), reward: enumHubGoalRewards.no_reward,
             throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio},
         {shape: calcRandomShape(randomizer, true, true, true, true, true), 
-            required: Math.ceil(1000*multiplier/10), reward: "no_reward",
+            required: Math.ceil(1000*multiplier/10), reward: enumHubGoalRewards.no_reward,
             throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio},
         {shape: calcRandomShape(randomizer, true, true, true, true, true), 
-            required: Math.ceil(3800*multiplier/10), reward: "no_reward",
+            required: Math.ceil(3800*multiplier/10), reward: enumHubGoalRewards.no_reward,
             throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio},
         {shape: calcRandomShape(randomizer, true, true, true, true, true), 
-            required: Math.ceil(5000*multiplier/10), reward: "no_reward", // Default required is 8 throughput
+            required: Math.ceil(5000*multiplier/10), reward: enumHubGoalRewards.no_reward, // Default required is 8 throughput
             throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio || throughputratio == -1},
         {shape: calcRandomShape(randomizer, true, true, true, true, true), 
-            required: Math.ceil(10000*multiplier/10), reward: "no_reward",
+            required: Math.ceil(10000*multiplier/10), reward: enumHubGoalRewards.no_reward,
             throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio},
         {shape: calcRandomShape(randomizer, true, true, true, true, true), 
-            required: Math.ceil(6000*multiplier/10), reward: "no_reward",
+            required: Math.ceil(6000*multiplier/10), reward: enumHubGoalRewards.no_reward,
             throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio},
         {shape: calcRandomShape(randomizer, true, true, true, true, true), 
-            required: Math.ceil(20000*multiplier/10), reward: "no_reward",
+            required: Math.ceil(20000*multiplier/10), reward: enumHubGoalRewards.no_reward,
             throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio},
         {shape: calcRandomShape(randomizer, true, true, true, true, true), 
-            required: Math.ceil(20000*multiplier/10), reward: "no_reward",
+            required: Math.ceil(20000*multiplier/10), reward: enumHubGoalRewards.no_reward,
             throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio},
         {shape: calcRandomShape(randomizer, true, true, true, true, true), 
-            required: Math.ceil(25000*multiplier/10), reward: "no_reward",
+            required: Math.ceil(25000*multiplier/10), reward: enumHubGoalRewards.no_reward,
             throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio},
         {shape: calcRandomShape(randomizer, true, true, true, true, true), 
-            required: Math.ceil(25000*multiplier/10), reward: "no_reward",
+            required: Math.ceil(25000*multiplier/10), reward: enumHubGoalRewards.no_reward,
             throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio},
         {shape: calcRandomShape(randomizer, true, true, true, true, true), 
-            required: Math.ceil(25000*multiplier/10), reward: "no_reward",
+            required: Math.ceil(25000*multiplier/10), reward: enumHubGoalRewards.no_reward,
             throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio},
         {shape: calcRandomShape(randomizer, true, true, true, true, true), 
-            required: Math.ceil(25000*multiplier/10), reward: "no_reward",
+            required: Math.ceil(25000*multiplier/10), reward: enumHubGoalRewards.no_reward,
             throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio},
         {shape: calcRandomShape(randomizer, true, true, true, true, true), 
-            required: Math.ceil(25000*multiplier/10), reward: "no_reward",
+            required: Math.ceil(25000*multiplier/10), reward: enumHubGoalRewards.no_reward,
             throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio},
         {shape: calcRandomShape(randomizer, true, true, true, true, true), 
-            required: Math.ceil(25000*multiplier/10), reward: "no_reward",
+            required: Math.ceil(25000*multiplier/10), reward: enumHubGoalRewards.no_reward,
             throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio},
         {shape: calcRandomShape(randomizer, true, true, true, true, true), 
-            required: Math.ceil(25000*multiplier/10), reward: "no_reward",
+            required: Math.ceil(25000*multiplier/10), reward: enumHubGoalRewards.no_reward,
             throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio},
         {shape: calcRandomShape(randomizer, true, true, true, true, true), 
-            required: Math.ceil(50000*multiplier/10), reward: "no_reward",
+            required: Math.ceil(50000*multiplier/10), reward: enumHubGoalRewards.no_reward,
             throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio}
     ];
-    for (var i = 27; i <= maxlevel+1; i++) {
+    for (var i = 27; i <= levelstogenerate; i++) {
         levelsdefs.push({shape: calcRandomShape(randomizer, true, true, true, true, true), 
-            required: Math.ceil((4+0.25*(i-27))*multiplier/10), reward: "no_reward",
+            required: Math.ceil((4+0.25*(i-27))*multiplier/10), reward: enumHubGoalRewards.no_reward,
             throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio || throughputratio == -1});
     };
     for (var i = 0; i < 26; i++) {
@@ -384,62 +379,61 @@ export function randomizedQuickShapes(randomizer, maxlevel, throughputratio, mul
     return levelsdefs;
 }
 
-export function randomizedRandomStepsShapes(randomizer, maxlevel, throughputratio, multiplier, building1, building2, building3, building4, building5, phase0, phase1, phase2, phase3, phase4) {
+export function randomizedRandomStepsShapes(randomizer) {
     var levelsdefs = [];
-    var phase = {"Cutter": 0, "Rotator": 0, "Stacker": 0, "Painter": 0, "Color Mixer": 0};
-    phase[building1] = 1;
-    phase[building2] = 2;
-    phase[building3] = 3;
-    phase[building4] = 4;
-    phase[building5] = 5;
-    for (var i = 0; i <= phase0; i++) { // <= phase0 because first level always no building and potentially phase0 == 0
+    const multiplier = connection.requiredShapesMultiplier;
+    const throughputratio = connection.throughputLevelsRatio;
+    const phase = connection.positionOfLevelBuilding;
+    const phaselength = connection.randomStepsLength;
+    const levelstogenerate = connection.levelsToGenerate;
+    for (var i = 0; i <= phaselength[0]; i++) { // <= phase0 because first level always no building and potentially phase0 == 0
         levelsdefs.push({shape: calcRandomShape(randomizer, false, false, false, false, false), 
-            required: Math.ceil((30+30*i)*multiplier/10), reward: "no_reward",
+            required: Math.ceil((30+30*i)*multiplier/10), reward: enumHubGoalRewards.no_reward,
                 throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio});
     }
-    for (var i = 0; i < phase1; i++) {
+    for (var i = 0; i < phaselength[1]; i++) {
         levelsdefs.push({shape: calcRandomShape(randomizer, 
             phase["Cutter"] == 1, 
             phase["Rotator"] == 1, 
             phase["Stacker"] == 1, 
             phase["Painter"] == 1, 
             phase["Color Mixer"] == 1), 
-            required: Math.ceil((40+10*i)*multiplier/10), reward: "no_reward",
+            required: Math.ceil((40+10*i)*multiplier/10), reward: enumHubGoalRewards.no_reward,
             throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio});
     }
-    for (var i = 0; i < phase2; i++) {
+    for (var i = 0; i < phaselength[2]; i++) {
         levelsdefs.push({shape: calcRandomShape(randomizer, 
             phase["Cutter"] <= 2, 
             phase["Rotator"] <= 2, 
             phase["Stacker"] <= 2, 
             phase["Painter"] <= 2, 
             phase["Color Mixer"] <= 2), 
-            required: Math.ceil((170+30*i)*multiplier/10), reward: "no_reward",
+            required: Math.ceil((170+30*i)*multiplier/10), reward: enumHubGoalRewards.no_reward,
             throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio});
     }
-    for (var i = 0; i < phase3; i++) {
+    for (var i = 0; i < phaselength[3]; i++) {
         levelsdefs.push({shape: calcRandomShape(randomizer, 
             phase["Cutter"] <= 3, 
             phase["Rotator"] <= 3, 
             phase["Stacker"] <= 3, 
             phase["Painter"] <= 3, 
             phase["Color Mixer"] <= 3), 
-            required: Math.ceil((300+60*i)*multiplier/10), reward: "no_reward",
+            required: Math.ceil((300+60*i)*multiplier/10), reward: enumHubGoalRewards.no_reward,
             throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio});
     }
-    for (var i = 0; i < phase4; i++) {
+    for (var i = 0; i < phaselength[4]; i++) {
         levelsdefs.push({shape: calcRandomShape(randomizer, 
             phase["Cutter"] <= 4, 
             phase["Rotator"] <= 4, 
             phase["Stacker"] <= 4, 
             phase["Painter"] <= 4, 
             phase["Color Mixer"] <= 4), 
-            required: Math.ceil((600+120*i)*multiplier/10), reward: "no_reward",
+            required: Math.ceil((600+120*i)*multiplier/10), reward: enumHubGoalRewards.no_reward,
             throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio});
     }
-    for (var ii = levelsdefs.length; ii <= maxlevel; ii++) {
+    for (var ii = levelsdefs.length+1; ii <= levelstogenerate; ii++) {
         levelsdefs.push({shape: calcRandomShape(randomizer, true, true, true, true, true), 
-            required: Math.ceil(((ii+1)*50*1000/(maxlevel+1))*multiplier/10), reward: "no_reward",
+            required: Math.ceil(((ii)*50*1000/(levelstogenerate))*multiplier/10), reward: enumHubGoalRewards.no_reward,
             throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio});
     };
     if (throughputratio == -1) {
@@ -456,15 +450,18 @@ export function randomizedRandomStepsShapes(randomizer, maxlevel, throughputrati
     return levelsdefs;
 }
 
-export function randomizedHardcoreShapes(randomizer, maxlevel, throughputratio, multiplier) {
+export function randomizedHardcoreShapes(randomizer) {
+    const multiplier = connection.requiredShapesMultiplier;
+    const throughputratio = connection.throughputLevelsRatio;
+    const levelstogenerate = connection.levelsToGenerate;
     var levelsdefs = [
         {shape: calcRandomShape(randomizer, false, false, false, false, false), 
-            required: Math.ceil(30*multiplier/10), reward: "no_reward",
+            required: Math.ceil(30*multiplier/10), reward: enumHubGoalRewards.no_reward,
             throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio}
     ];
-    for (var i = 2; i <= maxlevel+1; i++) {
+    for (var i = 2; i <= levelstogenerate; i++) {
         levelsdefs.push({shape: calcRandomShape(randomizer, true, true, true, true, true), 
-            required: Math.ceil((50*i*1000/(maxlevel+1))*multiplier/10), reward: "no_reward",
+            required: Math.ceil((50*i*1000/(levelstogenerate))*multiplier/10), reward: enumHubGoalRewards.no_reward,
             throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio});
     };
     if (throughputratio == -1) {
@@ -481,7 +478,7 @@ export function randomizedHardcoreShapes(randomizer, maxlevel, throughputratio, 
     return levelsdefs;
 }
 
-export function vanillaUpgradeShapes(multiplier, finaltier) {
+export function vanillaUpgradeShapes() {
     const rocketShape = "CbCuCbCu:Sr------:--CrSrCr:CwCwCwCw";
     const preparementShape = "CpRpCp--:SwSwSwSw";
     const finalGameShape = "RuCw--Cw:----Ru--";
@@ -525,16 +522,11 @@ export function vanillaUpgradeShapes(multiplier, finaltier) {
         finalGameShape,
         rocketShape
     ];
-    return constructUpgradeShapes(multiplier, finaltier, beltshapes, minershapes, processorsshapes, paintingshapes);
+    return constructUpgradeShapes(beltshapes, minershapes, processorsshapes, paintingshapes);
 }
 
-export function vanillaLikeUpgradeShapes(multiplier, randomizer, finaltier, samelate, building1, building2, building3, building4, building5) {
-    var phase = {"Cutter": 0, "Rotator": 0, "Stacker": 0, "Painter": 0, "Color Mixer": 0};
-    phase[building1] = 1;
-    phase[building2] = 2;
-    phase[building3] = 3;
-    phase[building4] = 4;
-    phase[building5] = 5;
+export function vanillaLikeUpgradeShapes(randomizer) {
+    const phase = connection.positionOfUpgradeBuilding;
     const beltshapes = [calcRandomShape(randomizer, false, false, false, false, false)];
     beltshapes.push(calcRandomShape(randomizer, phase["Cutter"] <= 2, phase["Rotator"] <= 2, phase["Stacker"] <= 2, phase["Painter"] <= 2, phase["Color Mixer"] <= 2, beltshapes));
     beltshapes.push(calcRandomShape(randomizer, true, true, true, true, true, beltshapes));
@@ -555,7 +547,7 @@ export function vanillaLikeUpgradeShapes(multiplier, randomizer, finaltier, same
     paintingshapes.push(calcRandomShape(randomizer, true, true, true, true, true, paintingshapes));
     paintingshapes.push(calcRandomShape(randomizer, true, true, true, true, true, paintingshapes));
     paintingshapes.push(calcRandomShape(randomizer, true, true, true, true, true, paintingshapes));
-    if (samelate) {
+    if (connection.isSameLate) {
         const late1 = calcRandomShape(randomizer, true, true, true, true, true);
         const late2 = calcRandomShape(randomizer, true, true, true, true, true, [late1]);
         const late3 = calcRandomShape(randomizer, true, true, true, true, true, [late1, late2]);
@@ -577,16 +569,11 @@ export function vanillaLikeUpgradeShapes(multiplier, randomizer, finaltier, same
         paintingshapes.push(calcRandomShape(randomizer, true, true, true, true, true, [paintingshapes[5]]));
         paintingshapes.push(calcRandomShape(randomizer, true, true, true, true, true, [paintingshapes[5], paintingshapes[6]]));
     }
-    return constructUpgradeShapes(multiplier, finaltier, beltshapes, minershapes, processorsshapes, paintingshapes);
+    return constructUpgradeShapes(beltshapes, minershapes, processorsshapes, paintingshapes);
 }
 
-export function linearUpgradeShapes(multiplier, randomizer, finaltier, samelate, building1, building2, building3, building4, building5) {
-    var phase = {"Cutter": 0, "Rotator": 0, "Stacker": 0, "Painter": 0, "Color Mixer": 0};
-    phase[building1] = 1;
-    phase[building2] = 2;
-    phase[building3] = 3;
-    phase[building4] = 4;
-    phase[building5] = 5;
+export function linearUpgradeShapes(randomizer) {
+    const phase = connection.positionOfUpgradeBuilding;
     const beltshapes = [calcRandomShape(randomizer, false, false, false, false, false)];
     for (var nextindex = 1; nextindex < 5; nextindex++) {
         beltshapes.push(calcRandomShape(randomizer, phase["Cutter"] <= nextindex, phase["Rotator"] <= nextindex, phase["Stacker"] <= nextindex, phase["Painter"] <= nextindex, phase["Color Mixer"] <= nextindex, beltshapes));
@@ -603,7 +590,7 @@ export function linearUpgradeShapes(multiplier, randomizer, finaltier, samelate,
     for (var nextindex = 1; nextindex < 5; nextindex++) {
         paintingshapes.push(calcRandomShape(randomizer, phase["Cutter"] <= nextindex, phase["Rotator"] <= nextindex, phase["Stacker"] <= nextindex, phase["Painter"] <= nextindex, phase["Color Mixer"] <= nextindex, paintingshapes));
     }
-    if (samelate) {
+    if (connection.isSameLate) {
         const late1 = calcRandomShape(randomizer, true, true, true, true, true);
         const late2 = calcRandomShape(randomizer, true, true, true, true, true, [late1]);
         const late3 = calcRandomShape(randomizer, true, true, true, true, true, [late1, late2]);
@@ -625,10 +612,10 @@ export function linearUpgradeShapes(multiplier, randomizer, finaltier, samelate,
         paintingshapes.push(calcRandomShape(randomizer, true, true, true, true, true, [paintingshapes[5]]));
         paintingshapes.push(calcRandomShape(randomizer, true, true, true, true, true, [paintingshapes[5], paintingshapes[6]]));
     }
-    return constructUpgradeShapes(multiplier, finaltier, beltshapes, minershapes, processorsshapes, paintingshapes);
+    return constructUpgradeShapes(beltshapes, minershapes, processorsshapes, paintingshapes);
 }
 
-export function categoryUpgradeShapes(multiplier, randomizer, finaltier, samelate) {
+export function categoryUpgradeShapes(randomizer) {
     const beltshapes = [calcRandomShape(randomizer, false, false, false, false, false)];
     beltshapes.push(calcRandomShape(randomizer, false, false, false, false, false, beltshapes));
     beltshapes.push(calcRandomShape(randomizer, false, false, false, false, false, beltshapes));
@@ -649,7 +636,7 @@ export function categoryUpgradeShapes(multiplier, randomizer, finaltier, samelat
     paintingshapes.push(calcRandomShape(randomizer, true, true, true, true, false, paintingshapes));
     paintingshapes.push(calcRandomShape(randomizer, true, true, true, true, true, paintingshapes));
     paintingshapes.push(calcRandomShape(randomizer, true, true, true, true, true, paintingshapes));
-    if (samelate) {
+    if (connection.isSameLate) {
         const late1 = calcRandomShape(randomizer, true, true, true, true, true);
         const late2 = calcRandomShape(randomizer, true, true, true, true, true, [late1]);
         const late3 = calcRandomShape(randomizer, true, true, true, true, true, [late1, late2]);
@@ -671,16 +658,15 @@ export function categoryUpgradeShapes(multiplier, randomizer, finaltier, samelat
         paintingshapes.push(calcRandomShape(randomizer, true, true, true, true, true, [paintingshapes[5]]));
         paintingshapes.push(calcRandomShape(randomizer, true, true, true, true, true, [paintingshapes[5], paintingshapes[6]]));
     }
-    return constructUpgradeShapes(multiplier, finaltier, beltshapes, minershapes, processorsshapes, paintingshapes);
+    return constructUpgradeShapes(beltshapes, minershapes, processorsshapes, paintingshapes);
 }
 
-export function categoryRandomUpgradeShapes(multiplier, randomizer, finaltier, samelate, building1, building2, building3, building4, building5, amountBelt, amountMiner, amountProcessors, amountPainting) {
-    var phase = {"Cutter": 0, "Rotator": 0, "Stacker": 0, "Painter": 0, "Color Mixer": 0};
-    phase[building1] = 1;
-    phase[building2] = 2;
-    phase[building3] = 3;
-    phase[building4] = 4;
-    phase[building5] = 5;
+export function categoryRandomUpgradeShapes(randomizer) {
+    const phase = connection.positionOfUpgradeBuilding;
+    const amountBelt = connection.categoryRandomBuildingsAmounts.belt;
+    const amountMiner = connection.categoryRandomBuildingsAmounts.miner;
+    const amountProcessors = connection.categoryRandomBuildingsAmounts.processors;
+    const amountPainting = connection.categoryRandomBuildingsAmounts.painting;
     const beltshapes = [calcRandomShape(randomizer, phase["Cutter"] <= amountBelt, phase["Rotator"] <= amountBelt, phase["Stacker"] <= amountBelt, phase["Painter"] <= amountBelt, phase["Color Mixer"] <= amountBelt)];
     beltshapes.push(calcRandomShape(randomizer, phase["Cutter"] <= amountBelt, phase["Rotator"] <= amountBelt, phase["Stacker"] <= amountBelt, phase["Painter"] <= amountBelt, phase["Color Mixer"] <= amountBelt, beltshapes));
     beltshapes.push(calcRandomShape(randomizer, phase["Cutter"] <= amountBelt, phase["Rotator"] <= amountBelt, phase["Stacker"] <= amountBelt, phase["Painter"] <= amountBelt, phase["Color Mixer"] <= amountBelt, beltshapes));
@@ -701,7 +687,7 @@ export function categoryRandomUpgradeShapes(multiplier, randomizer, finaltier, s
     paintingshapes.push(calcRandomShape(randomizer, phase["Cutter"] <= amountPainting, phase["Rotator"] <= amountPainting, phase["Stacker"] <= amountPainting, phase["Painter"] <= amountPainting, phase["Color Mixer"] <= amountPainting, paintingshapes));
     paintingshapes.push(calcRandomShape(randomizer, true, true, true, true, true, paintingshapes));
     paintingshapes.push(calcRandomShape(randomizer, true, true, true, true, true, paintingshapes));
-    if (samelate) {
+    if (connection.isSameLate) {
         const late1 = calcRandomShape(randomizer, true, true, true, true, true);
         const late2 = calcRandomShape(randomizer, true, true, true, true, true, [late1]);
         const late3 = calcRandomShape(randomizer, true, true, true, true, true, [late1, late2]);
@@ -723,10 +709,10 @@ export function categoryRandomUpgradeShapes(multiplier, randomizer, finaltier, s
         paintingshapes.push(calcRandomShape(randomizer, true, true, true, true, true, [paintingshapes[5]]));
         paintingshapes.push(calcRandomShape(randomizer, true, true, true, true, true, [paintingshapes[5], paintingshapes[6]]));
     }
-    return constructUpgradeShapes(multiplier, finaltier, beltshapes, minershapes, processorsshapes, paintingshapes);
+    return constructUpgradeShapes(beltshapes, minershapes, processorsshapes, paintingshapes);
 }
 
-export function hardcoreUpgradeShapes(multiplier, randomizer, finaltier, samelate) {
+export function hardcoreUpgradeShapes(randomizer) {
     const beltshapes = [calcRandomShape(randomizer, false, false, false, false, false)];
     beltshapes.push(calcRandomShape(randomizer, true, true, true, true, true, beltshapes));
     beltshapes.push(calcRandomShape(randomizer, true, true, true, true, true, beltshapes));
@@ -747,7 +733,7 @@ export function hardcoreUpgradeShapes(multiplier, randomizer, finaltier, samelat
     paintingshapes.push(calcRandomShape(randomizer, true, true, true, true, true, paintingshapes));
     paintingshapes.push(calcRandomShape(randomizer, true, true, true, true, true, paintingshapes));
     paintingshapes.push(calcRandomShape(randomizer, true, true, true, true, true, paintingshapes));
-    if (samelate) {
+    if (connection.isSameLate) {
         const late1 = calcRandomShape(randomizer, true, true, true, true, true);
         const late2 = calcRandomShape(randomizer, true, true, true, true, true, [late1]);
         const late3 = calcRandomShape(randomizer, true, true, true, true, true, [late1, late2]);
@@ -769,10 +755,11 @@ export function hardcoreUpgradeShapes(multiplier, randomizer, finaltier, samelat
         paintingshapes.push(calcRandomShape(randomizer, true, true, true, true, true, [paintingshapes[5]]));
         paintingshapes.push(calcRandomShape(randomizer, true, true, true, true, true, [paintingshapes[5], paintingshapes[6]]));
     }
-    return constructUpgradeShapes(multiplier, finaltier, beltshapes, minershapes, processorsshapes, paintingshapes);
+    return constructUpgradeShapes(beltshapes, minershapes, processorsshapes, paintingshapes);
 }
 
-function constructUpgradeShapes(multiplier, finaltier, beltshapes, minershapes, processorsshapes, paintingshapes) {
+function constructUpgradeShapes(beltshapes, minershapes, processorsshapes, paintingshapes) {
+    const multiplier = connection.requiredShapesMultiplier;
     var upgradedefs = {
         belt: [
             {required: [
@@ -911,7 +898,7 @@ function constructUpgradeShapes(multiplier, finaltier, beltshapes, minershapes, 
             ], excludePrevious: true, improvement: 0}
         ]
     };
-    for (var i = 9; i <= finaltier; i++) {
+    for (var i = 9; i <= connection.tiersToGenerate; i++) {
         upgradedefs.belt.push({required: [
             { shape: beltshapes[5], amount: Math.ceil((-60000 + i * 10000)*multiplier/10) },
             { shape: beltshapes[6], amount: Math.ceil((-25000 + i * 5000)*multiplier/10) },
@@ -1045,7 +1032,7 @@ function isWindmillHalf(half) {
 function calcRandomHalf(randomizer, hasCutter, hasRotator, hasStacker, hasPainter, hasMixer) {
     var part = calcRandomPart(randomizer, hasPainter, hasMixer, true);
     if (hasRotator && hasStacker && randomizer.choice([true, false])) {
-        part += calcRandomPart(randomizer, hasPainter, hasMixer, true);
+        part += calcRandomPart(randomizer, hasPainter, hasMixer, true, part.charAt(1));
     } else if (hasRotator && randomizer.choice([true, false])) {
         if (randomizer.choice([true, false])) {
             part += "--"
