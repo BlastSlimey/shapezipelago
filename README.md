@@ -18,7 +18,7 @@ Client mod for the Archipelago multiworld randomizer.
 - TECHNICAL:    Build input box in HUD class
 - TECHNICAL:    storing reoccuring string in global data to prevent errors:
   - buildings names in requirement_definitions
-  - "Shapesanity" and it's different types, put together with [].join(" ")
+  - "Shapesanity" and its different types, put together with [].join(" ")
 ### Both
 - FEATURE:      Add bounty goal: collect mcguffins, enough of them give a hint towards bounty (always shapesanity stitched mixed), checking that gives bounty item, which sends goal
 - FEATURE:      Need some ideas for expanding upgrade requirements
@@ -26,6 +26,7 @@ Client mod for the Archipelago multiworld randomizer.
 - FEATURE:      Add music tracks to item pool
 - FEATURE:      Producer mode: shapes are items, producer replaces extractor
 - FEATURE:      Expand shapesanity to 4 layers
+- FEATURE:      Option for progressive building variant unlocks
 ### Labels
 - IMPORTANT:    Text
 - GOOD LOOKING: Text
