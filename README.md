@@ -14,6 +14,7 @@ Client mod for the Archipelago multiworld randomizer.
 - FEATURE:      Randomize blueprint shape
 - FEATURE:      Details when checking Level location, custom hubGoal reward, override hud
 - FEATURE:      Translations
+- FEATURE:      Something with energy link
 - TECHNICAL:    getIsUnlocked definition in global data to reuse for locking trap
 - TECHNICAL:    Build input box in HUD class
 - TECHNICAL:    storing reoccuring string in global data to prevent errors:
