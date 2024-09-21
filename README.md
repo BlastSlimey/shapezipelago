@@ -3,6 +3,7 @@ Client mod for the Archipelago multiworld randomizer.
 
 ## TODO list
 ### APWorld
+- TECHNICAL:    Reposition goal event in own region instead
 ### Client mod
 - FEATURE:      Auto connect & meantime offline playing
   - Disconnect from AP server when returning to main menu
@@ -21,7 +22,12 @@ Client mod for the Archipelago multiworld randomizer.
   - buildings names in requirement_definitions
   - "Shapesanity" and its different types, put together with [].join(" ")
 ### Both
-- FEATURE:      Add bounty goal: collect mcguffins, enough of them give a hint towards bounty (always shapesanity stitched mixed), checking that gives bounty item, which sends goal
+- FEATURE:      Add bounty goal: collect mcguffins, enough of them reveal bounty (always fully randomized shape with up to 4 layers), checking that sends goal (not without enough mcguffins)
+- FEATURE:      Add Maximum goal: all other goals combined
+  - All levels up to goal_amount
+  - All upgrades up to goal_amount
+  - If also added: Deliver bounty shape
+  - 256 blueprint shapes per second to send goal (not saved if reached earlier)
 - FEATURE:      Need some ideas for expanding upgrade requirements
 - FEATURE:      Buildings functionality randomization, like malfunctioning trap, but permanent
 - FEATURE:      Add music tracks to item pool
