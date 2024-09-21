@@ -34,6 +34,7 @@ Client mod for the Archipelago multiworld randomizer.
 - FEATURE:      Producer mode: shapes are items, producer replaces extractor
 - FEATURE:      Expand shapesanity to 4 layers
 - FEATURE:      Option for progressive building variant unlocks
+- FEATURE:      Inflation Trap
 ### Labels
 - IMPORTANT:    Text
 - GOOD LOOKING: Text
