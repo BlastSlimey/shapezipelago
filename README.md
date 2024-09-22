@@ -16,7 +16,6 @@ Client mod for the Archipelago multiworld randomizer.
 - FEATURE:      Details when checking Level location, custom hubGoal reward, override hud
 - FEATURE:      Translations
 - FEATURE:      Something with energy link
-  - Dragion: Yes to blueprint shapes (alternatively shape resembling AP logo), maybe building to send and receive energy
 - TECHNICAL:    getIsUnlocked definition in global data to reuse for locking trap
 - TECHNICAL:    Build input box in HUD class
 - TECHNICAL:    storing reoccuring string in global data to prevent errors:
@@ -30,7 +29,6 @@ Client mod for the Archipelago multiworld randomizer.
   - If also added: Deliver bounty shape
   - 256 blueprint shapes per second to send goal (not saved if reached earlier)
 - FEATURE:      Need some ideas for expanding upgrade requirements
-  - Dragion: Patterns per category
 - FEATURE:      Buildings functionality randomization, like malfunctioning trap, but permanent
 - FEATURE:      Add music tracks to item pool
 - FEATURE:      producer with 100 "producable shape" items, options: no producer, yes producer, replace extractor
