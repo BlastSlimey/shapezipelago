@@ -31,10 +31,11 @@ Client mod for the Archipelago multiworld randomizer.
 - FEATURE:      Need some ideas for expanding upgrade requirements
 - FEATURE:      Buildings functionality randomization, like malfunctioning trap, but permanent
 - FEATURE:      Add music tracks to item pool
-- FEATURE:      Producer mode: shapes are items, producer replaces extractor
+- FEATURE:      producer with 100 "producable shape" items, options: no producer, yes producer, replace extractor
 - FEATURE:      Expand shapesanity to 4 layers
 - FEATURE:      Option for progressive building variant unlocks
 - FEATURE:      Inflation Trap
+- TECHNICAL:    Place belt and extractor in starting inventory if not locked
 ### Labels
 - IMPORTANT:    Text
 - GOOD LOOKING: Text
