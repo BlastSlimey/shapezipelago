@@ -3,7 +3,6 @@ Client mod for the Archipelago multiworld randomizer.
 
 ## TODO list
 ### APWorld
-- TECHNICAL:    Reposition goal event in own region instead
 ### Client mod
 - FEATURE:      Auto connect & meantime offline playing
   - Disconnect from AP server when returning to main menu
@@ -32,10 +31,9 @@ Client mod for the Archipelago multiworld randomizer.
 - FEATURE:      Buildings functionality randomization, like malfunctioning trap, but permanent
 - FEATURE:      Add music tracks to item pool
 - FEATURE:      producer with 100 "producable shape" items, options: no producer, yes producer, replace extractor
-- FEATURE:      Expand shapesanity to 4 layers
+- FEATURE:      Expand shapesanity to 4 layers (blacklist needed!!!)
 - FEATURE:      Option for progressive building variant unlocks
 - FEATURE:      Inflation Trap
-- TECHNICAL:    Place belt and extractor in starting inventory if not locked
 ### Labels
 - IMPORTANT:    Text
 - GOOD LOOKING: Text
