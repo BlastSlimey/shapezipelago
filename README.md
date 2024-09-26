@@ -13,7 +13,6 @@ Client mod for the Archipelago multiworld randomizer.
 - FEATURE:      Text box (read only), received non-progression items only there
 - FEATURE:      Randomize blueprint shape
 - FEATURE:      Details when checking Level location, custom hubGoal reward, override hud
-- FEATURE:      Translations
 - FEATURE:      Something with energy link
 - TECHNICAL:    getIsUnlocked definition in global data to reuse for locking trap
 - TECHNICAL:    Build input box in HUD class
@@ -34,6 +33,7 @@ Client mod for the Archipelago multiworld randomizer.
 - FEATURE:      Expand shapesanity to 4 layers (blacklist needed!!!)
 - FEATURE:      Option for progressive building variant unlocks
 - FEATURE:      Inflation Trap
+- GOOD LOOKING: Change now_reward to either no_reward_freeplay or custom reward with translation
 ### Labels
 - IMPORTANT:    Text
 - GOOD LOOKING: Text
