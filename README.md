@@ -3,6 +3,8 @@ Client mod for the Archipelago multiworld randomizer.
 
 ## TODO list
 ### APWorld
+- GOOD LOOKING: Maybe OptionError for `lock_balt_and_extractor = true` and `include_achievements = false`? Let's ask in ap-world-dev
+- TECHNICAL:    Add OptionError when more non-filler items than available locations
 ### Client mod
 - FEATURE:      Auto connect & meantime offline playing
   - Disconnect from AP server when returning to main menu
@@ -33,6 +35,8 @@ Client mod for the Archipelago multiworld randomizer.
 - FEATURE:      Expand shapesanity to 4 layers (blacklist needed!!!)
 - FEATURE:      Option for progressive building variant unlocks
 - FEATURE:      Inflation Trap
+- FEATURE:      Mod compatibility and including some features in generation
+  - Portable Micro Hub Receiver
 - GOOD LOOKING: Change now_reward to either no_reward_freeplay or custom reward with translation
 ### Labels
 - IMPORTANT:    Text
