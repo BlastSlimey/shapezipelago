@@ -3,8 +3,6 @@ Client mod for the Archipelago multiworld randomizer.
 
 ## TODO list
 ### APWorld
-- GOOD LOOKING: Maybe OptionError for `lock_balt_and_extractor = true` and `include_achievements = false`? Let's ask in ap-world-dev
-- TECHNICAL:    Add OptionError when more non-filler items than available locations
 ### Client mod
 - FEATURE:      Auto connect & meantime offline playing
   - Disconnect from AP server when returning to main menu
@@ -18,9 +16,10 @@ Client mod for the Archipelago multiworld randomizer.
 - FEATURE:      Something with energy link
 - TECHNICAL:    getIsUnlocked definition in global data to reuse for locking trap
 - TECHNICAL:    Build input box in HUD class
-- TECHNICAL:    storing reoccuring string in global data to prevent errors:
+- TECHNICAL:    storing reoccuring strings in global data to prevent errors:
   - buildings names in requirement_definitions
   - "Shapesanity" and its different types, put together with [].join(" ")
+- GOOD LOOKING: Change no_reward to either no_reward_freeplay or custom reward with translation
 ### Both
 - FEATURE:      Add bounty goal: collect mcguffins, enough of them reveal bounty (always fully randomized shape with up to 4 layers), checking that sends goal (not without enough mcguffins)
 - FEATURE:      Add Maximum goal: all other goals combined
@@ -37,7 +36,6 @@ Client mod for the Archipelago multiworld randomizer.
 - FEATURE:      Inflation Trap
 - FEATURE:      Mod compatibility and including some features in generation
   - Portable Micro Hub Receiver
-- GOOD LOOKING: Change now_reward to either no_reward_freeplay or custom reward with translation
 ### Labels
 - IMPORTANT:    Text
 - GOOD LOOKING: Text
