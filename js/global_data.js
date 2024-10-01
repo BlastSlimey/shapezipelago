@@ -13,7 +13,7 @@ export const methodNames = {
 export const customRewards = {
     belt: "reward_belt",
     extractor: "reward_extractor",
-    cutter: "rewards_cutter",
+    cutter: "reward_cutter",
     wires: "reward_wires",
     switch: "reward_switch",
     trash: "reward_trash",
@@ -227,71 +227,73 @@ export class Connection {
                 const slotData = this.client.data.slotData;
                 var datacache = null;
 
-                datacache = slotData["shapesanity"];
-                if (datacache) datacache = datacache.valueOf();
-                if (datacache instanceof Array) this.shapesanityNames = datacache;
+                datacache = slotData["shapesanity"].valueOf();
+                if (datacache instanceof Array) {
+                    this.shapesanityNames = datacache;
+                    apdebuglog(`Loaded slotData shapesanity (length=${datacache.length})`);
+                } else {
+                    apuserlog(`Error on loading shapesanity from slotData: class=${datacache.constructor.name}`);
+                    modImpl.dialogs.showInfo(shapez.T.mods.shapezipelago.infoBox.impossible.title, 
+                        `${shapez.T.mods.shapezipelago.infoBox.impossible.report}<br />${
+                            shapez.T.mods.shapezipelago.infoBox.impossible.shapesanitySlotData}`);
+                }
 
-                datacache = slotData["goal"].valueOf().toString();
-                if (datacache === "0") this.goal = "vanilla";
-                else if (datacache === "1") this.goal = "mam";
-                else if (datacache === "2") this.goal = "even_fasterer";
-                else if (datacache === "3") this.goal = "efficiency_iii";
-                else this.goal = datacache;
+                this.goal = slotData["goal"].toString();
+                apdebuglog(`Loaded slotData goal=${this.goal}`);
 
-                datacache = Number(slotData["maxlevel"].valueOf());
-                if (this.goal === "vanilla" || this.goal === "mam") this.levelsToGenerate = datacache+1;
-                else this.levelsToGenerate = datacache;
+                this.levelsToGenerate = Number(slotData["maxlevel"]);
+                apdebuglog(`Loaded slotData maxlevel=${this.levelsToGenerate}`);
+                if (this.goal === "vanilla" || this.goal === "mam") this.levelsToGenerate++;
 
-                this.tiersToGenerate = Number(slotData["finaltier"].valueOf());
+                this.tiersToGenerate = Number(slotData["finaltier"]);
+                apdebuglog(`Loaded slotData finaltier=${this.tiersToGenerate}`);
 
                 this.slotId = this.client.data.slot;
+                apdebuglog(`Loaded slotId=${this.slotId}`);
 
                 this.randomStepsLength = new Array(5);
                 for (var phasenumber = 0; phasenumber < 5; phasenumber++) {
-                    datacache = slotData[`Phase ${phasenumber} length`];
-                    if (datacache) this.randomStepsLength[phasenumber] = Number(datacache.valueOf());
-                    else this.randomStepsLength[phasenumber] = 1;
+                    this.randomStepsLength[phasenumber] = Number(slotData[`Phase ${phasenumber} length`]);
+                    apdebuglog(`Loaded slotData randomStepsLength[${phasenumber}]: ${this.randomStepsLength[phasenumber]}`);
                 }
 
                 for (var phasenumber = 1; phasenumber <= 5; phasenumber++) {
-                    this.positionOfLevelBuilding[slotData[`Level building ${phasenumber}`].valueOf().toString()] = phasenumber;
-                    this.positionOfUpgradeBuilding[slotData[`Upgrade building ${phasenumber}`].valueOf().toString()] = phasenumber;
+                    this.positionOfLevelBuilding[slotData[`Level building ${phasenumber}`]] = phasenumber;
+                    this.positionOfUpgradeBuilding[slotData[`Upgrade building ${phasenumber}`]] = phasenumber;
+                }
+                for (var buildingname in this.positionOfLevelBuilding) {
+                    apdebuglog(`Initialized phase number ${this.positionOfLevelBuilding[buildingname]} for level and ${
+                        this.positionOfUpgradeBuilding[buildingname]} for upgrade building ${buildingname}`);
                 }
 
-                datacache = slotData["throughput_levels_ratio"];
-                if (datacache) this.throughputLevelsRatio = Number(datacache.valueOf());
-                else this.throughputLevelsRatio = -1;
+                this.throughputLevelsRatio = Number(slotData["throughput_levels_ratio"]);
+                apdebuglog(`Loaded slotData throughput_levels_ratio=${this.throughputLevelsRatio}`);
 
-                datacache = slotData["randomize_level_logic"].valueOf().toString();
-                if (datacache === "0" || datacache === "1") this.levelsLogic = "vanilla";
-                else if (datacache === "2" || datacache === "3") this.levelsLogic = "stretched";
-                else if (datacache === "4") this.levelsLogic = "hardcore";
-                else this.levelsLogic = datacache;
+                this.levelsLogic = slotData["randomize_level_logic"].toString();
+                apdebuglog(`Loaded slotData randomize_level_logic=${this.levelsLogic}`);
 
-                datacache = slotData["randomize_upgrade_logic"].valueOf().toString();
-                if (datacache === "0") this.upgradesLogic = "vanilla_like";
-                else if (datacache === "1") this.upgradesLogic = "linear";
-                else if (datacache === "2") this.upgradesLogic = "hardcore";
-                else this.upgradesLogic = datacache;
+                this.upgradesLogic = slotData["randomize_upgrade_logic"].toString();
+                apdebuglog(`Loaded slotData randomize_upgrade_logic=${this.upgradesLogic}`);
 
-                this.clientSeed = Number(slotData["seed"].valueOf());
+                this.clientSeed = Number(slotData["seed"]);
+                apdebuglog(`Loaded slotData seed=${this.clientSeed}`);
 
-                this.requiredShapesMultiplier = Number(slotData["required_shapes_multiplier"].valueOf());
+                this.requiredShapesMultiplier = Number(slotData["required_shapes_multiplier"]);
+                apdebuglog(`Loaded slotData required_shapes_multiplier=${this.requiredShapesMultiplier}`);
 
-                this.israndomizedLevels = Boolean(slotData["randomize_level_requirements"].valueOf());
+                this.israndomizedLevels = Boolean(slotData["randomize_level_requirements"]);
+                apdebuglog(`Loaded slotData randomize_level_requirements=${this.israndomizedLevels}`);
 
-                this.isRandomizedUpgrades = Boolean(slotData["randomize_upgrade_requirements"].valueOf());
+                this.isRandomizedUpgrades = Boolean(slotData["randomize_upgrade_requirements"]);
+                apdebuglog(`Loaded slotData randomize_upgrade_requirements=${this.isRandomizedUpgrades}`);
 
                 for (var cat of ["belt", "miner", "processors", "painting"]) {
-                    datacache = slotData[`${cat} category buildings amount`];
-                    if (datacache) this.categoryRandomBuildingsAmounts[cat] = Number(datacache.valueOf());
+                    this.categoryRandomBuildingsAmounts[cat] = Number(slotData[`${cat} category buildings amount`]);
+                    apdebuglog(`Loaded slotData "${cat} category buildings amount"=${this.categoryRandomBuildingsAmounts[cat]}`);
                 }
 
-                this.isSameLate = Boolean(slotData["same_late_upgrade_requirements"].valueOf());
-
-                datacache = slotData["lock_belt_and_extractor"];
-                if (datacache) this.isBeltExtractorLocked = Boolean(datacache.valueOf());
-                else this.isBeltExtractorLocked = false;
+                this.isSameLate = Boolean(slotData["same_late_upgrade_requirements"]);
+                apdebuglog(`Loaded slotData same_late_upgrade_requirements=${this.isSameLate}`);
 
             })
             .catch((error) => {
@@ -346,10 +348,6 @@ export class Connection {
      * @type {boolean}
      */
     isSameLate;
-    /**
-     * @type {boolean}
-     */
-    isBeltExtractorLocked;
     positionOfLevelBuilding = {
         "Cutter": 0,
         "Rotator": 0,

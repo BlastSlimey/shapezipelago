@@ -10,6 +10,7 @@ import { GameRoot } from "shapez/game/root";
 
 var scouted = [true, true, false];
 var examples = [];
+var translated = {};
 
 /**
  * @param {string} autoPlayer
@@ -45,7 +46,7 @@ export function addInputContainer(autoPlayer, autoAddress, autoPort, autoPasswor
             inputContainer.appendChild(statusContainer);
             const playerLabel = document.createElement("h4");
             const playerInput = document.createElement("input");
-            playerLabel.innerText = "Player";
+            playerLabel.innerText = shapez.T.mods.shapezipelago.inputBox.player;
             playerInput.type = "text";
             playerInput.className = "playerInput";
             playerInput.value = autoPlayer;
@@ -53,7 +54,7 @@ export function addInputContainer(autoPlayer, autoAddress, autoPort, autoPasswor
             playerContainer.appendChild(playerInput);
             const addressLabel = document.createElement("h4");
             const addressInput = document.createElement("input");
-            addressLabel.innerText = "Address";
+            addressLabel.innerText = shapez.T.mods.shapezipelago.inputBox.address;
             addressInput.type = "text";
             addressInput.className = "addressInput";
             addressInput.value = autoAddress;
@@ -61,22 +62,26 @@ export function addInputContainer(autoPlayer, autoAddress, autoPort, autoPasswor
             addressContainer.appendChild(addressInput);
             const portLabel = document.createElement("h4");
             const portInput = document.createElement("input");
-            portLabel.innerText = "Port";
+            portLabel.innerText = shapez.T.mods.shapezipelago.inputBox.port;
             portInput.type = "number";
             portInput.value = autoPort;
             portContainer.appendChild(portLabel);
             portContainer.appendChild(portInput);
             const passwordLabel = document.createElement("h4");
             const passwordInput = document.createElement("input");
-            passwordLabel.innerText = "Password";
+            passwordLabel.innerText = shapez.T.mods.shapezipelago.inputBox.password;
             passwordInput.type = "password";
             passwordInput.value = autoPassword;
             passwordContainer.appendChild(passwordLabel);
             passwordContainer.appendChild(passwordInput);
             const statusLabel = document.createElement("h4");
             const statusButton = document.createElement("button");
-            statusLabel.innerText = connection ? "Connected" : "Not Connected";
-            statusButton.innerText = connection ? "Disconnect" : "Connect";
+            statusLabel.innerText = connection ? 
+                shapez.T.mods.shapezipelago.inputBox.connected : 
+                shapez.T.mods.shapezipelago.inputBox.notConnected;
+            statusButton.innerText = connection ? 
+                shapez.T.mods.shapezipelago.inputBox.disconnect : 
+                shapez.T.mods.shapezipelago.inputBox.connect;
             statusButton.classList.add("styledButton", "statusButton");
             statusButton.addEventListener("click", () => {
                 if (!connection) {
@@ -90,16 +95,16 @@ export function addInputContainer(autoPlayer, autoAddress, autoPort, autoPasswor
                     };
                     new Connection().tryConnect(connectInfo, processItemsPacket, () => {
                         if (connection) {
-                            statusLabel.innerText = "Connected";
-                            statusButton.innerText = "Disconnect";
+                            statusLabel.innerText = shapez.T.mods.shapezipelago.inputBox.connected;
+                            statusButton.innerText = shapez.T.mods.shapezipelago.inputBox.disconnect;
                         } else {
-                            statusLabel.innerText = "Connection failed";
+                            statusLabel.innerText = shapez.T.mods.shapezipelago.inputBox.failed;
                         }
                     });
                 } else {
                     connection.disconnect();
-                    statusLabel.innerText = "Disconnected";
-                    statusButton.innerText = "Connect";
+                    statusLabel.innerText = shapez.T.mods.shapezipelago.inputBox.disconnected;
+                    statusButton.innerText = shapez.T.mods.shapezipelago.inputBox.connect;
                 }
             });
             statusContainer.appendChild(statusLabel);
@@ -142,7 +147,7 @@ class HUDShapesanity extends BaseHUDPart {
     createElements(parent) {
         this.background = makeDiv(parent, "ingame_HUD_Shapesanity", ["ingameDialog"]);
         this.dialogInner = makeDiv(this.background, null, ["dialogInner"]);
-        this.title = makeDiv(this.dialogInner, null, ["title"], "Shapesanity");
+        this.title = makeDiv(this.dialogInner, null, ["title"], shapez.T.mods.shapezipelago.shapesanityBox.title);
         this.closeButton = makeDiv(this.title, null, ["closeButton"]);
         this.trackClicks(this.closeButton, this.close);
         this.contentDiv = makeDiv(this.dialogInner, null, ["content"]);
@@ -156,7 +161,7 @@ class HUDShapesanity extends BaseHUDPart {
                 var divElem = makeDiv(this.contentDiv, null, ["shapesanityRow"]);
                 var nextName = document.createElement("span");
                 nextName.classList.add("shapesanityName");
-                nextName.innerText = `${index+1}: ${connection.shapesanityNames[index]}`;
+                nextName.innerText = `${index+1}: ${translateShapesanity(connection.shapesanityNames[index])}`;
                 if (index < scouted.length ? scouted[index] : false) {
                     divElem.classList.add("locationChecked");
                 }
@@ -215,6 +220,20 @@ class HUDShapesanity extends BaseHUDPart {
         return this.visible;
     }
     
+}
+
+/**
+ * @param {string} name
+ */
+function translateShapesanity(name) {
+    if (translated[name])
+        return translated[name];
+    var words = name.split(" ");
+    for (var i = 0; i < words.length; i++)
+        if (shapez.T.mods.shapezipelago.shapesanityBox.name[words[i]])
+            words[i] = shapez.T.mods.shapezipelago.shapesanityBox.name[words[i]];
+    translated[name] = words.join(" ");
+    return translated[name];
 }
 
 const capitalColorNames = {

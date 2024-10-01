@@ -61,7 +61,7 @@ export function overrideLocationsListenToItems() {
                 checkLocation("Checked", false, "Level " + this.level);
             }
             if (connection.goal === "vanilla" || connection.goal === "mam") {
-                if (connection.levelsToGenerate == this.level) {
+                if (connection.levelsToGenerate <= this.level) {
                     checkLocation("Checked", true);
                 }
             }
@@ -140,10 +140,6 @@ export function overrideLocationsListenToItems() {
                     }
                 }
             });
-            if (!connection.isBeltExtractorLocked) {
-                root.hubGoals.gainedRewards[customRewards.belt] = 1;
-                root.hubGoals.gainedRewards[customRewards.extractor] = 1;
-            }
             connection.requestItemPackage();
             resyncLocationChecks(root);
             if (connection.goal === "efficiency_iii") {
@@ -322,15 +318,17 @@ export function overrideBuildings() {
                 this.registerOrReturnHandle(leftSide),
             ]);
         } else {
-            modImpl.dialogs.showInfo("You just found a bug! :)", "Please report this to the author of the mod: "
-                +"<br />definition parameter in shapeActionCutHalf not a ShapeDefinition");
+            modImpl.dialogs.showInfo(shapez.T.mods.shapezipelago.infoBox.impossible.title, 
+                `${shapez.T.mods.shapezipelago.infoBox.impossible.report}<br />${
+                    shapez.T.mods.shapezipelago.infoBox.impossible.shapeActionCutHalf}`);
             return $original(definition); // damn "unknown"
         }
     });
     modImpl.modInterface.replaceMethod(shapez.ShapeDefinitionManager, "shapeActionCutQuad", function ($original, [definition]) {
         if (!(definition instanceof ShapeDefinition)) {
-            modImpl.dialogs.showInfo("You just found a bug! :)", "Please report this to the author of the mod: "
-                +"<br />definition parameter in shapeActionCutQuad not a ShapeDefinition");
+            modImpl.dialogs.showInfo(shapez.T.mods.shapezipelago.infoBox.impossible.title, 
+                `${shapez.T.mods.shapezipelago.infoBox.impossible.report}<br />${
+                    shapez.T.mods.shapezipelago.infoBox.impossible.shapeActionCutQuad}`);
             return $original(definition);
         }
         if (!currentIngame.trapMalfunction.cutter_quad) {
@@ -353,8 +351,9 @@ export function overrideBuildings() {
     });
     modImpl.modInterface.replaceMethod(shapez.ShapeDefinitionManager, "shapeActionRotateCW", function ($original, [definition]) {
         if (!(definition instanceof ShapeDefinition)) {
-            modImpl.dialogs.showInfo("You just found a bug! :)", "Please report this to the author of the mod: "
-                +"<br />definition parameter in shapeActionRotateCW not a ShapeDefinition");
+            modImpl.dialogs.showInfo(shapez.T.mods.shapezipelago.infoBox.impossible.title, 
+                `${shapez.T.mods.shapezipelago.infoBox.impossible.report}<br />${
+                    shapez.T.mods.shapezipelago.infoBox.impossible.shapeActionRotateCW}`);
             return $original(definition);
         }
         if (!currentIngame.trapMalfunction.rotator) {
@@ -372,8 +371,9 @@ export function overrideBuildings() {
     });
     modImpl.modInterface.replaceMethod(shapez.ShapeDefinitionManager, "shapeActionRotateCCW", function ($original, [definition]) {
         if (!(definition instanceof ShapeDefinition)) {
-            modImpl.dialogs.showInfo("You just found a bug! :)", "Please report this to the author of the mod: "
-                +"<br />definition parameter in shapeActionRotateCCW not a ShapeDefinition");
+            modImpl.dialogs.showInfo(shapez.T.mods.shapezipelago.infoBox.impossible.title, 
+                `${shapez.T.mods.shapezipelago.infoBox.impossible.report}<br />${
+                    shapez.T.mods.shapezipelago.infoBox.impossible.shapeActionRotateCCW}`);
             return $original(definition);
         }
         if (!currentIngame.trapMalfunction.rotator_ccw) {
@@ -390,8 +390,9 @@ export function overrideBuildings() {
     });
     modImpl.modInterface.replaceMethod(shapez.ShapeDefinitionManager, "shapeActionRotate180", function ($original, [definition]) {
         if (!(definition instanceof ShapeDefinition)) {
-            modImpl.dialogs.showInfo("You just found a bug! :)", "Please report this to the author of the mod: "
-                +"<br />definition parameter in shapeActionRotate180 not a ShapeDefinition");
+            modImpl.dialogs.showInfo(shapez.T.mods.shapezipelago.infoBox.impossible.title, 
+                `${shapez.T.mods.shapezipelago.infoBox.impossible.report}<br />${
+                    shapez.T.mods.shapezipelago.infoBox.impossible.shapeActionRotate180}`);
             return $original(definition);
         }
         if (!currentIngame.trapMalfunction.rotator_180) {
@@ -415,8 +416,9 @@ export function overrideBuildings() {
     });
     modImpl.modInterface.replaceMethod(shapez.ShapeDefinitionManager, "shapeActionPaintWith", function ($original, [definition, color]) {
         if (!(definition instanceof ShapeDefinition)) {
-            modImpl.dialogs.showInfo("You just found a bug! :)", "Please report this to the author of the mod: "
-                +"<br />definition parameter in shapeActionPaintWith not a ShapeDefinition");
+            modImpl.dialogs.showInfo(shapez.T.mods.shapezipelago.infoBox.impossible.title, 
+                `${shapez.T.mods.shapezipelago.infoBox.impossible.report}<br />${
+                    shapez.T.mods.shapezipelago.infoBox.impossible.shapeActionPaintWith}`);
             return $original(definition);
         }
         if (false) {
@@ -450,8 +452,9 @@ export function overrideBuildings() {
     });
     modImpl.modInterface.replaceMethod(shapez.ShapeDefinitionManager, "shapeActionPaintWith4Colors", function ($original, [definition, colors]) {
         if (!(definition instanceof ShapeDefinition)) {
-            modImpl.dialogs.showInfo("You just found a bug! :)", "Please report this to the author of the mod: "
-                +"<br />definition parameter in shapeActionPaintWith4Colors not a ShapeDefinition");
+            modImpl.dialogs.showInfo(shapez.T.mods.shapezipelago.infoBox.impossible.title, 
+                `${shapez.T.mods.shapezipelago.infoBox.impossible.report}<br />${
+                    shapez.T.mods.shapezipelago.infoBox.impossible.shapeActionPaintWith4Colors}`);
             return $original(definition);
         }
         if (!currentIngame.trapMalfunction.painter_quad) {

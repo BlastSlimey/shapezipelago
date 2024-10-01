@@ -71,12 +71,12 @@ export const receiveItemFunctions = {
         var addedAmount = 0, randomID, requiredShapes, requirement, stored;
         for (var tries = 0; tries < 10 && addedAmount <= 0; tries++) {
             randomID = upgradeIds[Math.floor(Math.random()*4)];
-            requiredShapes = currentIngame.upgradeDefs[randomID][root.hubGoals.getUpgradeLevel(randomID)].required;
+            requiredShapes = currentIngame.upgradeDefs[randomID][Math.min(root.hubGoals.getUpgradeLevel(randomID), connection.tiersToGenerate-2)].required;
             requirement = requiredShapes[Math.floor(Math.random()*requiredShapes.length)];
             for (var tries2 = 0; tries2 < 10 && 
                     requirement.shape === root.hubGoals.currentGoal.definition.getHash(); tries2++) {
                 randomID = upgradeIds[Math.floor(Math.random()*4)];
-                requiredShapes = currentIngame.upgradeDefs[randomID][root.hubGoals.getUpgradeLevel(randomID)].required;
+                requiredShapes = currentIngame.upgradeDefs[randomID][Math.min(root.hubGoals.getUpgradeLevel(randomID), connection.tiersToGenerate-2)].required;
                 requirement = requiredShapes[Math.floor(Math.random()*requiredShapes.length)];
             }
             stored = root.hubGoals.storedShapes[requirement.shape] || 0;
@@ -89,15 +89,17 @@ export const receiveItemFunctions = {
         if (root.hubGoals.storedShapes[requirement.shape] > 0) {
             getShapesanityAnalyser()(ShapeDefinition.fromShortKey(requirement.shape));
         }
-        return `: ${addedAmount} ${requirement.shape} in ${upgradeIdNames[randomID]} Upgrades`;
+        return `: ${addedAmount} ${requirement.shape} ${shapez.T.mods.shapezipelago.itemReceivingBox.extraInfo.upgradeId[randomID]}`;
     },
     "Inventory Draining Trap": (root, resynced) => {
         if (resynced) return "";
         const r = Math.random()*3;
         if (r < 1) {
-            return receiveItemFunctions["Blueprint Shapes Draining Trap"](root, resynced) + ": Blueprint shapes";
+            return receiveItemFunctions["Blueprint Shapes Draining Trap"](root, resynced) + ": " 
+                + shapez.T.mods.shapezipelago.itemReceivingBox.extraInfo.versionBlueprint;
         } else if (r < 2) {
-            return receiveItemFunctions["Level Shapes Draining Trap"](root, resynced) + ": Current level shapes";
+            return receiveItemFunctions["Level Shapes Draining Trap"](root, resynced) + ": " 
+                + shapez.T.mods.shapezipelago.itemReceivingBox.extraInfo.versionLevel;
         } else {
             return receiveItemFunctions["Upgrade Shapes Draining Trap"](root, resynced);
         }
@@ -119,11 +121,11 @@ export const receiveItemFunctions = {
         if (resynced) return "";
         const upgradeIds = ["belt", "miner", "processors", "painting"];
         const randomID = upgradeIds[Math.floor(Math.random()*4)];
-        const requiredShapes = currentIngame.upgradeDefs[randomID][root.hubGoals.getUpgradeLevel(randomID)].required;
+        const requiredShapes = currentIngame.upgradeDefs[randomID][Math.min(root.hubGoals.getUpgradeLevel(randomID), connection.tiersToGenerate-2)].required;
         const requirement = requiredShapes[Math.floor(Math.random()*requiredShapes.length)];
         const stored = root.hubGoals.storedShapes[requirement.shape] || 0;
         root.hubGoals.storedShapes[requirement.shape] = Math.floor((stored || 0) / 2);
-        return `: ${requirement.shape} from ${upgradeIdNames[randomID]} Upgrades`;
+        return `: ${requirement.shape} ${shapez.T.mods.shapezipelago.itemReceivingBox.extraInfo.upgradeId[upgradeIdNames[randomID]]}`;
     },
     "Locked Building Trap": (root, resynced) => {
         if (resynced) return "";
@@ -137,7 +139,8 @@ export const receiveItemFunctions = {
         setTimeout(() => {
             currentIngame.trapLocked[randomBuilding] = false;
         }, randomTimeSec*1000);
-        return `: ${baseBuildingNames[randomBuilding]} for ${randomTimeSec} seconds`;
+        return `: ${shapez.T.mods.shapezipelago.itemReceivingBox.item[baseBuildingNames[randomBuilding]]} ${
+            shapez.T.mods.shapezipelago.itemReceivingBox.extraInfo.time.replace("<x>", randomTimeSec)}`;
     },
     "Throttled Building Trap": (root, resynced) => {
         if (resynced) return "";
@@ -151,7 +154,8 @@ export const receiveItemFunctions = {
         setTimeout(() => {
             currentIngame.trapThrottled[randomBuilding] = false;
         }, randomTimeSec*1000);
-        return `: ${baseBuildingNames[randomBuilding]} for ${randomTimeSec} seconds`;
+        return `: ${shapez.T.mods.shapezipelago.itemReceivingBox.item[baseBuildingNames[randomBuilding]]} ${
+            shapez.T.mods.shapezipelago.itemReceivingBox.extraInfo.time.replace("<x>", randomTimeSec)}`;
     },
     "Malfunctioning Trap": (root, resynced) => {
         if (resynced) return "";
@@ -165,7 +169,8 @@ export const receiveItemFunctions = {
         setTimeout(() => {
             currentIngame.trapMalfunction[randomBuilding] = false;
         }, randomTimeSec*1000);
-        return `: ${baseBuildingNames[randomBuilding]} for ${randomTimeSec} seconds`;
+        return `: ${shapez.T.mods.shapezipelago.itemReceivingBox.item[baseBuildingNames[randomBuilding]]} ${
+            shapez.T.mods.shapezipelago.itemReceivingBox.extraInfo.time.replace("<x>", randomTimeSec)}`;
     }
 };
 
@@ -195,25 +200,55 @@ export function checkLocation(resyncMessage, goal, ...names) {
  * @param {import("archipelago.js").ReceivedItemsPacket} packet
  */
 export function processItemsPacket(packet) {
-    if (!currentIngame)
-        return;
     apdebuglog("Received packet with " + packet.items.length + 
         " items and reported index " + packet.index + 
         ", while having " + currentIngame.processedItemCount + " items");
+    // Prevent errors in main menu
+    if (!currentIngame)
+        return;
+    // Only use packets that have all items as they are sent every time
     if (packet.index != 0)
         return;
-    if (currentIngame.processedItemCount + 1 >= packet.items.length) {
-        for (var i = currentIngame.processedItemCount; i < packet.items.length; i++) {
-            receiveItem(packet.items[i], true, false);
-            currentIngame.processedItemCount++;
+    // Resync already received items at first packet
+    if (!currentIngame.isItemsResynced) {
+        currentIngame.isItemsResynced = true;
+        // Resetting gained rewards to 0 (mostly used like a boolean)
+        for (var reward in currentIngame.root.hubGoals.gainedRewards) {
+            currentIngame.root.hubGoals.gainedRewards[reward] = 0;
         }
+        // Resetting upgrade improvements to 1 (it's a multiplier)
+        for (var id in currentIngame.root.hubGoals.upgradeImprovements) {
+            currentIngame.root.hubGoals.upgradeImprovements[id] = 1;
+        }
+        // Re-receive items without popup
+        const cachedprocessedItemCount = currentIngame.processedItemCount;
+        for (var i = 0; i < cachedprocessedItemCount; i++) {
+            receiveItem(packet.items[i], false, true);
+        }
+        // Backwards compatibility to 0.5.3
+        const datacache = connection.client.data.slotData["lock_belt_and_extractor"];
+        if (datacache != null) {
+            apdebuglog(`Loaded lock_belt_and_extractor as backwards compatibility: ${datacache}`);
+            if (!datacache) {
+                currentIngame.root.hubGoals.gainedRewards[customRewards.belt] = 1;
+                currentIngame.root.hubGoals.gainedRewards[customRewards.extractor] = 1;
+            }
+        } else {
+            apdebuglog("No lock_belt_and_extractor found in slotData");
+        }
+    }
+    if (currentIngame.processedItemCount == packet.items.length) {
+        apdebuglog("Items up-to-date");
+    } else if (currentIngame.processedItemCount == packet.items.length - 1) {
+        receiveItem(packet.items[currentIngame.processedItemCount], true, false);
+        currentIngame.processedItemCount++;
     } else {
         var itemCounting = [];
         for (var i = currentIngame.processedItemCount; i < packet.items.length; i++) {
             itemCounting.push(receiveItem(packet.items[i], false, false));
             currentIngame.processedItemCount++;
         }
-        modImpl.dialogs.showInfo("Items received!", itemCounting.join("<br />"));
+        modImpl.dialogs.showInfo(shapez.T.mods.shapezipelago.itemReceivingBox.title.multiple, itemCounting.join("<br />"));
     }
 }
 
@@ -228,11 +263,14 @@ function receiveItem(item, showInfo, resynced) {
     if (showInfo) {
         const sendingPlayerName = connection.getPlayername(item.player);
         const foundLocationName = connection.getLocationName(item.player, item.location);
-        modImpl.dialogs.showInfo("Item received!", 
-            itemName + message + "<br />found by " + sendingPlayerName + " at " + foundLocationName);
+        modImpl.dialogs.showInfo(shapez.T.mods.shapezipelago.itemReceivingBox.title.single, 
+            shapez.T.mods.shapezipelago.itemReceivingBox.item[itemName] + message + "<br />" + 
+                shapez.T.mods.shapezipelago.itemReceivingBox.foundBy
+                    .replace("<player>", sendingPlayerName)
+                    .replace("<location>", foundLocationName));
         return "";
     } else {
-        return itemName + message;
+        return shapez.T.mods.shapezipelago.itemReceivingBox.item[itemName] + message;
     }
 }
 
@@ -261,9 +299,12 @@ function ordered(part1, part2, part3 = null, part4 = null) {
  * @param {string} letter3 
  * @param {string} letter4 
  */
-function orderedOnlyDifferent(letter1, letter2, letter3, letter4 = "-") {
-    var arr = [letter1, letter2, letter3, letter4].sort();
-    return arr[0] + arr[1] + arr[2] + arr[3];
+function orderedOnlyDifferent(letter1, letter2, letter3, letter4 = null) {
+    if (letter4 == null) {
+        return [letter1, letter2, letter3].sort().join("") + "-";
+    } else {
+        return [letter1, letter2, letter3, letter4].sort().join("");
+    }
 }
 
 export function getShapesanityAnalyser() {

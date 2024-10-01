@@ -1,0 +1,114 @@
+mods:
+  shapezipelago:
+    inputBox:
+      player: Spieler
+      address: Adresse
+      port: Port
+      password: Passwort
+      connect: Verbinden
+      disconnect: Verbindung trennen
+      connected: Verbunden
+      notConnected: Nicht verbunden
+      disconnected: Verbindung getrennt
+      failed: Verbindung fehlgeschlagen
+    shapesanityBox:
+      title: Shapesanity
+      name:
+        Uncolored: Farblose(r/s)
+        Red: Rote(r/s)
+        Green: Grüne(r/s)
+        Blue: Blaue(r/s)
+        Yellow: Gelbe(r/s)
+        Cyan: Türkise(r/s)
+        Purple: Lila
+        White: Weiße(r/s)
+        Circle: Kreis
+        Square: Quadrat
+        Star: Stern
+        Windmill: Windmühle
+        Half: Halbe(r/s)
+        Cornered: Angeeckte(r/s)
+        3-1: 3-1
+        2-1: 2-1
+        2-1-1: 2-1-1
+        Half-Half: Halbe-halbe
+        Checkered: Kariert aus
+        Adjacent: Anliegende
+        Singles: Einzelne
+        Piece: Stück
+        Cut: Ausgeschnittene(r/s)
+        Out: ""
+    infoBox:
+      impossible:
+        title: Du hast gerade einen Bug gefunden! :)
+        report: Bitte zeige dies dem Modentwickler:...
+        shapeActionCutHalf: definition-Parameter in shapeActionCutHalf keine ShapeDefinition
+        shapeActionCutQuad: definition-Parameter in shapeActionCutQuad keine ShapeDefinition
+        shapeActionRotateCW: definition-Parameter in shapeActionRotateCW keine ShapeDefinition
+        shapeActionRotateCCW: definition-Parameter in shapeActionRotateCCW keine ShapeDefinition
+        shapeActionRotate180: definition-Parameter in shapeActionRotate180 keine ShapeDefinition
+        shapeActionStack: definition-Parameter in shapeActionPaintWith keine ShapeDefinition
+        shapeActionPaintWith4Colors: definition-Parameter in shapeActionPaintWith4Colors keine ShapeDefinition
+        shapesanitySlotData: Shapesanity-SlotData ist kein Array
+    itemReceivingBox:
+      title:
+        single: Item erhalten!
+        multiple: Items erhalten!
+      item:
+        Belt: Fließband
+        Extractor: Extraktor
+        Cutter: Schneider
+        Rotator: Rotierer
+        Painter: Färber
+        Rotator (CCW): Rotierer (-90°)
+        Color Mixer: Farbmischer
+        Stacker: Stapler
+        Quad Cutter: Schneider (vierfach)
+        Double Painter: Färber (zweifach)
+        Rotator (180°): Rotierer (180°)
+        Quad Painter: Färber (vierfach)
+        Balancer: Verteiler
+        Tunnel: Tunnel
+        Compact Merger: Kombinierer (kompakt)
+        Tunnel Tier II: Tunnel Stufe II
+        Compact Splitter: Aufteiler (kompakt)
+        Trash: Mülleimer
+        Chaining Extractor: Extraktor (Kette)
+        Belt Reader: Fließbandkontrolle
+        Storage: Speicher
+        Switch: Schalter
+        Item Filter: Itemfilter
+        Display: Anzeige
+        Wires: Signalkabel
+        Constant Signal: Signalgeber
+        Logic Gates: Logikgatter
+        Virtual Processing: Virtuelle Verarbeitung
+        Blueprints: Blaupausen
+        Big Belt Upgrade: Großes Fließbänderupgrade
+        Big Miner Upgrade: Großes Extraktorenupgrade
+        Big Processors Upgrade: Großes Verarbeitungsupgrade
+        Big Painting Upgrade: Großes Färbeupgrade
+        Small Belt Upgrade: Kleines Fließbänderupgrade
+        Small Miner Upgrade: Kleines Extraktorenupgrade
+        Small Processors Upgrade: Kleines Verarbeitungsupgrade
+        Small Painting Upgrade: Kleines Färbeupgrade
+        Blueprint Shapes Bundle: Blaupausenformenbündel
+        Level Shapes Bundle: Levelformenbündel
+        Upgrade Shapes Bundle: Upgradeformenbündel
+        Inventory Draining Trap: Inventarentleerungsfalle
+        Blueprint Shapes Draining Trap: Blaupausenformenentleerungsfalle
+        Level Shapes Draining Trap: Levelformenentleerungsfalle
+        Upgrade Shapes Draining Trap: Upgradeformenentleerungsfalle
+        Locked Building Trap: Gesperrtes-Gebäude-Falle
+        Throttled Building Trap: Verlangsamtes-Gebäude-Falle
+        Malfunctioning Trap: Funktionsstörungsfalle
+      foundBy: gefunden von <player> in <location>
+      extraInfo:
+        upgradeId:
+          belt: in den Fließbänderupgrades
+          miner: in den Extraktorenupgrades
+          processors: in den Verarbeitungsupgrades
+          painting: in den Färbeupgrades
+        versionBlueprint: Blaupausenformen
+        versionLevel: Aktuelle Levelformen
+        time: für <x> Sekunden

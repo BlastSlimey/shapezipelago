@@ -243,8 +243,8 @@ export function randomizedStretchedShapes(randomizer) {
             throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio});
     };
     if (throughputratio == -1) {
-        levelsdefs[14].throughputOnly = true;
-        for (var i = 27; i < levelsdefs.length; i++) {
+        levelsdefs[13].throughputOnly = true;
+        for (var i = 26; i < levelsdefs.length; i++) {
             levelsdefs[i].throughputOnly = true;
         }
     }
@@ -386,7 +386,7 @@ export function randomizedRandomStepsShapes(randomizer) {
     const phase = connection.positionOfLevelBuilding;
     const phaselength = connection.randomStepsLength;
     const levelstogenerate = connection.levelsToGenerate;
-    for (var i = 0; i <= phaselength[0]; i++) { // <= phase0 because first level always no building and potentially phase0 == 0
+    for (var i = 0; i <= phaselength[0]; i++) { // "<=" phase[0] because first level always no building and potentially phase0 == 0
         levelsdefs.push({shape: calcRandomShape(randomizer, false, false, false, false, false), 
             required: Math.ceil((30+30*i)*multiplier/10), reward: enumHubGoalRewards.no_reward,
                 throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio});
@@ -465,8 +465,8 @@ export function randomizedHardcoreShapes(randomizer) {
             throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio});
     };
     if (throughputratio == -1) {
-        levelsdefs[14].throughputOnly = true;
-        for (var i = 27; i < levelsdefs.length; i++) {
+        levelsdefs[13].throughputOnly = true;
+        for (var i = 26; i < levelsdefs.length; i++) {
             levelsdefs[i].throughputOnly = true;
         }
     }

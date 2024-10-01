@@ -17,14 +17,14 @@ export function registerSavingData() {
     });
     modImpl.signals.gameDeserialized.add((root, data) => {
         if (connection) {
-            for (var modDataName in data.modExtraData) {
+            /*for (var modDataName in data.modExtraData) {
                 if (modDataName.startsWith("reward_")) {
                     root.hubGoals.gainedRewards[modDataName] = data.modExtraData[modDataName] || 0;
                 }
             }
             for (var upgradeName in root.hubGoals.upgradeImprovements) {
                 root.hubGoals.upgradeImprovements[upgradeName] = data.modExtraData["improvement_"+upgradeName] || 1;
-            }
+            }*/
             currentIngame.processedItemCount = data.modExtraData["processedItemCount"] || 0;
             apdebuglog("Deserialized with processed item count " + currentIngame.processedItemCount);
         }

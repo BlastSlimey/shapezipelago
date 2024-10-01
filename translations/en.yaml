@@ -1,0 +1,115 @@
+mods:
+  shapezipelago:
+    inputBox:
+      player: Player
+      address: Address
+      port: Port
+      password: Password
+      connect: Connect
+      disconnect: Disconnect
+      connected: Connected
+      notConnected: Not connected
+      disconnected: Disconnected
+      failed: Connection failed
+    shapesanityBox:
+      title: Shapesanity
+      name:
+        Uncolored: Uncolored
+        Red: Red
+        Green: Green
+        Blue: Blue
+        Yellow: Yellow
+        Cyan: Cyan
+        Purple: Purple
+        White: White
+        Circle: Circle
+        Square: Square
+        Star: Star
+        Windmill: Windmill
+        Half: Half
+        Cornered: Cornered
+        3-1: 3-1
+        2-1: 2-1
+        2-1-1: 2-1-1
+        Half-Half: Half-Half
+        Checkered: Checkered
+        Adjacent: Adjacent
+        Singles: Singles
+        Piece: Piece
+        Cut: Cut
+        Out: Out
+    infoBox:
+      impossible:
+        title: You just found a bug! :)
+        report: Please report this to the author of the mod:...
+        shapeActionCutHalf: definition parameter in shapeActionCutHalf not a ShapeDefinition
+        shapeActionCutQuad: definition parameter in shapeActionCutQuad not a ShapeDefinition
+        shapeActionRotateCW: definition parameter in shapeActionRotateCW not a ShapeDefinition
+        shapeActionRotateCCW: definition parameter in shapeActionRotateCCW not a ShapeDefinition
+        shapeActionRotate180: definition parameter in shapeActionRotate180 not a ShapeDefinition
+        shapeActionStack: definition parameter in shapeActionPaintWith not a ShapeDefinition
+        shapeActionPaintWith4Colors: definition parameter in shapeActionPaintWith4Colors not a ShapeDefinition
+        shapesanitySlotData: shapesanity slotData is not an array
+    itemReceivingBox:
+      title:
+        single: Item received!
+        multiple: Items received!
+      item:
+        Belt: Belt
+        Extractor: Extractor
+        Cutter: Cutter
+        Rotator: Rotator
+        Painter: Painter
+        Rotator (CCW): Rotator (CCW)
+        Color Mixer: Color Mixer
+        Stacker: Stacker
+        Quad Cutter: Quad Cutter
+        Double Painter: Double Painter
+        Rotator (180°): Rotator (180°)
+        Quad Painter: Quad Painter
+        Balancer: Balancer
+        Tunnel: Tunnel
+        Compact Merger: Compact Merger
+        Tunnel Tier II: Tunnel Tier II
+        Compact Splitter: Compact Splitter
+        Trash: Trash
+        Chaining Extractor: Chaining Extractor
+        Belt Reader: Belt Reader
+        Storage: Storage
+        Switch: Switch
+        Item Filter: Item Filter
+        Display: Display
+        Wires: Wires
+        Constant Signal: Constant Signal
+        Logic Gates: Logic Gates
+        Virtual Processing: Virtual Processing
+        Blueprints: Blueprints
+        Big Belt Upgrade: Big Belt Upgrade
+        Big Miner Upgrade: Big Miner Upgrade
+        Big Processors Upgrade: Big Processors Upgrade
+        Big Painting Upgrade: Big Painting Upgrade
+        Small Belt Upgrade: Small Belt Upgrade
+        Small Miner Upgrade: Small Miner Upgrade
+        Small Processors Upgrade: Small Processors Upgrade
+        Small Painting Upgrade: Small Painting Upgrade
+        Blueprint Shapes Bundle: Blueprint Shapes Bundle
+        Level Shapes Bundle: Level Shapes Bundle
+        Upgrade Shapes Bundle: Upgrade Shapes Bundle
+        Inventory Draining Trap: Inventory Draining Trap
+        Blueprint Shapes Draining Trap: Blueprint Shapes Draining Trap
+        Level Shapes Draining Trap: Level Shapes Draining Trap
+        Upgrade Shapes Draining Trap: Upgrade Shapes Draining Trap
+        Locked Building Trap: Locked Building Trap
+        Throttled Building Trap: Throttled Building Trap
+        Malfunctioning Trap: Malfunctioning Trap
+      foundBy: found by <player> at <location>
+      extraInfo:
+        upgradeId:
+          Belt: from Belt Upgrades
+          Miner: from Miner Upgrades
+          Processors: from Processors Upgrades
+          Painting: from Painting Upgrades
+        versionBlueprint: Blueprint shapes
+        versionLevel: Current level shapes
+        time: for <x> seconds
+
