@@ -37,6 +37,7 @@ Client mod for the Archipelago multiworld randomizer.
 - FEATURE:      Inflation Trap
 - FEATURE:      Mod compatibility and including some features in generation
   - Portable Micro Hub Receiver
+- FEATURE:      exckude floating shapes option
 ### Labels
 - IMPORTANT:    Text
 - GOOD LOOKING: Text
