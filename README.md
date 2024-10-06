@@ -16,10 +16,10 @@ Client mod for the Archipelago multiworld randomizer.
 - FEATURE:      Something with energy link
 - TECHNICAL:    Build input box in HUD class
 - TECHNICAL:    storing reoccuring strings in global data to prevent errors:
-  - buildings names in requirement_definitions
   - "Shapesanity" and its different types, put together with [].join(" ")
 - FEATURE:      complexity for generating shapes, complexity is determined by level/tier, certain randomizer calls while creating different parts need certain complexity
-- TECHNICAL:    move rewquired amount calculation to function, lvl 1-26 always vanilla, 27+ always 2700-100000
+- TECHNICAL:    move rewquired amount calculation to function, lvl 1-26 always vanilla, 27+ always 51350-100000
+- TECHNICAL:    merge level requirement generation using phases
 ### Both
 - FEATURE:      Add bounty goal: collect mcguffins, enough of them reveal bounty (always fully randomized shape with up to 4 layers), checking that sends goal (not without enough mcguffins)
 - FEATURE:      Add Maximum goal: all other goals combined
@@ -36,7 +36,7 @@ Client mod for the Archipelago multiworld randomizer.
 - FEATURE:      Inflation Trap
 - FEATURE:      Mod compatibility and including some features in generation
   - Portable Micro Hub Receiver
-- FEATURE:      exckude floating shapes option
+- FEATURE:      include floating shapes option
 ### Labels
 - IMPORTANT:    Text
 - GOOD LOOKING: Text
