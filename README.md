@@ -19,6 +19,7 @@ Client mod for the Archipelago multiworld randomizer.
   - "Shapesanity" and its different types, put together with [].join(" ")
 - FEATURE:      complexity for generating shapes, complexity is determined by level/tier, certain randomizer calls while creating different parts need certain complexity
 - TECHNICAL:    merge level requirement generation using phases
+- TECHNICAL:    Rework building overrides for future mod compatibility
 ### Both
 - FEATURE:      Add bounty goal: collect mcguffins, enough of them reveal bounty (always fully randomized shape with up to 4 layers), checking that sends goal (not without enough mcguffins)
 - FEATURE:      Add Maximum goal: all other goals combined
