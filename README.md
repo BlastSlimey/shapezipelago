@@ -32,7 +32,7 @@ Client mod for the Archipelago multiworld randomizer.
 - FEATURE:      Add music tracks to item pool (is that even possible?)
 - FEATURE:      producer with 100 "producable shape" items, options: no producer, yes producer, replace extractor
 - FEATURE:      Expand shapesanity to 4 layers (blacklist needed!!!)
-- FEATURE:      Option for progressive building variant unlocks
+- FEATURE:      Option for how to unlock building variants, choice: individual, progressive, progressive lenient
 - FEATURE:      Inflation Trap
 - FEATURE:      Mod compatibility and including some features in generation
   - Portable Micro Hub Receiver
