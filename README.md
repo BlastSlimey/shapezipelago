@@ -29,7 +29,7 @@ Client mod for the Archipelago multiworld randomizer.
   - 256 blueprint shapes per second to send goal (not saved if reached earlier)
 - FEATURE:      Need some ideas for expanding upgrade requirements
 - FEATURE:      Buildings functionality randomization, like malfunctioning trap, but permanent
-- FEATURE:      Add music tracks to item pool
+- FEATURE:      Add music tracks to item pool (is that even possible?)
 - FEATURE:      producer with 100 "producable shape" items, options: no producer, yes producer, replace extractor
 - FEATURE:      Expand shapesanity to 4 layers (blacklist needed!!!)
 - FEATURE:      Option for progressive building variant unlocks
@@ -37,6 +37,17 @@ Client mod for the Archipelago multiworld randomizer.
 - FEATURE:      Mod compatibility and including some features in generation
   - Portable Micro Hub Receiver
 - FEATURE:      include floating shapes option
+- FEATURE:      Cosmetic randomization (togglable)
+  - Shape drawings
+  - Tooltips
+    - Image
+    - Name
+    - Description
+  - Toolbar ordering
+  - silhouette color
+  - building variants
+  - sound effects
+  - shop order
 ### Labels
 - IMPORTANT:    Text
 - GOOD LOOKING: Text
