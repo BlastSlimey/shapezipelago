@@ -48,6 +48,7 @@ Client mod for the Archipelago multiworld randomizer.
   - building variants
   - sound effects
   - shop order
+- TECHNICAL:    Optoon to make items with random effect dependent on receiveditems index
 ### Labels
 - IMPORTANT:    Text
 - GOOD LOOKING: Text
