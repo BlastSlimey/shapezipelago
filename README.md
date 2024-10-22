@@ -4,9 +4,7 @@ Client mod for the Archipelago multiworld randomizer.
 ## TODO list
 ### APWorld
 ### Client mod
-- FEATURE:      Auto connect & meantime offline playing
-  - Disconnect from AP server when returning to main menu
-  - Save login details in save files and automatically connect
+- FEATURE:      meantime offline playing
   - connecting in main menu and loading save overwrites login data, but not gameplay altering data
   - Save all slot data in save file
   - when connected replace ap inventory, else load from save file
