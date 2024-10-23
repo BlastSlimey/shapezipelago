@@ -3,6 +3,7 @@ Client mod for the Archipelago multiworld randomizer.
 
 ## TODO list
 ### APWorld
+- TECHNICAL:    Overhaul item classifications, make dynamic based on player options
 ### Client mod
 - FEATURE:      meantime offline playing
   - connecting in main menu and loading save overwrites login data, but not gameplay altering data
@@ -18,6 +19,7 @@ Client mod for the Archipelago multiworld randomizer.
 - FEATURE:      complexity for generating shapes, complexity is determined by level/tier, certain randomizer calls while creating different parts need certain complexity
 - TECHNICAL:    merge level requirement generation using phases
 - TECHNICAL:    Rework building overrides for future mod compatibility
+- FEATURE:      Settings for default connect info
 ### Both
 - FEATURE:      Add bounty goal: collect mcguffins, enough of them reveal bounty (always fully randomized shape with up to 4 layers), checking that sends goal (not without enough mcguffins)
 - FEATURE:      Add Maximum goal: all other goals combined
