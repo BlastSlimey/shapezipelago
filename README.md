@@ -37,6 +37,17 @@ Client mod for the Archipelago multiworld randomizer.
 - FEATURE:      Inflation Trap
 - FEATURE:      Mod compatibility and including some features in generation
   - Portable Micro Hub Receiver
+  - Quad Stacker
+  - SkUpdate
+  - Shapez Expanded Buildings/Shapes
+    - Flowers and gems generate weirdly
+  - Packaging
+  - Edge Rotation
+  - Lazer Cutting
+  - Buy Land
+  - Wrexcavator
+  - Plantz
+  - Hexagonal
 - FEATURE:      include floating shapes option
 - FEATURE:      Cosmetic randomization (togglable)
   - Shape drawings
