@@ -20,6 +20,7 @@ Client mod for the Archipelago multiworld randomizer.
 - TECHNICAL:    merge level requirement generation using phases
 - TECHNICAL:    Rework building overrides for future mod compatibility
 - FEATURE:      Settings for default connect info
+- FEATURE:      Setting "Auto disconnect when returning to main menu"
 ### Both
 - FEATURE:      Add bounty goal: collect mcguffins, enough of them reveal bounty (always fully randomized shape with up to 4 layers), checking that sends goal (not without enough mcguffins)
 - FEATURE:      Add Maximum goal: all other goals combined
