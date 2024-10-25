@@ -61,6 +61,7 @@ Client mod for the Archipelago multiworld randomizer.
   - sound effects
   - shop order
 - TECHNICAL:    Option to make items with random effect dependent on receiveditems index
+- FEATURE:      Gifting mechanic for other games by making certain shapes, only filler/including useful/including progression
 ### Labels
 - IMPORTANT:    Text
 - GOOD LOOKING: Text
