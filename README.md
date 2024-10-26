@@ -3,7 +3,6 @@ Client mod for the Archipelago multiworld randomizer.
 
 ## TODO list
 ### APWorld
-- TECHNICAL:    Overhaul item classifications, make dynamic based on player options
 ### Client mod
 - FEATURE:      meantime offline playing
   - connecting in main menu and loading save overwrites login data, but not gameplay altering data
