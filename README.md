@@ -17,7 +17,6 @@ Client mod for the Archipelago multiworld randomizer.
   - "Shapesanity" and its different types, put together with [].join(" ")
 - TECHNICAL:    merge level requirement generation using phases
 - TECHNICAL:    Rework building overrides for future mod compatibility
-- FEATURE:      include floating shapes option, floating shapes require cutter+rotator+stacker
 ### Both
 - FEATURE:      Add bounty goal: collect mcguffins, enough of them reveal bounty (always fully randomized shape with up to 4 layers), checking that sends goal (not without enough mcguffins)
 - FEATURE:      Add Maximum goal: all other goals combined
