@@ -9,7 +9,6 @@ Client mod for the Archipelago multiworld randomizer.
   - Save all slot data in save file
   - when connected replace ap inventory, else load from save file
 - FEATURE:      Text box (read only), received non-progression items only there
-- FEATURE:      Randomize blueprint shape
 - FEATURE:      Details when checking Level location, custom hubGoal reward, override hud
 - FEATURE:      Something with energy link
 - TECHNICAL:    Build input box in HUD class
@@ -17,6 +16,7 @@ Client mod for the Archipelago multiworld randomizer.
   - "Shapesanity" and its different types, put together with [].join(" ")
 - TECHNICAL:    merge level requirement generation using phases
 - TECHNICAL:    Rework building overrides for future mod compatibility
+- TECHNICAL:    Rework item receiving from "only index 0" to expected behavior
 ### Both
 - FEATURE:      Add bounty goal: collect mcguffins, enough of them reveal bounty (always fully randomized shape with up to 4 layers), checking that sends goal (not without enough mcguffins)
 - FEATURE:      Add Maximum goal: all other goals combined
@@ -24,6 +24,7 @@ Client mod for the Archipelago multiworld randomizer.
   - All upgrades up to goal_amount
   - If also added: Deliver bounty shape
   - 256 blueprint shapes per second to send goal (not saved if reached earlier)
+- FEATURE:      Randomize blueprint shape
 - FEATURE:      Need some ideas for expanding upgrade requirements
 - FEATURE:      Buildings functionality randomization, like malfunctioning trap, but permanent
 - FEATURE:      Add music tracks to item pool (is that even possible?)
