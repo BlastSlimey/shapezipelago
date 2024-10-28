@@ -1,8 +1,8 @@
-import { apdebuglog, connection, currentIngame, customRewards, methodNames, modImpl, roman, upgradeIdNames } from "./global_data";
+import { apdebuglog, aptry, connection, currentIngame, customRewards, methodNames, modImpl, roman, upgradeIdNames } from "./global_data";
 import { RandomNumberGenerator } from "shapez/core/rng";
 import { categoryRandomUpgradeShapes, categoryUpgradeShapes, hardcoreUpgradeShapes, linearUpgradeShapes, randomizedHardcoreShapes, randomizedQuickShapes, randomizedRandomStepsShapes, randomizedStretchedShapes, randomizedVanillaStepsShapes, vanillaLikeUpgradeShapes, vanillaShapes, vanillaUpgradeShapes } from "./requirement_definitions";
 import { MOD_SIGNALS } from "shapez/mods/mod_signals";
-import { checkLocation, getShapesanityAnalyser } from "./server_communication";
+import { checkLocation, shapesanityAnalyzer } from "./server_communication";
 import { enumAnalyticsDataSource } from "shapez/game/production_analytics";
 import { defaultBuildingVariant } from "shapez/game/meta_building";
 import { enumPainterVariants } from "shapez/game/buildings/painter";
@@ -17,17 +17,22 @@ import { MetaHubBuilding } from "shapez/game/buildings/hub";
 import { Vector } from "shapez/core/vector";
 import { globalConfig } from "shapez/core/config";
 import { enumHubGoalRewards } from "shapez/game/tutorial_goals";
+import { enumCutterVariants } from "shapez/game/buildings/cutter";
+import { enumRotaterVariants } from "shapez/game/buildings/rotater";
+import { GAME_LOADING_STATES } from "shapez/states/ingame";
+import { enumColors } from "shapez/game/colors";
 
 export function overrideGameMode() {
     apdebuglog("Calling overrideGameMode");
     modImpl.modInterface.replaceMethod(shapez.RegularGameMode, "getUpgrades", function ($original, []) {
         if (connection) {
-            if (currentIngame.upgradeDefs) {
-                return currentIngame.upgradeDefs;
-            }
-            apdebuglog("Calculating upgrade definitions");
-            currentIngame.upgradeDefs = calcUpgradeDefinitions();
-            MOD_SIGNALS.modifyUpgrades.dispatch(currentIngame.upgradeDefs);
+            aptry("Upgrade definitions failed", () => {
+                if (!currentIngame.upgradeDefs) {
+                    apdebuglog("Calculating upgrade definitions");
+                    currentIngame.upgradeDefs = calcUpgradeDefinitions();
+                    // MOD_SIGNALS.modifyUpgrades.dispatch(currentIngame.upgradeDefs);
+                }
+            });
             return currentIngame.upgradeDefs;
         } else {
             return $original();
@@ -35,12 +40,13 @@ export function overrideGameMode() {
     });
     modImpl.modInterface.replaceMethod(shapez.RegularGameMode, "getLevelDefinitions", function ($original, []) {
         if (connection) {
-            if (currentIngame.levelDefs) {
-                return currentIngame.levelDefs;
-            }
-            apdebuglog("Calculating level definitions");
-            currentIngame.levelDefs = calcLevelDefinitions();
-            MOD_SIGNALS.modifyLevelDefinitions.dispatch(currentIngame.levelDefs);
+            aptry("Level definitions failed", () => {
+                if (!currentIngame.levelDefs) {
+                    apdebuglog("Calculating level definitions");
+                    currentIngame.levelDefs = calcLevelDefinitions();
+                    // MOD_SIGNALS.modifyLevelDefinitions.dispatch(currentIngame.levelDefs);
+                }
+            });
             return currentIngame.levelDefs;
         } else {
             return $original();
@@ -52,102 +58,114 @@ export function overrideLocationsListenToItems() {
     apdebuglog("Calling overrideLocationsListenToItems");
     modImpl.modInterface.replaceMethod(shapez.HubGoals, "onGoalCompleted", function($original, []) {
         if (connection) {
-            this.root.app.gameAnalytics.handleLevelCompleted(this.level);
-            if (this.level == 1) {
-                checkLocation("Checked", false, "Level 1", "Level 1 Additional");
-            } else if (this.level == 20) {
-                checkLocation("Checked", false, "Level 20", "Level 20 Additional", "Level 20 Additional 2");
-            } else {
-                checkLocation("Checked", false, "Level " + this.level);
-            }
-            if (connection.goal === "vanilla" || connection.goal === "mam") {
-                if (connection.levelsToGenerate <= this.level) {
-                    checkLocation("Checked", true);
+            aptry("Completing level failed", () => {
+                this.root.app.gameAnalytics.handleLevelCompleted(this.level);
+                if (this.level == 1) {
+                    checkLocation("Checked", false, "Level 1", "Level 1 Additional");
+                } else if (this.level == 20) {
+                    checkLocation("Checked", false, "Level 20", "Level 20 Additional", "Level 20 Additional 2");
+                } else {
+                    checkLocation("Checked", false, "Level " + this.level);
                 }
-            }
-            ++this.level;
-            this.computeNextGoal();
-            this.root.signals.storyGoalCompleted.dispatch(this.level - 1, enumHubGoalRewards.no_reward);
+                if (connection.goal === "vanilla" || connection.goal === "mam") {
+                    if (connection.levelsToGenerate <= this.level) {
+                        checkLocation("Checked", true);
+                    }
+                }
+                ++this.level;
+                this.computeNextGoal();
+                this.root.signals.storyGoalCompleted.dispatch(this.level - 1, this.currentGoal.reward);
+            });
         } else {
             $original();
         }
     });
     modImpl.modInterface.replaceMethod(shapez.HubGoals, "tryUnlockUpgrade", function ($original, [upgradeId]) {
         if (connection) {
-            const upgradeIdFixed = upgradeId.toString();
-            if (!this.canUnlockUpgrade(upgradeId)) {
-                return false;
-            }
-            const upgradeTiers = this.root.gameMode.getUpgrades()[upgradeIdFixed];
-            const currentLevel = this.getUpgradeLevel(upgradeId);
-            const tierData = upgradeTiers[currentLevel];
-            if (!tierData) {
-                return false;
-            }
-            for (let i = 0; i < tierData.required.length; ++i) {
-                const requirement = tierData.required[i];
-                this.storedShapes[requirement.shape] -= requirement.amount;
-            }
-            this.upgradeLevels[upgradeIdFixed] = (this.upgradeLevels[upgradeIdFixed] || 0) + 1;
-            checkLocation("Checked", false, upgradeIdNames[upgradeId] + " Upgrade Tier " + roman(currentLevel+2));
-            this.root.signals.upgradePurchased.dispatch(upgradeId);
-            this.root.app.gameAnalytics.handleUpgradeUnlocked(upgradeId, currentLevel);
+            return aptry("Unlocking upgrade failed", () => {
+                const upgradeIdFixed = upgradeId.toString();
+                if (!this.canUnlockUpgrade(upgradeId)) {
+                    return false;
+                }
+                const upgradeTiers = this.root.gameMode.getUpgrades()[upgradeIdFixed];
+                const currentLevel = this.getUpgradeLevel(upgradeId);
+                const tierData = upgradeTiers[currentLevel];
+                if (!tierData) {
+                    return false;
+                }
+                for (let i = 0; i < tierData.required.length; ++i) {
+                    const requirement = tierData.required[i];
+                    this.storedShapes[requirement.shape] -= requirement.amount;
+                }
+                this.upgradeLevels[upgradeIdFixed] = (this.upgradeLevels[upgradeIdFixed] || 0) + 1;
+                checkLocation("Checked", false, upgradeIdNames[upgradeId] + " Upgrade Tier " + roman(currentLevel+2));
+                this.root.signals.upgradePurchased.dispatch(upgradeId);
+                this.root.app.gameAnalytics.handleUpgradeUnlocked(upgradeId, currentLevel);
+                return true
+            });
         } else {
-            $original(upgradeId);
+            return $original(upgradeId);
         }
     });
     modImpl.modInterface.replaceMethod(shapez.GameCore, "initNewGame", function ($original, []) {
-        apdebuglog("Initializing new AP game");
-        this.root.gameIsFresh = true;
-        if (connection) {
-            this.root.map.seed = Number(connection.clientSeed);
-            apdebuglog("Loaded client seed "+connection.clientSeed);
-        } else {
-            this.root.map.seed = randomInt(0, 100000);
-        }
-        if (!this.root.gameMode.hasHub()) {
-            return;
-        }
-        // Place the hub
-        const hub = gMetaBuildingRegistry.findByClass(MetaHubBuilding).createEntity({
-            root: this.root,
-            origin: new Vector(-2, -2),
-            rotation: 0,
-            originalRotation: 0,
-            rotationVariant: 0,
-            variant: defaultBuildingVariant,
+        aptry("Game initialization failed", () => {
+            apdebuglog("Initializing new AP game");
+            this.root.gameIsFresh = true;
+            if (connection) {
+                this.root.map.seed = connection.clientSeed;
+            } else {
+                this.root.map.seed = randomInt(0, 100000);
+            }
+            if (!this.root.gameMode.hasHub()) {
+                return;
+            }
+            // Place the hub
+            const hub = gMetaBuildingRegistry.findByClass(MetaHubBuilding).createEntity({
+                root: this.root,
+                origin: new Vector(-2, -2),
+                rotation: 0,
+                originalRotation: 0,
+                rotationVariant: 0,
+                variant: defaultBuildingVariant,
+            });
+            this.root.map.placeStaticEntity(hub);
+            this.root.entityMgr.registerEntity(hub);
+            this.root.camera.center = new Vector(-5, 2).multiplyScalar(globalConfig.tileSize);
         });
-        this.root.map.placeStaticEntity(hub);
-        this.root.entityMgr.registerEntity(hub);
-        this.root.camera.center = new Vector(-5, 2).multiplyScalar(globalConfig.tileSize);
     });
     modImpl.signals.gameInitialized.add(function (/** @type {GameRoot} */ root) {
         if (connection) {
-            root.achievementProxy = new AchievementLocationProxy(root);
+            aptry("AchievementProxy contruction failed", () => {
+                root.achievementProxy = new AchievementLocationProxy(root);
+            });
         }
     });
     modImpl.signals.gameStarted.add(function (/** @type {GameRoot} */ root) {
         if (connection) {
             apdebuglog("I need to restructure these signals.gameStarted things...");
-            root.signals.shapeDelivered.add(getShapesanityAnalyser());
+            root.signals.shapeDelivered.add(shapesanityAnalyzer);
             root.signals.upgradePurchased.add(function (upgrade) {
-                if (connection.goal === "even_fasterer") {
-                    if (root.hubGoals.getUpgradeLevel("belt") >= connection.tiersToGenerate 
-                    && root.hubGoals.getUpgradeLevel("miner") >= connection.tiersToGenerate 
-                    && root.hubGoals.getUpgradeLevel("processors") >= connection.tiersToGenerate 
-                    && root.hubGoals.getUpgradeLevel("painting") >= connection.tiersToGenerate) {
-                        checkLocation("Checked", true);
+                aptry("Testing even_fasterer goal failed", () => {
+                    if (connection.goal === "even_fasterer") {
+                        if (root.hubGoals.getUpgradeLevel("belt") >= connection.tiersToGenerate 
+                        && root.hubGoals.getUpgradeLevel("miner") >= connection.tiersToGenerate 
+                        && root.hubGoals.getUpgradeLevel("processors") >= connection.tiersToGenerate 
+                        && root.hubGoals.getUpgradeLevel("painting") >= connection.tiersToGenerate) {
+                            checkLocation("Checked", true);
+                        }
                     }
-                }
+                });
             });
-            connection.requestItemPackage();
-            resyncLocationChecks(root);
+            aptry("Requesting item package failed", () => connection.requestItemPackage());
+            aptry("Resyncing locations failed", resyncLocationChecks);
             if (connection.goal === "efficiency_iii") {
                 currentIngame.startEfficiency3Interval(() => {
-                    if (currentIngame.root.productionAnalytics.getCurrentShapeRateRaw(enumAnalyticsDataSource.delivered, 
-                        currentIngame.root.shapeDefinitionMgr.getShapeFromShortKey(connection.blueprintShape)) / 10 >= 256) {
-                        checkLocation("Checked", true);
-                    }
+                    aptry("Efficiency III failed", () => {
+                        if (currentIngame.root.productionAnalytics.getCurrentShapeRateRaw(enumAnalyticsDataSource.delivered, 
+                            currentIngame.root.shapeDefinitionMgr.getShapeFromShortKey(connection.blueprintShape)) / 10 >= 256) {
+                            checkLocation("Checked", true);
+                        }
+                    });
                 }, 5000);
             }
         }
@@ -485,13 +503,102 @@ export function overrideBuildings() {
             return;
         }
         if (this.root.currentLayer === "regular") {
-            if (currentIngame.root.hubGoals.isRewardUnlocked(customRewards.wires)) {
+            if (this.root.hubGoals.isRewardUnlocked(customRewards.wires)) {
                 this.root.currentLayer = "wires";
             }
         } else {
             this.root.currentLayer = "regular";
         }
         this.root.signals.editModeChanged.dispatch(this.root.currentLayer);
+    });
+    // getAdditionalStatistics
+    modImpl.modInterface.replaceMethod(shapez.MetaMinerBuilding, methodNames.metaBuildings.getAdditionalStatistics, function ($original, [root, variant]) {
+        let stats = $original(root, variant);
+        stats.push([
+            shapez.T.mods.shapezipelago.statisticsBox.perBelt, 
+            Number(currentIngame.root.hubGoals.getBeltBaseSpeed() / currentIngame.root.hubGoals.getMinerBaseSpeed())
+                .toFixed(1).replace(".", shapez.T.global.decimalSeparator)
+        ]);
+        return stats;
+    });
+    modImpl.modInterface.replaceMethod(shapez.MetaCutterBuilding, methodNames.metaBuildings.getAdditionalStatistics, function ($original, [root, variant]) {
+        let stats = $original(root, variant);
+        stats.push([
+            shapez.T.mods.shapezipelago.statisticsBox.perBelt, 
+            Number(currentIngame.root.hubGoals.getBeltBaseSpeed()/currentIngame.root.hubGoals.getProcessorBaseSpeed(
+                variant === enumCutterVariants.quad ? enumItemProcessorTypes.cutterQuad : enumItemProcessorTypes.cutter
+            ))
+                .toFixed(1).replace(".", shapez.T.global.decimalSeparator)
+        ]);
+        return stats;
+    });
+    modImpl.modInterface.replaceMethod(shapez.MetaRotaterBuilding, methodNames.metaBuildings.getAdditionalStatistics, function ($original, [root, variant]) {
+        var speed = 1;
+        if (variant === defaultBuildingVariant)
+            speed = currentIngame.root.hubGoals.getProcessorBaseSpeed(enumItemProcessorTypes.rotater);
+        else if (variant === enumRotaterVariants.ccw)
+            speed = currentIngame.root.hubGoals.getProcessorBaseSpeed(enumItemProcessorTypes.rotaterCCW);
+        else if (variant === enumRotaterVariants.rotate180)
+            speed = currentIngame.root.hubGoals.getProcessorBaseSpeed(enumItemProcessorTypes.rotater180);
+        let stats = $original(root, variant);
+        stats.push([
+            shapez.T.mods.shapezipelago.statisticsBox.perBelt, 
+            Number(currentIngame.root.hubGoals.getBeltBaseSpeed()/speed)
+                .toFixed(1).replace(".", shapez.T.global.decimalSeparator)
+        ]);
+        return stats;
+    });
+    modImpl.modInterface.replaceMethod(shapez.MetaStackerBuilding, methodNames.metaBuildings.getAdditionalStatistics, function ($original, [root, variant]) {
+        let stats = $original(root, variant);
+        stats.push([
+            shapez.T.mods.shapezipelago.statisticsBox.perBelt, 
+            Number(currentIngame.root.hubGoals.getBeltBaseSpeed()/currentIngame.root.hubGoals.getProcessorBaseSpeed(enumItemProcessorTypes.stacker))
+                .toFixed(1).replace(".", shapez.T.global.decimalSeparator)
+        ]);
+        return stats;
+    });
+    modImpl.modInterface.replaceMethod(shapez.MetaPainterBuilding, methodNames.metaBuildings.getAdditionalStatistics, function ($original, [root, variant]) {
+        var speed = 1;
+        if (variant === defaultBuildingVariant || variant === enumPainterVariants.mirrored)
+            speed = currentIngame.root.hubGoals.getProcessorBaseSpeed(enumItemProcessorTypes.painter);
+        else if (variant === enumPainterVariants.double)
+            speed = currentIngame.root.hubGoals.getProcessorBaseSpeed(enumItemProcessorTypes.painterDouble);
+        else if (variant === enumPainterVariants.quad)
+            speed = currentIngame.root.hubGoals.getProcessorBaseSpeed(enumItemProcessorTypes.painterQuad);
+        let stats = $original(root, variant);
+        stats.push([
+            shapez.T.mods.shapezipelago.statisticsBox.perBelt, 
+            Number(currentIngame.root.hubGoals.getBeltBaseSpeed()/speed)
+                .toFixed(1).replace(".", shapez.T.global.decimalSeparator)
+        ]);
+        return stats;
+    });
+    modImpl.modInterface.replaceMethod(shapez.MetaMixerBuilding, methodNames.metaBuildings.getAdditionalStatistics, function ($original, [root, variant]) {
+        let stats = $original(root, variant);
+        stats.push([
+            shapez.T.mods.shapezipelago.statisticsBox.perBelt, 
+            Number(currentIngame.root.hubGoals.getBeltBaseSpeed()/currentIngame.root.hubGoals.getProcessorBaseSpeed(enumItemProcessorTypes.mixer))
+                .toFixed(1).replace(".", shapez.T.global.decimalSeparator)
+        ]);
+        return stats;
+    });
+}
+
+export function overrideStateMoving() {
+    apdebuglog("Calling overrideStateMoving");
+    modImpl.modInterface.replaceMethod(shapez.InGameState, "stage4bResumeGame", function ($original, []) {
+        if (this.switchStage(GAME_LOADING_STATES.s4_B_resumeGame)) {
+            if (!this.core.initExistingGame()) {
+                this.onInitializationFailure("Savegame is corrupt and can not be restored.");
+                return;
+            }
+            // This needs to "pause" if trying to connect
+            if (!currentIngame.isTryingToConnect) {
+                apdebuglog("Switching to stage 5 without trying to connect");
+                this.app.gameAnalytics.handleGameResumed();
+                this.stage5FirstUpdate();
+            }
+        }
     });
 }
 
@@ -539,43 +646,39 @@ function calcUpgradeDefinitions() {
     }
 }
 
-/**
- * 
- * @param {GameRoot} root 
- */
-function resyncLocationChecks(root) {
+function resyncLocationChecks() {
     apdebuglog("Resyncing already reached locations");
     // resync levels
-    for (var i = 1; i < root.hubGoals.level; i++) { // current level is what is to be completed
+    for (var i = 1; i < currentIngame.root.hubGoals.level; i++) { // current level is what is to be completed
         checkLocation("Resynced", false, `Level ${i}`);
     }
-    if (root.hubGoals.level > 20) {
+    if (currentIngame.root.hubGoals.level > 20) {
         checkLocation("Resynced", false, "Level 1 Additional", "Level 20 Additional");
-    } else if (root.hubGoals.level > 1) {
+    } else if (currentIngame.root.hubGoals.level > 1) {
         checkLocation("Resynced", false, "Level 1 Additional");
     }
     // resync upgrades
     for (var upgradeId of ["belt", "miner", "processors", "painting"]) {
-        const currentLevel = root.hubGoals.getUpgradeLevel(upgradeId);
+        const currentLevel = currentIngame.root.hubGoals.getUpgradeLevel(upgradeId);
         for (var i = 1; i <= currentLevel; i++) {
             checkLocation("Resynced", false, upgradeIdNames[upgradeId] + " Upgrade Tier " + roman(i+1));
         }
     }
     // resync shapesanity
-    for (var [hash, amount] of Object.entries(root.hubGoals.storedShapes)) {
+    for (var [hash, amount] of Object.entries(currentIngame.root.hubGoals.storedShapes)) {
         if ((amount || 0) > 0) {
-            getShapesanityAnalyser()(ShapeDefinition.fromShortKey(hash));
+            shapesanityAnalyzer(ShapeDefinition.fromShortKey(hash));
         }
     }
     // resync goals
     if (connection.goal === "vanilla" || connection.goal === "mam") {
-        if (connection.levelsToGenerate < root.hubGoals.level) 
+        if (connection.levelsToGenerate < currentIngame.root.hubGoals.level) 
             checkLocation("Checked", true);
     } else if (connection.goal === "even_fasterer") {
-        if (root.hubGoals.getUpgradeLevel("belt") >= connection.tiersToGenerate 
-                && root.hubGoals.getUpgradeLevel("miner") >= connection.tiersToGenerate 
-                && root.hubGoals.getUpgradeLevel("processors") >= connection.tiersToGenerate 
-                && root.hubGoals.getUpgradeLevel("painting") >= connection.tiersToGenerate) {
+        if (currentIngame.root.hubGoals.getUpgradeLevel("belt") >= connection.tiersToGenerate 
+                && currentIngame.root.hubGoals.getUpgradeLevel("miner") >= connection.tiersToGenerate 
+                && currentIngame.root.hubGoals.getUpgradeLevel("processors") >= connection.tiersToGenerate 
+                && currentIngame.root.hubGoals.getUpgradeLevel("painting") >= connection.tiersToGenerate) {
             checkLocation("Checked", true);
         }
     }

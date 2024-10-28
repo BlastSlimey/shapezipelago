@@ -13,31 +13,108 @@ mods:
       failed: Connection failed
     shapesanityBox:
       title: Shapesanity
-      name:
-        Uncolored: Uncolored
-        Red: Red
-        Green: Green
-        Blue: Blue
-        Yellow: Yellow
-        Cyan: Cyan
-        Purple: Purple
-        White: White
+      1Color4Shapes:
+        Uncolored: Uncolored <code>
+        Red: Red <code>
+        Green: Green <code>
+        Blue: Blue <code>
+        Yellow: Yellow <code>
+        Purple: Purple <code>
+        Cyan: Cyan <code>
+        White: White <code>
+      4Colors1Shape:
+        Circle: <code> Circle
+        Square: <code> Square
+        Star: <code> Star
+        Windmill: <code> Windmill
+      shape:
         Circle: Circle
         Square: Square
         Star: Star
         Windmill: Windmill
-        Half: Half
-        Cornered: Cornered
-        3-1: 3-1
-        2-1: 2-1
-        2-1-1: 2-1-1
-        Half-Half: Half-Half
-        Checkered: Checkered
-        Adjacent: Adjacent
-        Singles: Singles
-        Piece: Piece
-        Cut: Cut
-        Out: Out
+      Piece: 
+        Circle: <comb> Piece
+        Square: <comb> Piece
+        Star: <comb> Piece
+        Windmill: <comb> Piece
+      byNoun:
+        Half:
+          Circle: Half <comb>
+          Square: Half <comb>
+          Star: Half <comb>
+          Windmill: Half <comb>
+          Piece: Half <comb>
+        CutOut:
+          Circle: Cut Out <comb>
+          Square: Cut Out <comb>
+          Star: Cut Out <comb>
+          Windmill: Cut Out <comb>
+          Piece: Cut Out <comb>
+        Cornered: 
+          Circle: Cornered <comb>
+          Square: Cornered <comb>
+          Star: Cornered <comb>
+          Windmill: Cornered <comb>
+          Piece: Cornered <comb>
+        Uncolored:
+          Circle: Uncolored <shape>
+          Square: Uncolored <shape>
+          Star: Uncolored <shape>
+          Windmill: Uncolored <shape>
+          Piece: Uncolored <shape>
+        Red:
+          Circle: Red <shape>
+          Square: Red <shape>
+          Star: Red <shape>
+          Windmill: Red <shape>
+          Piece: Red <shape>
+        Green:
+          Circle: Green <shape>
+          Square: Green <shape>
+          Star: Green <shape>
+          Windmill: Green <shape>
+          Piece: Green <shape>
+        Blue:
+          Circle: Blue <shape>
+          Square: Blue <shape>
+          Star: Blue <shape>
+          Windmill: Blue <shape>
+          Piece: Blue <shape>
+        Yellow:
+          Circle: Yellow <shape>
+          Square: Yellow <shape>
+          Star: Yellow <shape>
+          Windmill: Yellow <shape>
+          Piece: Yellow <shape>
+        Purple:
+          Circle: Purple <shape>
+          Square: Purple <shape>
+          Star: Purple <shape>
+          Windmill: Purple <shape>
+          Piece: Purple <shape>
+        Cyan:
+          Circle: Cyan <shape>
+          Square: Cyan <shape>
+          Star: Cyan <shape>
+          Windmill: Cyan <shape>
+          Piece: Cyan <shape>
+        White:
+          Circle: White <shape>
+          Square: White <shape>
+          Star: White <shape>
+          Windmill: White <shape>
+          Piece: White <shape>
+      shortKeys:
+        3-1: 3-1 <codes>
+        Half-Half: Half-Half <codes>
+        Checkered: Checkered <codes>
+        CorneredSingles: Cornered Singles <codes>
+        AdjacentSingles: Adjacent Singles <codes>
+        Adjacent2-1: Adjacent 2-1 <codes>
+        Cornered2-1: Cornered 2-1 <codes>
+        Adjacent2-1-1: Adjacent 2-1-1 <codes>
+        Cornered2-1-1: Cornered 2-1-1 <codes>
+        Singles: Singles <codes>
     infoBox:
       impossible:
         title: You just found a bug! :)
@@ -50,6 +127,8 @@ mods:
         shapeActionStack: definition parameter in shapeActionPaintWith not a ShapeDefinition
         shapeActionPaintWith4Colors: definition parameter in shapeActionPaintWith4Colors not a ShapeDefinition
         shapesanitySlotData: shapesanity slotData is not an array
+      aptry:
+        title: You just found a bug! :)
     itemReceivingBox:
       title:
         single: Item received!
@@ -105,11 +184,26 @@ mods:
       foundBy: found by <player> at <location>
       extraInfo:
         upgradeId:
-          Belt: from Belt Upgrades
-          Miner: from Miner Upgrades
-          Processors: from Processors Upgrades
-          Painting: from Painting Upgrades
+          belt: from Belt Upgrades
+          miner: from Miner Upgrades
+          processors: from Processors Upgrades
+          painting: from Painting Upgrades
         versionBlueprint: Blueprint shapes
         versionLevel: Current level shapes
         time: for <x> seconds
-
+    statisticsBox:
+      perBelt: Per belt
+storyRewards:
+  reward_ap:
+    title: AP Item
+    desc: >-
+      You unlocked an Archipelago item! Maybe even a progression item!
+  reward_easter_egg:
+    title: AP Item?
+    desc: >-
+      You unlocked an Archipelago item!
+      Here, have a long german word: 
+      Donaudampfschifffahrtselektrizitätenhauptbetriebswerkbauunternehmenbeamtengesellschaft
+dialogs:
+  blueprintsNotUnlocked:
+    desc: You need to look or wait for the AP item!

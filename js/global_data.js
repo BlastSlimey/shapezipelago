@@ -1,12 +1,14 @@
-import { Client, CLIENT_PACKET_TYPE, CLIENT_STATUS, SERVER_PACKET_TYPE } from "archipelago.js";
+import { Client, CLIENT_PACKET_TYPE, CLIENT_STATUS, ITEMS_HANDLING_FLAGS, SERVER_PACKET_TYPE } from "archipelago.js";
 import { GameRoot } from "shapez/game/root";
+import { ShapeDefinitionManager } from "shapez/game/shape_definition_manager";
 import { enumHubGoalRewards } from "shapez/game/tutorial_goals";
 import { Mod } from "shapez/mods/mod";
 
 export const methodNames = {
     metaBuildings: {
         getAvailableVariants: "getAvailableVariants",
-        getIsUnlocked: "getIsUnlocked"
+        getIsUnlocked: "getIsUnlocked",
+        getAdditionalStatistics: "getAdditionalStatistics"
     }
 }
 
@@ -17,7 +19,9 @@ export const customRewards = {
     wires: "reward_wires",
     switch: "reward_switch",
     trash: "reward_trash",
-    painter_quad: "reward_painter_quad"
+    painter_quad: "reward_painter_quad",
+    ap: "reward_ap",
+    easter_egg: "reward_easter_egg"
 }
 
 export const upgradeIdNames = {
@@ -129,20 +133,20 @@ export const colorNames = {
 };
 
 export const getIsUnlockedForTrap = {
-    belt: (root) => {return root.hubGoals.isRewardUnlocked(customRewards.belt)},
-    balancer: (root) => {return root.hubGoals.isRewardUnlocked(enumHubGoalRewards.reward_balancer)},
-    tunnel: (root) => {return root.hubGoals.isRewardUnlocked(enumHubGoalRewards.reward_tunnel)},
-    extractor: (root) => {return root.hubGoals.isRewardUnlocked(customRewards.extractor)},
-    cutter: (root) => {return root.hubGoals.isRewardUnlocked(customRewards.cutter)},
-    cutter_quad: (root) => {return root.hubGoals.isRewardUnlocked(enumHubGoalRewards.reward_cutter_quad)},
-    rotator: (root) => {return root.hubGoals.isRewardUnlocked(enumHubGoalRewards.reward_rotater)},
-    rotator_ccw: (root) => {return root.hubGoals.isRewardUnlocked(enumHubGoalRewards.reward_rotater_ccw)},
-    rotator_180: (root) => {return root.hubGoals.isRewardUnlocked(enumHubGoalRewards.reward_rotater_180)},
-    stacker: (root) => {return root.hubGoals.isRewardUnlocked(enumHubGoalRewards.reward_stacker)},
-    painter: (root) => {return root.hubGoals.isRewardUnlocked(enumHubGoalRewards.reward_painter)},
-    painter_quad: (root) => {return root.hubGoals.isRewardUnlocked(customRewards.painter_quad)},
-    mixer: (root) => {return root.hubGoals.isRewardUnlocked(enumHubGoalRewards.reward_mixer)},
-    trash: (root) => {return root.hubGoals.isRewardUnlocked(customRewards.trash)}
+    belt: (root) => {return root.hubGoals.isRewardUnlocked(customRewards.belt) && !currentIngame.trapLocked.belt},
+    balancer: (root) => {return root.hubGoals.isRewardUnlocked(enumHubGoalRewards.reward_balancer) && !currentIngame.trapLocked.balancer},
+    tunnel: (root) => {return root.hubGoals.isRewardUnlocked(enumHubGoalRewards.reward_tunnel) && !currentIngame.trapLocked.tunnel},
+    extractor: (root) => {return root.hubGoals.isRewardUnlocked(customRewards.extractor) && !currentIngame.trapLocked.extractor},
+    cutter: (root) => {return root.hubGoals.isRewardUnlocked(customRewards.cutter) && !currentIngame.trapLocked.cutter},
+    cutter_quad: (root) => {return root.hubGoals.isRewardUnlocked(enumHubGoalRewards.reward_cutter_quad) && !currentIngame.trapLocked.cutter},
+    rotator: (root) => {return root.hubGoals.isRewardUnlocked(enumHubGoalRewards.reward_rotater) && !currentIngame.trapLocked.rotator},
+    rotator_ccw: (root) => {return root.hubGoals.isRewardUnlocked(enumHubGoalRewards.reward_rotater_ccw) && !currentIngame.trapLocked.rotator},
+    rotator_180: (root) => {return root.hubGoals.isRewardUnlocked(enumHubGoalRewards.reward_rotater_180) && !currentIngame.trapLocked.rotator},
+    stacker: (root) => {return root.hubGoals.isRewardUnlocked(enumHubGoalRewards.reward_stacker) && !currentIngame.trapLocked.stacker},
+    painter: (root) => {return root.hubGoals.isRewardUnlocked(enumHubGoalRewards.reward_painter) && !currentIngame.trapLocked.painter},
+    painter_quad: (root) => {return root.hubGoals.isRewardUnlocked(customRewards.painter_quad) && !currentIngame.trapLocked.painter},
+    mixer: (root) => {return root.hubGoals.isRewardUnlocked(enumHubGoalRewards.reward_mixer) && !currentIngame.trapLocked.mixer},
+    trash: (root) => {return root.hubGoals.isRewardUnlocked(customRewards.trash) && !currentIngame.trapLocked.trash}
 };
 
 /**
@@ -182,6 +186,22 @@ export function apassert(condition, message) {
 }
 
 /**
+ * @param {string} title
+ * @param {() => any} code
+ */
+export function aptry(title, code) { // TODO use this instead
+    try {
+        return code();
+    } catch (error) {
+        modImpl.dialogs.showInfo(
+            shapez.T.mods.shapezipelago.infoBox.aptry.title, 
+            title + "<br />---<br />" + error.name + ":<br />" + error.message
+        );
+        throw error;
+    }
+}
+
+/**
  * @type {Mod}
  */
 export var modImpl;
@@ -205,17 +225,17 @@ export class Connection {
     /**
      * @param {{hostname: string;port: number;game: string;name: string;items_handling: number;password: string;protocol?: "ws" | "wss";version?: {major: number;minor: number;build: number;};uuid?: string;tags?: string[];}} connectinfo
      * @param {{(packet: import("archipelago.js").ReceivedItemsPacket): void;(packet: import("archipelago.js").ReceivedItemsPacket): void;}} processItemsPacket
-     * @param {() => void} updateHUD
+     * @returns {Promise}
      */
-    tryConnect(connectinfo, processItemsPacket, updateHUD) {
+    tryConnect(connectinfo, processItemsPacket) {
         apdebuglog("Trying to connect to server");
-        this.client.connect(connectinfo)
+        return this.client.connect(connectinfo)
             .then(() => {
 
                 apuserlog("Connected to the server");
                 connection = this;
                 this.reportStatusToServer(CLIENT_STATUS.CONNECTED);
-                updateHUD();
+                this.connectionInformation = connectinfo;
 
                 this.client.addListener(SERVER_PACKET_TYPE.PRINT_JSON, (packet, message) => {
                     apuserlog(message);
@@ -227,6 +247,9 @@ export class Connection {
                 const slotData = this.client.data.slotData;
                 var datacache = null;
 
+                // Earliest slotData version: 0.5.3
+
+                // Always string array, but javascript
                 datacache = slotData["shapesanity"].valueOf();
                 if (datacache instanceof Array) {
                     this.shapesanityNames = datacache;
@@ -238,13 +261,16 @@ export class Connection {
                             shapez.T.mods.shapezipelago.infoBox.impossible.shapesanitySlotData}`);
                 }
 
+                // Always string
                 this.goal = slotData["goal"].toString();
                 apdebuglog(`Loaded slotData goal=${this.goal}`);
 
+                // Always integer, equals location count (without goal)
                 this.levelsToGenerate = Number(slotData["maxlevel"]);
                 apdebuglog(`Loaded slotData maxlevel=${this.levelsToGenerate}`);
                 if (this.goal === "vanilla" || this.goal === "mam") this.levelsToGenerate++;
 
+                // Always integer
                 this.tiersToGenerate = Number(slotData["finaltier"]);
                 apdebuglog(`Loaded slotData finaltier=${this.tiersToGenerate}`);
 
@@ -253,11 +279,13 @@ export class Connection {
 
                 this.randomStepsLength = new Array(5);
                 for (var phasenumber = 0; phasenumber < 5; phasenumber++) {
+                    // Always integer
                     this.randomStepsLength[phasenumber] = Number(slotData[`Phase ${phasenumber} length`]);
                     apdebuglog(`Loaded slotData randomStepsLength[${phasenumber}]: ${this.randomStepsLength[phasenumber]}`);
                 }
 
                 for (var phasenumber = 1; phasenumber <= 5; phasenumber++) {
+                    // both always string
                     this.positionOfLevelBuilding[slotData[`Level building ${phasenumber}`]] = phasenumber;
                     this.positionOfUpgradeBuilding[slotData[`Upgrade building ${phasenumber}`]] = phasenumber;
                 }
@@ -266,39 +294,52 @@ export class Connection {
                         this.positionOfUpgradeBuilding[buildingname]} for upgrade building ${buildingname}`);
                 }
 
+                // Always integer
                 this.throughputLevelsRatio = Number(slotData["throughput_levels_ratio"]);
                 apdebuglog(`Loaded slotData throughput_levels_ratio=${this.throughputLevelsRatio}`);
 
+                // Always string
                 this.levelsLogic = slotData["randomize_level_logic"].toString();
                 apdebuglog(`Loaded slotData randomize_level_logic=${this.levelsLogic}`);
 
+                // Always string
                 this.upgradesLogic = slotData["randomize_upgrade_logic"].toString();
                 apdebuglog(`Loaded slotData randomize_upgrade_logic=${this.upgradesLogic}`);
 
+                // Always integer
                 this.clientSeed = Number(slotData["seed"]);
                 apdebuglog(`Loaded slotData seed=${this.clientSeed}`);
 
+                // Always integer
                 this.requiredShapesMultiplier = Number(slotData["required_shapes_multiplier"]);
                 apdebuglog(`Loaded slotData required_shapes_multiplier=${this.requiredShapesMultiplier}`);
 
+                // Always boolean
                 this.israndomizedLevels = Boolean(slotData["randomize_level_requirements"]);
                 apdebuglog(`Loaded slotData randomize_level_requirements=${this.israndomizedLevels}`);
 
+                // Always boolean
                 this.isRandomizedUpgrades = Boolean(slotData["randomize_upgrade_requirements"]);
                 apdebuglog(`Loaded slotData randomize_upgrade_requirements=${this.isRandomizedUpgrades}`);
 
                 for (var cat of ["belt", "miner", "processors", "painting"]) {
+                    // Always number
                     this.categoryRandomBuildingsAmounts[cat] = Number(slotData[`${cat} category buildings amount`]);
                     apdebuglog(`Loaded slotData "${cat} category buildings amount"=${this.categoryRandomBuildingsAmounts[cat]}`);
                 }
 
+                // Always boolean
                 this.isSameLate = Boolean(slotData["same_late_upgrade_requirements"]);
                 apdebuglog(`Loaded slotData same_late_upgrade_requirements=${this.isSameLate}`);
 
+                // undefined until 0.5.5, boolean since 0.5.6
+                // Boolean(undefined) => false
+                this.isFloatingLayersAllowed = Boolean(slotData["allow_floating_layers"]);
+                apdebuglog(`Loaded slotData allow_floating_layers=${slotData["allow_floating_layers"]}`);
+
             })
             .catch((error) => {
-                apuserlog("Failed to connect: " + error);
-                updateHUD();
+                apuserlog("Failed to connect: " + error.name + ", " + error.message);
             });
     }
 
@@ -393,6 +434,14 @@ export class Connection {
      */
     slotId;
     blueprintShape = "CbCbCbRb:CwCwCwCw";
+    /**
+     * @type {{ hostname: string; port: number; game: string; name: string; items_handling: number; password: string; protocol?: "ws" | "wss"; version?: { major: number; minor: number; build: number; }; uuid?: string; tags?: string[]; }}
+     */
+    connectionInformation;
+    /**
+     * @type {boolean}
+     */
+    isFloatingLayersAllowed;
 
     /**
      * 
@@ -516,11 +565,37 @@ export class Ingame {
      * @type {boolean}
      */
     isItemsResynced = false;
+    translated = {};
+    /**
+     * @type {number[]}
+     */
+    amountByLevelCache;
+    /**
+     * @type {number[]}
+     */
+    throughputByLevelCache;
+    isTryingToConnect = false;
+    /**
+     * @type {boolean[]}
+     */
+    scoutedShapesanity;
+    /**
+     * @type {HTMLCanvasElement[]}
+     */
+    shapesanityExamples = [];
 
     constructor() {
         apdebuglog("Constructing Ingame object");
         currentIngame = this;
-        if (connection) connection.reportStatusToServer(CLIENT_STATUS.PLAYING);
+        apdebuglog("Ingame object constructed");
+    }
+
+    /**
+     * @param {GameRoot} root
+     */
+    afterRootInitialization(root) {
+        this.root = root;
+        this.isAPSave = !(!connection);
     }
 
     leave() {

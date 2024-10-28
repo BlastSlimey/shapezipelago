@@ -13,31 +13,108 @@ mods:
       failed: Verbindung fehlgeschlagen
     shapesanityBox:
       title: Shapesanity
-      name:
-        Uncolored: Farblose(r/s)
-        Red: Rote(r/s)
-        Green: Grüne(r/s)
-        Blue: Blaue(r/s)
-        Yellow: Gelbe(r/s)
-        Cyan: Türkise(r/s)
-        Purple: Lila
-        White: Weiße(r/s)
+      1Color4Shapes:
+        Uncolored: Farbloses <code>
+        Red: Rotes <code>
+        Green: Grünes <code>
+        Blue: Blaues <code>
+        Yellow: Gelbes <code>
+        Purple: Lila <code>
+        Cyan: Türkises <code>
+        White: Weißes <code>
+      4Colors1Shape:
+        Circle: <code>-Kreis
+        Square: <code>-Quadrat
+        Star: <code>-Stern
+        Windmill: <code>-Windmühle
+      shape:
         Circle: Kreis
         Square: Quadrat
         Star: Stern
         Windmill: Windmühle
-        Half: Halbe(r/s)
-        Cornered: Angeeckte(r/s)
-        3-1: 3-1
-        2-1: 2-1
-        2-1-1: 2-1-1
-        Half-Half: Halbe-halbe
-        Checkered: Kariert aus
-        Adjacent: Anliegende
-        Singles: Einzelne
-        Piece: Stück
-        Cut: Ausgeschnittene(r/s)
-        Out: ""
+      Piece: 
+        Circle: <comb>teil
+        Square: <comb>teil
+        Star: <comb>enteil
+        Windmill: <comb>nteil
+      byNoun:
+        Half:
+          Circle: Halber <comb>
+          Square: Halbes <comb>
+          Star: Halber <comb>
+          Windmill: Halbe <comb>
+          Piece: Halbes <comb>
+        CutOut:
+          Circle: Ausgeschnittener <comb>
+          Square: Ausgeschnittenes <comb>
+          Star: Ausgeschnittener <comb>
+          Windmill: Ausgeschnittene <comb>
+          Piece: Ausgeschnittenes <comb>
+        Cornered: 
+          Circle: Aneckender <comb>
+          Square: Aneckendes <comb>
+          Star: Aneckender <comb>
+          Windmill: Aneckende <comb>
+          Piece: Aneckendes <comb>
+        Uncolored:
+          Circle: farbloser <shape>
+          Square: farbloses <shape>
+          Star: farbloser <shape>
+          Windmill: farblose <shape>
+          Piece: farbloses <shape>
+        Red:
+          Circle: roter <shape>
+          Square: rotes <shape>
+          Star: roter <shape>
+          Windmill: rote <shape>
+          Piece: rotes <shape>
+        Green:
+          Circle: grüner <shape>
+          Square: grünes <shape>
+          Star: grüner <shape>
+          Windmill: grüne <shape>
+          Piece: grünes <shape>
+        Blue:
+          Circle: blauer <shape>
+          Square: blaues <shape>
+          Star: blauer <shape>
+          Windmill: blaue <shape>
+          Piece: blaues <shape>
+        Yellow:
+          Circle: gelber <shape>
+          Square: gelbes <shape>
+          Star: gelber <shape>
+          Windmill: gelbe <shape>
+          Piece: gelbes <shape>
+        Purple:
+          Circle: lila <shape>
+          Square: lila <shape>
+          Star: lila <shape>
+          Windmill: lila <shape>
+          Piece: lila <shape>
+        Cyan:
+          Circle: türkiser <shape>
+          Square: türkises <shape>
+          Star: türkiser <shape>
+          Windmill: türkise <shape>
+          Piece: türkises <shape>
+        White:
+          Circle: weißer <shape>
+          Square: weißes <shape>
+          Star: weißer <shape>
+          Windmill: weiße <shape>
+          Piece: weißes <shape>
+      shortKeys:
+        3-1: 3-1 <codes>
+        Half-Half: Halbe-halbe <codes>
+        Checkered: Karierte <codes>
+        CorneredSingles: Aneckende einzelne <codes>
+        AdjacentSingles: Benachbarte einzelne <codes>
+        Adjacent2-1: 2-1 <codes> (benachbart)
+        Cornered2-1: 2-1 <codes> (aneckend)
+        Adjacent2-1-1: 2-1-1 <codes> (benachbart)
+        Cornered2-1-1: 2-1-1 <codes> (aneckend)
+        Singles: Einzelne <codes>
     infoBox:
       impossible:
         title: Du hast gerade einen Bug gefunden! :)
@@ -50,6 +127,8 @@ mods:
         shapeActionStack: definition-Parameter in shapeActionPaintWith keine ShapeDefinition
         shapeActionPaintWith4Colors: definition-Parameter in shapeActionPaintWith4Colors keine ShapeDefinition
         shapesanitySlotData: Shapesanity-SlotData ist kein Array
+      aptry:
+        title: Du hast gerade einen Bug gefunden! :)
     itemReceivingBox:
       title:
         single: Item erhalten!
@@ -112,3 +191,19 @@ mods:
         versionBlueprint: Blaupausenformen
         versionLevel: Aktuelle Levelformen
         time: für <x> Sekunden
+    statisticsBox:
+      perBelt: Pro Fließband
+storyRewards:
+  reward_ap:
+    title: AP-Item
+    desc: >-
+      Du hast ein Archipelago-Item freigeschaltet! Vielleicht sogar ein wichtiges Item!
+  reward_easter_egg:
+    title: AP-Item?
+    desc: >-
+      Du hast ein Archipelago-Item freigeschaltet!
+      Schau mal auf dem PlaceDE-Discord vorbei, vielleicht veranstalte ich dort gerade ein Event!
+      Vieleicht sogar ein Archipelago-Event...
+dialogs:
+  blueprintsNotUnlocked:
+    desc: Du musst nach dem AP-Item suchen oder darauf warten!

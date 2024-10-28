@@ -1,5 +1,5 @@
-import { apdebuglog, Connection, connection, modImpl } from "./global_data";
-import { ITEMS_HANDLING_FLAGS } from "archipelago.js";
+import { apdebuglog, aptry, Connection, connection, currentIngame, modImpl } from "./global_data";
+import { CLIENT_STATUS, ITEMS_HANDLING_FLAGS } from "archipelago.js";
 import { processItemsPacket } from "./server_communication";
 import { makeDiv, removeAllChildren } from "shapez/core/utils";
 import { BaseHUDPart } from "shapez/game/hud/base_hud_part";
@@ -8,17 +8,7 @@ import { InputReceiver } from "shapez/core/input_receiver";
 import { KeyActionMapper, KEYMAPPINGS } from "shapez/game/key_action_mapper";
 import { GameRoot } from "shapez/game/root";
 
-var scouted = [true, true, false];
-var examples = [];
-var translated = {};
-
-/**
- * @param {string} autoPlayer
- * @param {string} autoAddress
- * @param {string} autoPort
- * @param {string} autoPassword
- */
-export function addInputContainer(autoPlayer, autoAddress, autoPort, autoPassword) {
+export function addInputContainer() {
     apdebuglog("Calling addInputContainer");
     modImpl.signals.stateEntered.add(state => {
         if (state.key === "MainMenuState") {
@@ -49,7 +39,7 @@ export function addInputContainer(autoPlayer, autoAddress, autoPort, autoPasswor
             playerLabel.innerText = shapez.T.mods.shapezipelago.inputBox.player;
             playerInput.type = "text";
             playerInput.className = "playerInput";
-            playerInput.value = autoPlayer;
+            playerInput.value = modImpl.settings.player;
             playerContainer.appendChild(playerLabel);
             playerContainer.appendChild(playerInput);
             const addressLabel = document.createElement("h4");
@@ -57,87 +47,93 @@ export function addInputContainer(autoPlayer, autoAddress, autoPort, autoPasswor
             addressLabel.innerText = shapez.T.mods.shapezipelago.inputBox.address;
             addressInput.type = "text";
             addressInput.className = "addressInput";
-            addressInput.value = autoAddress;
+            addressInput.value = modImpl.settings.address;
             addressContainer.appendChild(addressLabel);
             addressContainer.appendChild(addressInput);
             const portLabel = document.createElement("h4");
             const portInput = document.createElement("input");
             portLabel.innerText = shapez.T.mods.shapezipelago.inputBox.port;
             portInput.type = "number";
-            portInput.value = autoPort;
+            portInput.value = modImpl.settings.port;
             portContainer.appendChild(portLabel);
             portContainer.appendChild(portInput);
             const passwordLabel = document.createElement("h4");
             const passwordInput = document.createElement("input");
             passwordLabel.innerText = shapez.T.mods.shapezipelago.inputBox.password;
             passwordInput.type = "password";
-            passwordInput.value = autoPassword;
+            passwordInput.value = modImpl.settings.password;
             passwordContainer.appendChild(passwordLabel);
             passwordContainer.appendChild(passwordInput);
             const statusLabel = document.createElement("h4");
             const statusButton = document.createElement("button");
-            statusLabel.innerText = connection ? 
-                shapez.T.mods.shapezipelago.inputBox.connected : 
-                shapez.T.mods.shapezipelago.inputBox.notConnected;
-            statusButton.innerText = connection ? 
-                shapez.T.mods.shapezipelago.inputBox.disconnect : 
-                shapez.T.mods.shapezipelago.inputBox.connect;
+            statusLabel.innerText = shapez.T.mods.shapezipelago.inputBox.notConnected;
+            statusButton.innerText = shapez.T.mods.shapezipelago.inputBox.connect;
             statusButton.classList.add("styledButton", "statusButton");
             statusButton.addEventListener("click", () => {
-                if (!connection) {
-                    var connectInfo = {
-                        hostname: addressInput.value,
-                        port: portInput.valueAsNumber, 
-                        game: "shapez", 
-                        name: playerInput.value,
-                        items_handling: ITEMS_HANDLING_FLAGS.REMOTE_ALL,
-                        password: passwordInput.value
-                    };
-                    new Connection().tryConnect(connectInfo, processItemsPacket, () => {
-                        if (connection) {
-                            statusLabel.innerText = shapez.T.mods.shapezipelago.inputBox.connected;
-                            statusButton.innerText = shapez.T.mods.shapezipelago.inputBox.disconnect;
-                        } else {
-                            statusLabel.innerText = shapez.T.mods.shapezipelago.inputBox.failed;
-                        }
-                    });
-                } else {
-                    connection.disconnect();
-                    statusLabel.innerText = shapez.T.mods.shapezipelago.inputBox.disconnected;
-                    statusButton.innerText = shapez.T.mods.shapezipelago.inputBox.connect;
-                }
+                aptry("Connect click failed", () => {
+                    if (!connection) {
+                        modImpl.settings.player = playerInput.value;
+                        modImpl.settings.address = addressInput.value;
+                        modImpl.settings.port = portInput.valueAsNumber;
+                        modImpl.settings.password = passwordInput.value;
+                        modImpl.saveSettings();
+                        var connectInfo = {
+                            hostname: addressInput.value,
+                            port: portInput.valueAsNumber, 
+                            game: "shapez", 
+                            name: playerInput.value,
+                            items_handling: ITEMS_HANDLING_FLAGS.REMOTE_ALL,
+                            password: passwordInput.value
+                        };
+                        new Connection().tryConnect(connectInfo, processItemsPacket).finally(function () {
+                            if (connection) {
+                                statusLabel.innerText = shapez.T.mods.shapezipelago.inputBox.connected;
+                                statusButton.innerText = shapez.T.mods.shapezipelago.inputBox.disconnect;
+                            } else {
+                                statusLabel.innerText = shapez.T.mods.shapezipelago.inputBox.failed;
+                            }
+                        });
+                    } else {
+                        connection.disconnect();
+                        statusLabel.innerText = shapez.T.mods.shapezipelago.inputBox.disconnected;
+                        statusButton.innerText = shapez.T.mods.shapezipelago.inputBox.connect;
+                    }
+                });
             });
             statusContainer.appendChild(statusLabel);
             statusContainer.appendChild(statusButton);
         }
     });
+}
+
+export function addShapesanityBox() {
+    apdebuglog("Calling addShapesanityBox");
     modImpl.modInterface.registerHudElement("ingame_HUD_Shapesanity", HUDShapesanity);
-    modImpl.signals.gameStarted.add((/** @type {GameRoot} */ root) => {
+    modImpl.signals.gameStarted.add((root) => {
         if (connection) {
-            apdebuglog("Creating shapesanity button");
-            examples = [];
+            aptry("Shapesanity button creation failed", () => {
+                apdebuglog("Creating shapesanity button");
+                let game_menu = currentIngame.root.hud.parts["gameMenu"];
+                const shapesanityButton = document.createElement("button");
+                shapesanityButton.classList.add("shapesanityButton");
+                game_menu.element.prepend(shapesanityButton);
+                game_menu.trackClicks(shapesanityButton, () => currentIngame.root.hud.parts["ingame_HUD_Shapesanity"].show());
+                /*shapesanityButton.addEventListener("mousedown", () => {
+                    shapesanityButton.classList.add("pressed");
+                });
+                shapesanityButton.addEventListener("mouseout", () => {
+                    shapesanityButton.classList.remove("pressed");
+                });
+                shapesanityButton.addEventListener("mouseup", () => {
+                    shapesanityButton.classList.remove("pressed");
+                    root.hud.parts["ingame_HUD_Shapesanity"].show();
+                });*/
+            });
+            connection.reportStatusToServer(CLIENT_STATUS.PLAYING);
+            currentIngame.scoutedShapesanity = new Array(connection.shapesanityNames.length).fill(false);
             for (var name of connection.shapesanityNames) {
-                examples.push(root.shapeDefinitionMgr.getShapeFromShortKey(shapesanityExample(name)).generateAsCanvas(50));
+                currentIngame.shapesanityExamples.push(root.shapeDefinitionMgr.getShapeFromShortKey(shapesanityExample(name)).generateAsCanvas(50));
             }
-            var ingame_HUD_GameMenu;
-            for (var index = 0; index < document.body.children.length; index++) {
-                if (document.body.children.item(index).id === "ingame_HUD_GameMenu") {
-                    ingame_HUD_GameMenu = document.body.children.item(index);
-                }
-            }
-            const shapesanityButton = document.createElement("button");
-            shapesanityButton.classList.add("shapesanityButton");
-            shapesanityButton.addEventListener("mousedown", () => {
-                shapesanityButton.classList.add("pressed");
-            });
-            shapesanityButton.addEventListener("mouseout", () => {
-                shapesanityButton.classList.remove("pressed");
-            });
-            shapesanityButton.addEventListener("mouseup", () => {
-                shapesanityButton.classList.remove("pressed");
-                root.hud.parts["ingame_HUD_Shapesanity"].show();
-            });
-            ingame_HUD_GameMenu.appendChild(shapesanityButton);
         }
     });
 }
@@ -162,11 +158,11 @@ class HUDShapesanity extends BaseHUDPart {
                 var nextName = document.createElement("span");
                 nextName.classList.add("shapesanityName");
                 nextName.innerText = `${index+1}: ${translateShapesanity(connection.shapesanityNames[index])}`;
-                if (index < scouted.length ? scouted[index] : false) {
+                if (currentIngame.scoutedShapesanity[index]) {
                     divElem.classList.add("locationChecked");
                 }
                 divElem.appendChild(nextName);
-                divElem.appendChild(examples[index]);
+                divElem.appendChild(currentIngame.shapesanityExamples[index]);
             }
         }
     }
@@ -185,25 +181,23 @@ class HUDShapesanity extends BaseHUDPart {
     }
 
     scout() {
-        scouted = new Array(connection.shapesanityNames.length).fill(false);
-        for (var checked of connection.getCheckedLocationNames()) {
-            const name = checked.split(" ");
+        for (let checked of connection.getCheckedLocationNames()) {
+            let name = checked.split(" ");
             if (name[0] === "Shapesanity") {
-                var index = Number(name[1]);
-                if (!Number.isNaN(index)) {
-                    scouted[index-1] = true;
-                }
+                currentIngame.scoutedShapesanity[Number(name[1])-1] = true;
             }
         }
     }
 
     show() {
-        apdebuglog("Showing shapesanity checklist");
-        this.visible = true;
-        this.root.app.inputMgr.makeSureAttachedAndOnTop(this.inputReciever);
-        if (connection) this.scout();
-        this.update();
-        this.rerenderFull();
+        aptry("Shapesanity hud failed", () => {
+            apdebuglog("Showing shapesanity checklist");
+            this.visible = true;
+            this.root.app.inputMgr.makeSureAttachedAndOnTop(this.inputReciever);
+            if (connection) this.scout();
+            this.update();
+            this.rerenderFull();
+        });
     }
 
     close() {
@@ -222,20 +216,6 @@ class HUDShapesanity extends BaseHUDPart {
     
 }
 
-/**
- * @param {string} name
- */
-function translateShapesanity(name) {
-    if (translated[name])
-        return translated[name];
-    var words = name.split(" ");
-    for (var i = 0; i < words.length; i++)
-        if (shapez.T.mods.shapezipelago.shapesanityBox.name[words[i]])
-            words[i] = shapez.T.mods.shapezipelago.shapesanityBox.name[words[i]];
-    translated[name] = words.join(" ");
-    return translated[name];
-}
-
 const capitalColorNames = {
     "Uncolored": "u",
     "Red": "r",
@@ -252,6 +232,74 @@ const capitalShapeNames = {
     "Star": "S",
     "Windmill": "W"
 };
+
+/**
+ * @param {string} name
+ */
+function translateShapesanity(name) {
+    if (currentIngame.translated[name])
+        return currentIngame.translated[name];
+    var words = name.split(" ");
+    if (words.length == 2) { // simple full, 1-4
+        if (capitalColorNames[words[0]]) {
+            if (capitalShapeNames[words[1]]) {
+                var ret = shapez.T.mods.shapezipelago.shapesanityBox.byNoun[words[0]][words[1]]
+                    .replace("<shape>", shapez.T.mods.shapezipelago.shapesanityBox.shape[words[1]]);
+                currentIngame.translated[name] = ret.charAt(0).toUpperCase() + ret.slice(1);
+            } else {
+                currentIngame.translated[name] = shapez.T.mods.shapezipelago.shapesanityBox["1Color4Shapes"][words[0]].replace("<code>", words[1]);
+            }
+        } else {
+            currentIngame.translated[name] = shapez.T.mods.shapezipelago.shapesanityBox["4Colors1Shape"][words[1]].replace("<code>", words[0]);
+        }
+    } else if (words.length == 3) { // half, piece, cornered simple, 3-1, half-half, checkered
+        if (words[0] === "Half") {
+            currentIngame.translated[name] = shapez.T.mods.shapezipelago.shapesanityBox.byNoun.Half[words[2]]
+                .replace("<comb>", shapez.T.mods.shapezipelago.shapesanityBox.byNoun[words[1]][words[2]]
+                    .replace("<shape>", shapez.T.mods.shapezipelago.shapesanityBox.shape[words[2]]));
+        } else if (words[2] === "Piece") {
+            var ret = shapez.T.mods.shapezipelago.shapesanityBox.Piece[words[1]]
+                .replace("<comb>", shapez.T.mods.shapezipelago.shapesanityBox.byNoun[words[0]].Piece
+                    .replace("<shape>", shapez.T.mods.shapezipelago.shapesanityBox.shape[words[1]]));
+            currentIngame.translated[name] = ret.charAt(0).toUpperCase() + ret.slice(1);
+        } else if (words[0] === "Cornered") {
+            currentIngame.translated[name] = shapez.T.mods.shapezipelago.shapesanityBox.byNoun.Cornered[words[2]]
+                .replace("<comb>", shapez.T.mods.shapezipelago.shapesanityBox.byNoun[words[1]][words[2]]
+                    .replace("<shape>", shapez.T.mods.shapezipelago.shapesanityBox.shape[words[2]]));
+        } else if (words[0] === "3-1") {
+            currentIngame.translated[name] = shapez.T.mods.shapezipelago.shapesanityBox.shortKeys["3-1"]
+                .replace("<codes>", `${words[1]} ${words[2]}`);
+        } else if (words[0] === "Half-Half") {
+            currentIngame.translated[name] = shapez.T.mods.shapezipelago.shapesanityBox.shortKeys["Half-Half"]
+                .replace("<codes>", `${words[1]} ${words[2]}`);
+        } else { // if (words[0] === "Checkered")
+            currentIngame.translated[name] = shapez.T.mods.shapezipelago.shapesanityBox.shortKeys["Checkered"]
+                .replace("<codes>", `${words[1]} ${words[2]}`);
+        }
+    } else if (words.length == 4) { // Cut Out, 2-sided singles and 2-1, 3-part singles
+        if (words[0] === "Cut") {
+            currentIngame.translated[name] = shapez.T.mods.shapezipelago.shapesanityBox.byNoun.CutOut[words[3]]
+                .replace("<comb>", shapez.T.mods.shapezipelago.shapesanityBox.byNoun[words[2]][words[3]]
+                    .replace("<shape>", shapez.T.mods.shapezipelago.shapesanityBox.shape[words[3]]));
+        } else if (words[0] === "Singles") {
+            currentIngame.translated[name] = shapez.T.mods.shapezipelago.shapesanityBox.shortKeys["Singles"]
+                .replace("<codes>", `${words[1]} ${words[2]} ${words[3]}`);
+        } else { // 2-sided singles and 2-1
+            currentIngame.translated[name] = shapez.T.mods.shapezipelago.shapesanityBox.shortKeys[words[0]+words[1]]
+                .replace("<codes>", `${words[2]} ${words[3]}`);
+        }
+    } else { // (words.length == 5): 3-part 2-1-1, 4-part
+        if (words[0] === "Singles") {
+            currentIngame.translated[name] = shapez.T.mods.shapezipelago.shapesanityBox.shortKeys["Singles"]
+                .replace("<codes>", `${words[1]} ${words[2]} ${words[3]} ${words[4]}`);
+        } else { // 3-part 2-1-1
+            currentIngame.translated[name] = shapez.T.mods.shapezipelago.shapesanityBox.shortKeys[words[0]+words[1]]
+                .replace("<codes>", `${words[2]} ${words[3]} ${words[4]}`);
+        }
+    }
+    return currentIngame.translated[name];
+}
+
 const oneWordLen3 = {
     "Half": (words) => {
         const code = capitalShapeNames[words[2]]+capitalColorNames[words[1]]; 
