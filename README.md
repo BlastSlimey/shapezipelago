@@ -18,7 +18,6 @@ Client mod for the Archipelago multiworld randomizer.
 - TECHNICAL:    Rework building overrides for future mod compatibility
 - TECHNICAL:    Rework item receiving from "only index 0" to expected behavior
 - TECHNICAL:    Convert to TypeScript
-- TECHNICAL:    Implement task-based shape generation
 ### Both
 - FEATURE:      Add bounty goal: collect mcguffins, enough of them reveal bounty (always fully randomized shape with up to 4 layers), checking that sends goal (not without enough mcguffins)
 - FEATURE:      Add Maximum goal: all other goals combined
