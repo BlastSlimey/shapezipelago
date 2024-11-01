@@ -1,5 +1,5 @@
 import { RandomNumberGenerator } from "shapez/core/rng";
-import { baseBuildingNames, connection, currentIngame, customRewards } from "./global_data";
+import { apdebuglog, baseBuildingNames, connection, currentIngame, customRewards } from "./global_data";
 
 export function vanillaShapes() {
     const multiplier = connection.requiredShapesMultiplier;
@@ -92,7 +92,7 @@ export function randomizedVanillaStepsShapes(randomizer) {
     }
     for (var i = 11; i <= 26; i++) {
         levelsdefs[i-1] = {
-            shape: calcRandomShape(randomizer, Math.ceil(i/2)-Math.max(14-i, 0), true, true, true, true, true), 
+            shape: calcRandomShape(randomizer, i-6, true, true, true, true, true), 
             required: getAmountByLevel(i), reward: customRewards.ap,
             throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio
         };
@@ -101,7 +101,7 @@ export function randomizedVanillaStepsShapes(randomizer) {
     levelsdefs[19].reward = customRewards.easter_egg;
     for (var i = 27; i <= connection.levelsToGenerate; i++) {
         levelsdefs.push({
-            shape: calcRandomShape(randomizer, Math.ceil(i/2)-Math.max(38-i, 0), true, true, true, true, true), 
+            shape: calcRandomShape(randomizer, i-22, true, true, true, true, true), 
             required: getThroughputByLevel(27), reward: customRewards.ap,
             throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio || throughputratio == -1
         });
@@ -262,7 +262,6 @@ export function randomizedRandomStepsShapes(randomizer) {
             });
         }
     }
-
     for (var ii = levelsdefs.length+1; ii <= levelstogenerate; ii++) {
         levelsdefs.push({shape: calcRandomShape(randomizer, Math.ceil(8+(ii-levelsdefs.length)/2), true, true, true, true, true), 
             required: getAmountByLevel(ii), reward: customRewards.ap,
@@ -438,22 +437,41 @@ export function vanillaUpgradeShapes() {
 export function vanillaLikeUpgradeShapes(randomizer) {
     const phase = connection.positionOfUpgradeBuilding;
     const beltshapes = [calcRandomShape(randomizer, 0, false, false, false, false, false)];
-    beltshapes.push(calcRandomShape(randomizer, 3, phase[baseBuildingNames.cutter] <= 2, phase[baseBuildingNames.rotator] <= 2, phase[baseBuildingNames.stacker] <= 2, phase[baseBuildingNames.painter] <= 2, phase[baseBuildingNames.mixer] <= 2, beltshapes));
+    beltshapes.push(calcRandomShape(
+        randomizer, 3, phase[baseBuildingNames.cutter] <= 2, phase[baseBuildingNames.rotator] <= 2, 
+        phase[baseBuildingNames.stacker] <= 2, phase[baseBuildingNames.painter] <= 2, phase[baseBuildingNames.mixer] <= 2, 
+        beltshapes
+    ));
     beltshapes.push(calcRandomShape(randomizer, 6, true, true, true, true, true, beltshapes));
     beltshapes.push(calcRandomShape(randomizer, 8, true, true, true, true, true, beltshapes));
     beltshapes.push(calcRandomShape(randomizer, 10, true, true, true, true, true, beltshapes));
     const minershapes = [calcRandomShape(randomizer, 0, false, false, false, false, false)];
-    minershapes.push(calcRandomShape(randomizer, 3, phase[baseBuildingNames.cutter] <= 2, phase[baseBuildingNames.rotator] <= 2, phase[baseBuildingNames.stacker] <= 2, phase[baseBuildingNames.painter] <= 2, phase[baseBuildingNames.mixer] <= 2, minershapes));
+    minershapes.push(calcRandomShape(
+        randomizer, 3, phase[baseBuildingNames.cutter] <= 2, phase[baseBuildingNames.rotator] <= 2, 
+        phase[baseBuildingNames.stacker] <= 2, phase[baseBuildingNames.painter] <= 2, phase[baseBuildingNames.mixer] <= 2, 
+        minershapes
+    ));
     minershapes.push(calcRandomShape(randomizer, 6, true, true, true, true, true, minershapes));
     minershapes.push(calcRandomShape(randomizer, 8, true, true, true, true, true, minershapes));
     minershapes.push(calcRandomShape(randomizer, 10, true, true, true, true, true, minershapes));
     const processorsshapes = [calcRandomShape(randomizer, 0, false, false, false, false, false)];
-    processorsshapes.push(calcRandomShape(randomizer, 1, phase[baseBuildingNames.cutter] <= 1, phase[baseBuildingNames.rotator] <= 1, phase[baseBuildingNames.stacker] <= 1, phase[baseBuildingNames.painter] <= 1, phase[baseBuildingNames.mixer] <= 1, processorsshapes));
+    processorsshapes.push(calcRandomShape(
+        randomizer, 1, phase[baseBuildingNames.cutter] <= 1, phase[baseBuildingNames.rotator] <= 1, 
+        phase[baseBuildingNames.stacker] <= 1, phase[baseBuildingNames.painter] <= 1, phase[baseBuildingNames.mixer] <= 1, 
+        processorsshapes
+    ));
     processorsshapes.push(calcRandomShape(randomizer, 6, true, true, true, true, true, processorsshapes));
     processorsshapes.push(calcRandomShape(randomizer, 8, true, true, true, true, true, processorsshapes));
     processorsshapes.push(calcRandomShape(randomizer, 10, true, true, true, true, true, processorsshapes));
-    const paintingshapes = [calcRandomShape(randomizer, 3, phase[baseBuildingNames.cutter] <= 3, phase[baseBuildingNames.rotator] <= 3, phase[baseBuildingNames.stacker] <= 3, phase[baseBuildingNames.painter] <= 3, phase[baseBuildingNames.mixer] <= 3)];
-    paintingshapes.push(calcRandomShape(randomizer, 4, phase[baseBuildingNames.cutter] <= 3, phase[baseBuildingNames.rotator] <= 3, phase[baseBuildingNames.stacker] <= 3, phase[baseBuildingNames.painter] <= 3, phase[baseBuildingNames.mixer] <= 3, paintingshapes));
+    const paintingshapes = [calcRandomShape(
+        randomizer, 3, phase[baseBuildingNames.cutter] <= 3, phase[baseBuildingNames.rotator] <= 3, 
+        phase[baseBuildingNames.stacker] <= 3, phase[baseBuildingNames.painter] <= 3, phase[baseBuildingNames.mixer] <= 3
+    )];
+    paintingshapes.push(calcRandomShape(
+        randomizer, 4, phase[baseBuildingNames.cutter] <= 3, phase[baseBuildingNames.rotator] <= 3, 
+        phase[baseBuildingNames.stacker] <= 3, phase[baseBuildingNames.painter] <= 3, phase[baseBuildingNames.mixer] <= 3, 
+        paintingshapes
+    ));
     paintingshapes.push(calcRandomShape(randomizer, 6, true, true, true, true, true, paintingshapes));
     paintingshapes.push(calcRandomShape(randomizer, 8, true, true, true, true, true, paintingshapes));
     paintingshapes.push(calcRandomShape(randomizer, 10, true, true, true, true, true, paintingshapes));
@@ -831,6 +849,10 @@ function constructUpgradeShapes(randomizer, beltshapes, minershapes, processorss
     return upgradedefs;
 }
 
+const NONE = 0;
+const VERTICAL = 1;
+const HORIZONTAL = 2;
+
 /**
  * @param {RandomNumberGenerator} randomizer
  * @returns {string} full shape
@@ -843,33 +865,44 @@ function constructUpgradeShapes(randomizer, beltshapes, minershapes, processorss
  * @param {Array<string>} exclude
  */
 function calcRandomShape(randomizer, complexity, hasCutter, hasRotator, hasStacker, hasPainter, hasMixer, exclude = []) {
-    complexity = Math.min(complexity, 30);
+    // complexity = Math.min(complexity, 40);
     let hash = "";
     do {
-        if (hasStacker && complexity > 0 && randomizer.choice([true, true, false])) { // 50% to still be single layer
+        // There should always be at least as many complexity as there are available buildings.
+        // !hasCutter because single layer always needs cutting as first processing.
+        // complexity < 3 || (complexity == 3 && hasRotator) because single layers need more processing to get to first stacking.
+        // 33% chance to still be single layer.
+        if (hasStacker && (
+            !hasCutter || complexity < 3 || (complexity == 3 && hasRotator) || randomizer.choice([true, true, true, false])
+        )) { 
+            let available = getBuildingBools(hasCutter, hasRotator, hasStacker, hasPainter, hasMixer);
+            let tasked = getBuildingBools(hasCutter, hasRotator, false, hasPainter, hasMixer);
+            /** @type {[number]}*/ let floatCutting = [NONE];
             // Randomize layer count while considering that you need to stack layers
-            let layercount = Math.min(randomizer.choice([2, 2, 2, 3, 4]), complexity+1);
+            let layercount = Math.min(
+                randomizer.choice([2, 2, 2, 3, 3, 4]), complexity+1-addBoolean(hasCutter, hasRotator, hasPainter, hasMixer)
+            );
             // Subtract the stacking from complexity
             complexity -= layercount-1;
-            // Distribute complexities for each layer
-            let complexities = new Array(layercount);
-            for (let i = 1; i < layercount; i++) {
-                complexities[i] = weightedRandomIntRange(randomizer, 0, complexity);
-                complexity -= complexities[i];
-            }
-            complexities[0] = complexity;
             // Generate layers
-            hash = calcRandomLayer(randomizer, complexities[0], hasCutter, hasRotator, true, hasPainter, hasMixer);
-            for (let i = 1; i < layercount; i++)
-                hash = stackLayers(hash, calcRandomLayer(randomizer, complexities[i], hasCutter, hasRotator, true, hasPainter, hasMixer), hasRotator);
-        } else { // hasStacker == false
-            if (!hasCutter && !hasRotator && !hasPainter && !hasMixer) {
-                hash = randomizer.choice(["CuCuCuCu", "RuRuRuRu", "SuSuSuSu", "RuRuWuWu"]);
-            } else {
-                hash = calcRandomLayer(randomizer, complexity, hasCutter, hasRotator, hasStacker, hasPainter, hasMixer);
+            for (let i = layercount-1; i > 0; i--) {
+                let complexityPart = weightedRandomIntRange(randomizer, 0, complexity-addBoolean(
+                    tasked.cutter, tasked.rotator, tasked.painter || tasked.mixer, tasked.mixer
+                ));
+                complexity -= complexityPart;
+                let layer = calcRandomLayer(randomizer, complexityPart, available, tasked, getEmptyBuildingBools());
+                hash = stackLayers(hash, layer, available, tasked, floatCutting);
             }
+            hash = stackLayers(hash, calcRandomLayer(
+                randomizer, complexity, available, tasked, copyBuildingBools(tasked)
+            ), available, tasked, floatCutting);
+        } else {
+            let available = getBuildingBools(hasCutter, hasRotator, hasStacker, hasPainter, hasMixer);
+            hash = calcRandomLayer(
+                randomizer, complexity, available, copyBuildingBools(available), copyBuildingBools(available)
+            );
         }
-    } while (exclude.includes(hash));
+    } while (exclude.includes(hash) || (hash.length > 8 && hash.startsWith("RrRrRrRr")));
     return hash;
 }
 
@@ -877,21 +910,28 @@ function calcRandomShape(randomizer, complexity, hasCutter, hasRotator, hasStack
  * @param {string} bottom
  * @param {string} newlayer
  * @returns {string} bottom:newlayer or newlayer merged with top layer of bottom
- * @param {boolean} [hasRotator]
+ * @param {buildingBools} available
+ * @param {buildingBools} tasked
+ * @param {[number]} floatCutting
  */
-function stackLayers(bottom, newlayer, hasRotator) {
-    if (connection.isFloatingLayersAllowed && hasRotator) {
-        let possible = 2;
-        if ((newlayer.substring(0, 4) !== "----" && bottom.substring(bottom.length-8, bottom.length-4) === "----") || 
-            (newlayer.substring(4) !== "----" && bottom.substring(bottom.length-4) === "----")) {
-            possible--;
+function stackLayers(bottom, newlayer, available, tasked, floatCutting) {
+    if (bottom === "") return newlayer;
+    if (connection.isFloatingLayersAllowed && available.rotator) { // rotator only ever available if cutter available
+        if (floatCutting[0] != HORIZONTAL && 
+            !(newlayer.substring(0, 4) !== "----" && bottom.substring(bottom.length-8, bottom.length-4) === "----") && 
+            !(newlayer.substring(4) !== "----" && bottom.substring(bottom.length-4) === "----")) {
+            floatCutting[0] = VERTICAL;
+            tasked.rotator = false;
+            tasked.cutter = false;
+            return bottom + ":" + newlayer;
         }
-        if ((newlayer.substring(2, 6) !== "----" && bottom.substring(bottom.length-6, bottom.length-2) === "----") || 
-            ((newlayer.charAt(6) !== "-" || newlayer.charAt(0) !== "-") && 
-             (bottom.charAt(bottom.length-2) === "-" && bottom.charAt(bottom.length-8) === "-"))) {
-            possible--;
-        }
-        if (possible) {
+        if (floatCutting[0] != VERTICAL && 
+            !(newlayer.substring(2, 6) !== "----" && bottom.substring(bottom.length-6, bottom.length-2) === "----") && 
+            !((newlayer.charAt(6) !== "-" || newlayer.charAt(0) !== "-") && 
+              (bottom.charAt(bottom.length-2) === "-" && bottom.charAt(bottom.length-8) === "-"))) {
+            floatCutting[0] = HORIZONTAL;
+            tasked.rotator = false;
+            tasked.cutter = false;
             return bottom + ":" + newlayer;
         }
     }
@@ -914,68 +954,206 @@ function stackLayers(bottom, newlayer, hasRotator) {
  * @param {RandomNumberGenerator} randomizer
  * @returns {string} XxXxXxXx
  * @param {number} complexity
- * @param {boolean} hasCutter
- * @param {boolean} hasRotator
- * @param {boolean} hasStacker
- * @param {boolean} hasPainter
- * @param {boolean} hasMixer
+ * @param {buildingBools} available
+ * @param {buildingBools} tasked
+ * @param {buildingBools} important
  */
-function calcRandomLayer(randomizer, complexity, hasCutter, hasRotator, hasStacker, hasPainter, hasMixer) {
-    if (!(hasCutter || hasRotator || hasPainter || hasMixer)) {
-        return randomizer.choice(["CuCuCuCu", "RuRuRuRu", "SuSuSuSu", "RuRuWuWu"]);
-    }
-    let layer = "";
-    if (hasCutter && complexity > 0 && (!hasPainter || complexity > 3 || randomizer.choice([true, false]))) {
-        complexity--;
-        let complexityfirst = weightedRandomIntRange(randomizer, 0, complexity);
-        layer = calcRandomHalf(randomizer, complexityfirst, hasRotator, hasStacker, hasPainter, hasMixer);
-        complexity -= complexityfirst;
-        switch (complexity) {
-            case 0:
-                if (isWindmillHalf(layer) || randomizer.choice([true, false])) {
-                    layer = "----" + layer;
-                } else {
-                    layer = layer + "----";
-                }
-                break;
-            // @ts-ignore
-            case 2:
-                if (hasStacker && !isWindmillHalf(layer)) {
-                    complexity -= 2;
-                    let complexitysecond = complexity - randomizer.nextIntRange(0, 2);
-                    layer += calcRandomHalf(randomizer, complexitysecond, hasRotator, true, hasPainter, hasMixer);
-                    complexity -= complexitysecond;
-                    break;
-                }
-            case 1:
-                if (randomizer.choice([true, false])) {
-                    layer = "----" + layer;
-                } else {
-                    if (isWindmillHalf(layer)) complexity--;
-                    layer = layer + "----";
-                }
-                break;
-            default:
-                if (hasStacker) {
-                    complexity -= 2;
-                    let complexitysecond = complexity - randomizer.nextIntRange(0, 2);
-                    layer += calcRandomHalf(randomizer, complexitysecond, hasRotator, true, hasPainter, hasMixer);
-                    complexity -= complexitysecond;
-                } else {
-                    if (randomizer.choice([true, false])) {
-                        layer = "----" + layer;
-                    } else {
-                        if (isWindmillHalf(layer)) complexity--;
-                        layer = layer + "----";
+function calcRandomLayer(randomizer, complexity, available, tasked, important) {
+    // Save complexities for later if rotator, painter, and mixer is important.
+    let savedRotator = addBoolean(important.rotator);
+    if (savedRotator) important.rotator = false;
+    let savedPainterMixer = important.mixer ? 2 : (important.painter ? 1 : 0);
+    complexity -= savedRotator + savedPainterMixer;
+    let variant = [8];
+    if (available.cutter) {
+        if (complexity) variant.push(1, 9);
+        if (available.stacker) {
+            if (complexity >= 3) variant.push(2, 10);
+            if (available.rotator) {
+                if (complexity >= 3) variant.push(7);
+                if (complexity >= 4) variant.push(3);
+                if (complexity >= 5) variant.push(5);
+                if (complexity >= 8) variant.push(4);
+                if (complexity >= 11) variant.push(6);
+            }
+        }
+        if (addBoolean(important.cutter, important.rotator, important.stacker)) {
+            if (!available.stacker) variant = [1, 9];
+            else if (!available.rotator) { // stacker available, but not rotator
+                variant = [2, 10];
+                if (!important.stacker) variant.push(1, 9);
+            } else { // stacker and rotator available
+                // remove 8, it's always first element
+                variant.splice(1);
+                if (important.rotator) {
+                    // remove 1, 9 if cutterImp or comp < 7
+                    if ((important.cutter || complexity < 7) && variant[0] == 1) {
+                        variant.splice(2);
                     }
+                } else if (important.stacker) {
+                    // First remove 1, 2, 9, 10 to then re-add them
+                    if (variant[0] == 1) variant.splice(2);
+                    if (variant[0] == 2) variant.splice(2);
+                    // add 1, 9 if comp >= 7 and 2, 10 if comp >= 9
+                    if (complexity >= 7) variant.push(1, 9);
+                    if (complexity >= 9) variant.push(2, 10);
                 }
+            }
         }
-        if (hasRotator && complexity > 0 && randomizer.choice([true, false])) {
-            layer = layer.substring(2, 8) + layer.substring(0, 2);
-        }
-    } else {
-        layer = calcRandomPart(randomizer, complexity, hasPainter, hasMixer, false);
-        layer += layer + layer + layer;
+    }
+    // Bring back needed painter and mixer complexity
+    complexity += savedPainterMixer;
+    let layer = "";
+    switch (randomizer.choice(variant)) {
+        case 1:
+            tasked.cutter = false;
+            important.cutter = false;
+            complexity--;
+            layer = calcRandomHalf(randomizer, complexity, available, tasked, important);
+            if (isWindmillHalf(layer) || randomizer.choice([true, false])) layer = "----" + layer;
+            else layer = layer + "----";
+            break;
+        case 2:
+            // There is no point in updating important
+            tasked.cutter = false;
+            tasked.stacker = false;
+            complexity -= 3;
+            var complexityPart = weightedRandomIntRange(randomizer, 0, complexity-addBoolean(
+                important.rotator, important.painter || important.mixer, important.mixer
+            ));
+            complexity -= complexityPart;
+            /** @type {buildingBools} */var resetTasked;
+            do {
+                resetTasked = copyBuildingBools(tasked)
+                layer = calcRandomHalf(randomizer, complexityPart, available, resetTasked, getEmptyBuildingBools());
+            }
+            while (isWindmillHalf(layer));
+            layer += calcRandomHalf(
+                randomizer, complexity, available, resetTasked, updateBuildingBoolCompletions(important, resetTasked)
+            );
+            break;
+        case 3:
+            // There is no point in updating painting-unrelated important
+            tasked.cutter = false;
+            tasked.rotator = false;
+            tasked.stacker = false;
+            complexity -= 4;
+            layer = calcRandomSubShape(randomizer, true) + calcRandomColor(randomizer, complexity, available, tasked, important);
+            switch (randomizer.nextIntRange(0, 4)) {
+                case 0: layer = "--" + layer + layer + layer; break
+                case 1: layer = layer + "--" + layer + layer; break
+                case 2: layer = layer + layer + "--" + layer; break
+                case 3: layer = layer + layer + layer + "--"; break
+            }
+            break;
+        case 4:
+            // There is no point in updating important
+            tasked.cutter = false;
+            tasked.rotator = false;
+            tasked.stacker = false;
+            complexity -= 8;
+            var complexityPart = weightedRandomIntRange(randomizer, 0, complexity-addBoolean(
+                important.painter || important.mixer, important.mixer
+            ));
+            complexity -= complexityPart;
+            layer = calcRandomSubShape(randomizer, true) + calcRandomColor(
+                randomizer, complexity, available, tasked, getEmptyBuildingBools()
+            );
+            let single = calcRandomSubShape(randomizer, true) + calcRandomColor(
+                randomizer, complexity, available, tasked, updateBuildingBoolCompletions(important, tasked), layer.charAt(1)
+            );
+            switch (randomizer.nextIntRange(0, 4)) {
+                case 0: layer = single + layer + layer + layer; break
+                case 1: layer = layer + single + layer + layer; break
+                case 2: layer = layer + layer + single + layer; break
+                case 3: layer = layer + layer + layer + single; break
+            }
+            break;
+        case 5:
+            // There is no point in updating painting-unrelated important
+            tasked.cutter = false;
+            tasked.rotator = false;
+            tasked.stacker = false;
+            complexity -= 5;
+            layer = calcRandomSubShape(randomizer, true) + calcRandomColor(randomizer, complexity, available, tasked, important);
+            if (randomizer.choice([true, false])) layer = "--" + layer + "--" + layer;
+            else layer = layer + "--" + layer + "--";
+            break;
+        case 6:
+            // There is no point in updating painting-unrelated important
+            tasked.cutter = false;
+            tasked.rotator = false;
+            tasked.stacker = false;
+            complexity -= 11;
+            var color = calcRandomColor(randomizer, complexity, available, tasked, important);
+            let shapePool = ["--", "C"+color, "R"+color, "S"+color, "W"+color];
+            for (let i = 0; i < 4; i++) {
+                let index = randomizer.nextIntRange(0, shapePool.length);
+                layer += shapePool[index];
+                shapePool.splice(index, 1);
+            }
+            break;
+        case 7:
+            tasked.cutter = false;
+            important.cutter = false;
+            tasked.rotator = false;
+            important.rotator = false;
+            tasked.stacker = false;
+            important.stacker = false;
+            complexity -= 3;
+            layer = calcRandomHalf(randomizer, complexity, available, tasked, important);
+            layer += layer;
+            break;
+        case 8:
+            var color = calcRandomColor(randomizer, complexity, available, tasked, important);
+            switch (randomizer.nextIntRange(0, 4)) {
+                case 0: layer = "C"+color+"C"+color+"C"+color+"C"+color; break;
+                case 1: layer = "R"+color+"R"+color+"R"+color+"R"+color; break;
+                case 2: layer = "S"+color+"S"+color+"S"+color+"S"+color; break;
+                case 3: layer = "R"+color+"R"+color+"W"+color+"W"+color; break;
+            }
+            break;
+        case 9:
+            tasked.cutter = false;
+            important.cutter = false;
+            complexity--;
+            layer = calcRandomHalf(randomizer, complexity, available, tasked, important);
+            if (!complexity || randomizer.choice([true, false])) layer = "----" + layer;
+            else {
+                if (isWindmillHalf(layer)) complexity--;
+                layer = layer + "----"
+            };
+            break;
+        case 10:
+            // There is no point in updating important
+            tasked.cutter = false;
+            tasked.stacker = false;
+            complexity -= 3;
+            var complexityPart = weightedRandomIntRange(randomizer, 0, complexity-addBoolean(
+                important.rotator, important.painter || important.mixer, important.mixer
+            ));
+            complexity -= complexityPart;
+            var resetTasked = copyBuildingBools(tasked);
+            layer = calcRandomHalf(randomizer, complexityPart, available, resetTasked, getEmptyBuildingBools());
+            if (complexity) {
+                if (isWindmillHalf(layer)) complexity--;
+                layer += calcRandomHalf(
+                    randomizer, complexity, available, resetTasked, updateBuildingBoolCompletions(important, resetTasked)
+                );
+            } else {
+                while (isWindmillHalf(layer)) {
+                    resetTasked = copyBuildingBools(tasked);
+                    layer = calcRandomHalf(randomizer, complexityPart, available, resetTasked, getEmptyBuildingBools());
+                }
+                layer += calcRandomHalf(randomizer, complexity, available, resetTasked, 
+                    updateBuildingBoolCompletions(important, resetTasked)
+                );
+            }
+            break;
+    }
+    // savedRotator is only 1 if it's important
+    if (savedRotator || (available.rotator && complexity && randomizer.choice([true, false]))) {
+        layer = layer.substring(2, 8) + layer.substring(0, 2);
     }
     return layer;
 }
@@ -990,62 +1168,88 @@ function isWindmillHalf(half) {
 }
 
 /**
- * @param {RandomNumberGenerator} randomizer 
+ * Only called if hasCutter == true
+ * @param {RandomNumberGenerator} randomizer
  * @returns {string} XxXx
+ * @param {number} complexity
+ * @param {buildingBools} available
+ * @param {buildingBools} tasked
+ * @param {buildingBools} important
  */
-function calcRandomHalf(randomizer, complexity, hasRotator, hasStacker, hasPainter, hasMixer) {
-    let part;
-    if (hasRotator && hasStacker && complexity >= 6) {
-        complexity -= 6;
-        part = calcRandomPart(randomizer, Math.ceil(complexity/2), hasPainter, hasMixer, true);
-        part += calcRandomPart(randomizer, Math.floor(complexity/2), hasPainter, hasMixer, true, part.charAt(1));
-    } else if (hasRotator && complexity >= 2) {
-        complexity -= 2;
-        part = calcRandomPart(randomizer, complexity, hasPainter, hasMixer, true);
-        if (randomizer.choice([true, false])) {
-            part += "--"
-        } else {
-            part = "--" + part
-        }
-    } else {
-        part = calcRandomPart(randomizer, complexity, hasPainter, hasMixer, true);
-        part += part;
+function calcRandomHalf(randomizer, complexity, available, tasked, important) {
+    let complexityProcessing = complexity - addBoolean(important.painter || important.mixer, important.mixer);
+    let pool = [0];
+    let part = "";
+    if (available.rotator && complexityProcessing >= 2) pool.push(1);
+    if (available.rotator && available.stacker && complexityProcessing >= 6) pool.push(2);
+    if (important.rotator || important.stacker) pool.splice(0, 1);
+    if (important.stacker && pool[0] == 1) pool.splice(0, 1);
+    switch (randomizer.choice(pool)) {
+        case 0:
+            part = calcRandomSubShape(randomizer, true) + calcRandomColor(randomizer, complexity, available, tasked, important);
+            part += part;
+            break;
+        case 1:
+            // There is no point in updating important
+            tasked.rotator = false;
+            complexity -= 2;
+            part = calcRandomSubShape(randomizer, true) + calcRandomColor(randomizer, complexity, available, tasked, important);
+            if (randomizer.choice([true, false])) part += "--";
+            else part = "--" + part;
+            break;
+        case 2:
+            // There is no point in updating important
+            tasked.rotator = false;
+            tasked.stacker = false;
+            complexity -= 6;
+            let complexityPart = weightedRandomIntRange(randomizer, 0, complexity-addBoolean(
+                important.painter || important.mixer, important.mixer
+            ));
+            part = calcRandomSubShape(randomizer, true) + calcRandomColor(
+                randomizer, complexityPart, available, tasked, getEmptyBuildingBools()
+            );
+            part += calcRandomSubShape(randomizer, true) + calcRandomColor(
+                randomizer, complexity-complexityPart, available, tasked, 
+                updateBuildingBoolCompletions(important, tasked), part.charAt(1)
+            );
+            break;
     }
     return part;
 }
 
 /**
- * 
- * @param {RandomNumberGenerator} randomizer 
- * @returns {string} Xx
+ * @param {RandomNumberGenerator} randomizer
+ * @param {boolean} windmillAllowed
  */
-function calcRandomPart(randomizer, complexity, hasPainter, hasMixer, windmillAllowed, preferredColor = null) {
-    const subshapes = ["C", "R", "S"];
-    if (windmillAllowed) {
-        subshapes.push("W");
-    }
-    const colors = ["u"];
-    if (hasPainter && complexity > 0) {
-        colors.push("r", "g", "b");
-        if (hasMixer && complexity > 1) {
-            colors.push("y", "p", "c");
-            if (complexity > 2) {
-                colors.push("w");
-            }
-        }
-    }
+function calcRandomSubShape(randomizer, windmillAllowed) {
+    let pool = ["C", "R", "S"];
+    if (windmillAllowed) pool.push("W");
+    return randomizer.choice(pool);
+}
+
+/**
+ * @param {RandomNumberGenerator} randomizer
+ * @param {number} complexity
+ * @param {buildingBools} available
+ * @param {buildingBools} tasked
+ * @param {buildingBools} important
+ */
+function calcRandomColor(randomizer, complexity, available, tasked, important, preferredColor = null) {
+    let pool = ["u"];
+    if (available.painter && complexity) pool.push("r", "g", "b");
+    if (available.mixer && complexity >= 2) pool.push("y", "p", "c");
+    if (available.mixer && complexity >= 3) pool.push("w");
+    if (important.painter || important.mixer) pool.splice(0, 1);
+    if (important.mixer) pool.splice(0, 3);
     if (preferredColor) {
-        if (colors.includes(preferredColor)) {
-            for (let i = colors.length; i > 2; i--) {
-                colors.push(preferredColor);
-            }
-        } else {
-            for (let i = colors.length; i > 0; i--) {
-                colors.push(preferredColor);
-            }
-        }
+        let includePreferred = false;
+        for (let c of pool) if (c === preferredColor) includePreferred = true;
+        if (includePreferred) for (let i = pool.length-2; i > 0; i--) pool.push(preferredColor);
     }
-    return randomizer.choice(subshapes) + randomizer.choice(colors);
+    let ret = randomizer.choice(pool);
+    if (ret !== "u") {tasked.painter = false; important.painter = false;}
+    if (!["u", "r", "g", "b"].includes(ret)) {tasked.mixer = false; important.mixer = false;}
+    return ret;
 }
 
 /**
@@ -1057,4 +1261,61 @@ function weightedRandomIntRange(randomizer, start, end) {
     return start 
         + randomizer.nextIntRange(0, Math.floor((end-start)/2)+1) 
         + randomizer.nextIntRange(0, Math.ceil((end-start)/2)+1);
+}
+
+function addBoolean(... bool) {
+    let sum = 0;
+    for (let b of bool) if (b) sum++;
+    return sum;
+}
+
+/**
+ * @param {boolean} hasCutter
+ * @param {boolean} hasRotator
+ * @param {boolean} hasStacker
+ * @param {boolean} hasPainter
+ * @param {boolean} hasMixer
+ * @returns {buildingBools}
+ */
+function getBuildingBools(hasCutter, hasRotator, hasStacker, hasPainter, hasMixer) {
+    return {
+        cutter: hasCutter,
+        rotator: hasRotator,
+        stacker: hasStacker,
+        painter: hasPainter,
+        mixer: hasMixer
+    };
+}
+
+/**
+ * @returns {buildingBools}
+ */
+function getEmptyBuildingBools() {
+    return {
+        cutter: false,
+        rotator: false,
+        stacker: false,
+        painter: false,
+        mixer: false
+    };
+}
+
+/**
+ * @param {buildingBools} old
+ * @returns {buildingBools}
+ */
+function copyBuildingBools(old) {
+    let copy = getEmptyBuildingBools();
+    for (let building in old) copy[building] = old[building];
+    return copy;
+}
+
+/**
+ * @param {buildingBools} toupdate
+ * @param {buildingBools} template
+ * @returns {buildingBools} toupdate
+ */
+function updateBuildingBoolCompletions(toupdate, template) {
+    for (let building in toupdate) toupdate[building] &= template[building];
+    return toupdate
 }

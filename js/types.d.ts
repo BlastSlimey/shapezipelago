@@ -31,6 +31,13 @@ declare module "shapez/core/signal" {
         removeAll(): void;
     }
 }
+declare type buildingBools = {
+    cutter: boolean;
+    rotator: boolean;
+    stacker: boolean;
+    painter: boolean;
+    mixer: boolean;
+}
 declare function tick(): void;
 declare const bgFps: 30;
 declare const desiredMsDelay: number;

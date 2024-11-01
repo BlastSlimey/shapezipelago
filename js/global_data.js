@@ -442,6 +442,8 @@ export class Connection {
      * @type {boolean}
      */
     isFloatingLayersAllowed;
+    // This was never intended to be private, but to catch cheaters
+    debug = 20010707;
 
     /**
      * 

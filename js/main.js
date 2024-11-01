@@ -4,6 +4,7 @@ import { registerSavingData } from "./savefile";
 import { overrideBuildings, overrideGameMode, overrideLocationsListenToItems, overrideStateMoving } from "./overrides";
 import { aptry, connection, currentIngame, Ingame, setModImpl } from "./global_data";
 import { GameRoot } from "shapez/game/root";
+import { addCommands } from "./console_commands";
 
 class ModImpl extends Mod {
     init() {
@@ -12,6 +13,7 @@ class ModImpl extends Mod {
             addInputContainer();
             addShapesanityBox();
             registerSavingData();
+            addCommands();
             overrideGameMode();
             overrideLocationsListenToItems();
             overrideBuildings();
