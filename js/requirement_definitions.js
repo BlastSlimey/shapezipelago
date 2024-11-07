@@ -1,5 +1,5 @@
 import { RandomNumberGenerator } from "shapez/core/rng";
-import { apdebuglog, baseBuildingNames, connection, currentIngame, customRewards } from "./global_data";
+import { apdebuglog, baseBuildingNames, connection, currentIngame, customRewards, modImpl } from "./global_data";
 
 export function vanillaShapes() {
     const multiplier = connection.requiredShapesMultiplier;
@@ -865,6 +865,11 @@ const HORIZONTAL = 2;
  * @param {Array<string>} exclude
  */
 function calcRandomShape(randomizer, complexity, hasCutter, hasRotator, hasStacker, hasPainter, hasMixer, exclude = []) {
+    if (modImpl.settings.debugGeneratorLogDepth >= 1) apdebuglog(
+        `SHAPE comp=${complexity} ` 
+        + [hasCutter, hasRotator, hasStacker, hasPainter, hasMixer].join(" ") 
+        + (exclude.length ? " EXCLUDE " + exclude.join(" ") : "")
+    );
     // complexity = Math.min(complexity, 40);
     let hash = "";
     do {
@@ -873,7 +878,7 @@ function calcRandomShape(randomizer, complexity, hasCutter, hasRotator, hasStack
         // complexity < 3 || (complexity == 3 && hasRotator) because single layers need more processing to get to first stacking.
         // 33% chance to still be single layer.
         if (hasStacker && (
-            !hasCutter || complexity < 3 || (complexity == 3 && hasRotator) || randomizer.choice([true, true, true, false])
+            !hasCutter || complexity < 3 || (complexity < 5 && hasRotator) || randomizer.choice([true, true, true, false])
         )) { 
             let available = getBuildingBools(hasCutter, hasRotator, hasStacker, hasPainter, hasMixer);
             let tasked = getBuildingBools(hasCutter, hasRotator, false, hasPainter, hasMixer);
@@ -915,6 +920,9 @@ function calcRandomShape(randomizer, complexity, hasCutter, hasRotator, hasStack
  * @param {[number]} floatCutting
  */
 function stackLayers(bottom, newlayer, available, tasked, floatCutting) {
+    if (modImpl.settings.debugGeneratorLogDepth >= 2) apdebuglog(
+        `STACK bottom=${bottom} newlayer=${newlayer} ${JSON.stringify(available)} ${JSON.stringify(tasked)} ${floatCutting}` 
+    );
     if (bottom === "") return newlayer;
     if (connection.isFloatingLayersAllowed && available.rotator) { // rotator only ever available if cutter available
         if (floatCutting[0] != HORIZONTAL && 
@@ -959,6 +967,9 @@ function stackLayers(bottom, newlayer, available, tasked, floatCutting) {
  * @param {buildingBools} important
  */
 function calcRandomLayer(randomizer, complexity, available, tasked, important) {
+    if (modImpl.settings.debugGeneratorLogDepth >= 2) apdebuglog(
+        `LAYER comp=${complexity} ${JSON.stringify(available)} ${JSON.stringify(tasked)} ${JSON.stringify(important)}`
+    );
     // Save complexities for later if rotator, painter, and mixer is important.
     let savedRotator = addBoolean(important.rotator);
     if (savedRotator) important.rotator = false;
@@ -970,30 +981,31 @@ function calcRandomLayer(randomizer, complexity, available, tasked, important) {
         if (available.stacker) {
             if (complexity >= 3) variant.push(2, 10);
             if (available.rotator) {
-                if (complexity >= 3) variant.push(7);
+                if (complexity >= 9) variant.push(7);
                 if (complexity >= 4) variant.push(3);
                 if (complexity >= 5) variant.push(5);
                 if (complexity >= 8) variant.push(4);
                 if (complexity >= 11) variant.push(6);
             }
         }
-        if (addBoolean(important.cutter, important.rotator, important.stacker)) {
+        if (important.cutter || important.rotator || important.stacker) {
             if (!available.stacker) variant = [1, 9];
             else if (!available.rotator) { // stacker available, but not rotator
-                variant = [2, 10];
+                variant = [];
+                if (complexity >= 3) variant = [2, 10];
                 if (!important.stacker) variant.push(1, 9);
             } else { // stacker and rotator available
                 // remove 8, it's always first element
-                variant.splice(1);
+                variant.splice(0, 1);
                 if (important.rotator) {
                     // remove 1, 9 if cutterImp or comp < 7
                     if ((important.cutter || complexity < 7) && variant[0] == 1) {
-                        variant.splice(2);
+                        variant.splice(0, 2);
                     }
                 } else if (important.stacker) {
                     // First remove 1, 2, 9, 10 to then re-add them
-                    if (variant[0] == 1) variant.splice(2);
-                    if (variant[0] == 2) variant.splice(2);
+                    if (variant[0] == 1) variant.splice(0, 2);
+                    if (variant[0] == 2) variant.splice(0, 2);
                     // add 1, 9 if comp >= 7 and 2, 10 if comp >= 9
                     if (complexity >= 7) variant.push(1, 9);
                     if (complexity >= 9) variant.push(2, 10);
@@ -1096,10 +1108,8 @@ function calcRandomLayer(randomizer, complexity, available, tasked, important) {
         case 7:
             tasked.cutter = false;
             important.cutter = false;
-            tasked.rotator = false;
-            important.rotator = false;
-            tasked.stacker = false;
-            important.stacker = false;
+            // Do NOT update rotator and stacker, as it might lead to simple halves, and thereby simple shapes
+            // Min 9 complexity to ensure it's actually checkered
             complexity -= 3;
             layer = calcRandomHalf(randomizer, complexity, available, tasked, important);
             layer += layer;
@@ -1177,6 +1187,9 @@ function isWindmillHalf(half) {
  * @param {buildingBools} important
  */
 function calcRandomHalf(randomizer, complexity, available, tasked, important) {
+    if (modImpl.settings.debugGeneratorLogDepth >= 3) apdebuglog(
+        `HALF comp=${complexity} ${JSON.stringify(available)} ${JSON.stringify(tasked)} ${JSON.stringify(important)}`
+    );
     let complexityProcessing = complexity - addBoolean(important.painter || important.mixer, important.mixer);
     let pool = [0];
     let part = "";
@@ -1235,6 +1248,9 @@ function calcRandomSubShape(randomizer, windmillAllowed) {
  * @param {buildingBools} important
  */
 function calcRandomColor(randomizer, complexity, available, tasked, important, preferredColor = null) {
+    if (modImpl.settings.debugGeneratorLogDepth >= 4) apdebuglog(
+        `COLOR comp=${complexity} ${JSON.stringify(available)} ${JSON.stringify(tasked)} ${JSON.stringify(important)} ${preferredColor}`
+    );
     let pool = ["u"];
     if (available.painter && complexity) pool.push("r", "g", "b");
     if (available.mixer && complexity >= 2) pool.push("y", "p", "c");

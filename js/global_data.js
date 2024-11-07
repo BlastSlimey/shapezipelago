@@ -1,6 +1,6 @@
-import { Client, CLIENT_PACKET_TYPE, CLIENT_STATUS, ITEMS_HANDLING_FLAGS, SERVER_PACKET_TYPE } from "archipelago.js";
+import { Client, CLIENT_PACKET_TYPE, CLIENT_STATUS, SERVER_PACKET_TYPE } from "archipelago.js";
+import { Dialog } from "shapez/core/modal_dialog_elements";
 import { GameRoot } from "shapez/game/root";
-import { ShapeDefinitionManager } from "shapez/game/shape_definition_manager";
 import { enumHubGoalRewards } from "shapez/game/tutorial_goals";
 import { Mod } from "shapez/mods/mod";
 
@@ -193,10 +193,17 @@ export function aptry(title, code) { // TODO use this instead
     try {
         return code();
     } catch (error) {
-        modImpl.dialogs.showInfo(
-            shapez.T.mods.shapezipelago.infoBox.aptry.title, 
-            title + "<br />---<br />" + error.name + ":<br />" + error.message
+        const text = (
+            title + "<br />---<br />" + 
+            error.stack.replaceAll("<", "").replaceAll(">", "").replaceAll("    at ", "<br />- at ")
         );
+        if (document.body.getElementsByClassName("gameLoadingOverlay").length) {
+            const gameLoadingOverlay = document.body.getElementsByClassName("gameLoadingOverlay").item(0);
+            const prefab_GameHint = gameLoadingOverlay.getElementsByClassName("prefab_GameHint").item(0);
+            prefab_GameHint.innerHTML = ("ERROR " + shapez.T.mods.shapezipelago.infoBox.aptry.title + "<br />" + text);
+        } else {
+            modImpl.dialogs.showInfo(shapez.T.mods.shapezipelago.infoBox.aptry.title, text);
+        }
         throw error;
     }
 }
@@ -576,7 +583,7 @@ export class Ingame {
      * @type {number[]}
      */
     throughputByLevelCache;
-    isTryingToConnect = false;
+    isTryingToConnect = modImpl.settings.debugTryingToConnectDefault;
     /**
      * @type {boolean[]}
      */

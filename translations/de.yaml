@@ -193,6 +193,13 @@ mods:
         time: für <x> Sekunden
     statisticsBox:
       perBelt: Pro Fließband
+    loadingSplash:
+      upgrades: >-
+        Generiere Upgradeformen...
+        Wenn dies kein Ende nimmt, könnte das an einem Fehler liegen...
+      levels: >-
+        Generiere levelformen...
+        Wenn dies kein Ende nimmt, könnte das an einem Fehler liegen...
 storyRewards:
   reward_ap:
     title: AP-Item

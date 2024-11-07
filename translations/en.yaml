@@ -193,6 +193,13 @@ mods:
         time: for <x> seconds
     statisticsBox:
       perBelt: Per belt
+    loadingSplash:
+      upgrades: >-
+        Generating upgrade shapes...
+        If this doesn't end, then there might be an error...
+      levels: >-
+        Generating level shapes...
+        If this doesn't end, then there might be an error...
 storyRewards:
   reward_ap:
     title: AP Item

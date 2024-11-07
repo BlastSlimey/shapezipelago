@@ -40,4 +40,11 @@ export function addCommands() {
     globalThis.AP.testError = () => {
         aptry("Test error", () => {throw Error("Bottom text.")});
     };
+    globalThis.AP.setDebugSetting = (name, value) => {
+        aptry("Debug settings error", () => {
+            modImpl.dialogs.showInfo("Important", `Are you sure what you're doing!? Set ${name} to ${value}`);
+            modImpl.settings[name] = value;
+            modImpl.saveSettings();
+        });
+    }
 }

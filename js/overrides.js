@@ -1,7 +1,6 @@
 import { apdebuglog, aptry, connection, currentIngame, customRewards, methodNames, modImpl, roman, upgradeIdNames } from "./global_data";
 import { RandomNumberGenerator } from "shapez/core/rng";
 import { categoryRandomUpgradeShapes, categoryUpgradeShapes, hardcoreUpgradeShapes, linearUpgradeShapes, randomizedHardcoreShapes, randomizedQuickShapes, randomizedRandomStepsShapes, randomizedStretchedShapes, randomizedVanillaStepsShapes, vanillaLikeUpgradeShapes, vanillaShapes, vanillaUpgradeShapes } from "./requirement_definitions";
-import { MOD_SIGNALS } from "shapez/mods/mod_signals";
 import { checkLocation, shapesanityAnalyzer } from "./server_communication";
 import { enumAnalyticsDataSource } from "shapez/game/production_analytics";
 import { defaultBuildingVariant } from "shapez/game/meta_building";
@@ -20,7 +19,6 @@ import { enumHubGoalRewards } from "shapez/game/tutorial_goals";
 import { enumCutterVariants } from "shapez/game/buildings/cutter";
 import { enumRotaterVariants } from "shapez/game/buildings/rotater";
 import { GAME_LOADING_STATES } from "shapez/states/ingame";
-import { enumColors } from "shapez/game/colors";
 
 export function overrideGameMode() {
     apdebuglog("Calling overrideGameMode");
@@ -29,7 +27,12 @@ export function overrideGameMode() {
             aptry("Upgrade definitions failed", () => {
                 if (!currentIngame.upgradeDefs) {
                     apdebuglog("Calculating upgrade definitions");
+                    const gameLoadingOverlay = document.body.getElementsByClassName("gameLoadingOverlay").item(0);
+                    const prefab_GameHint = gameLoadingOverlay.getElementsByClassName("prefab_GameHint").item(0);
+                    const original_message = prefab_GameHint.innerHTML;
+                    prefab_GameHint.innerHTML = shapez.T.mods.shapezipelago.loadingSplash.upgrades;
                     currentIngame.upgradeDefs = calcUpgradeDefinitions();
+                    prefab_GameHint.innerHTML = original_message;
                     // MOD_SIGNALS.modifyUpgrades.dispatch(currentIngame.upgradeDefs);
                 }
             });
@@ -43,7 +46,12 @@ export function overrideGameMode() {
             aptry("Level definitions failed", () => {
                 if (!currentIngame.levelDefs) {
                     apdebuglog("Calculating level definitions");
+                    const gameLoadingOverlay = document.body.getElementsByClassName("gameLoadingOverlay").item(0);
+                    const prefab_GameHint = gameLoadingOverlay.getElementsByClassName("prefab_GameHint").item(0);
+                    const original_message = prefab_GameHint.innerHTML;
+                    prefab_GameHint.innerHTML = shapez.T.mods.shapezipelago.loadingSplash.levels;
                     currentIngame.levelDefs = calcLevelDefinitions();
+                    prefab_GameHint.innerHTML = original_message;
                     // MOD_SIGNALS.modifyLevelDefinitions.dispatch(currentIngame.levelDefs);
                 }
             });
