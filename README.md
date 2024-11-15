@@ -59,6 +59,7 @@ Client mod for the Archipelago multiworld randomizer.
   - shop order
 - TECHNICAL:    Option to make items with random effect dependent on receiveditems index
 - FEATURE:      Gifting mechanic for other games by making certain shapes, only filler/including useful/including progression
+- FEATURE:      Upgrade speed x2 multiplier (sort of gamble item, the later you receive it the better)
 ### Labels
 - IMPORTANT:    Text
 - GOOD LOOKING: Text
