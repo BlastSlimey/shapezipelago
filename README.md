@@ -58,7 +58,37 @@ Client mod for the Archipelago multiworld randomizer.
   - sound effects
   - shop order
 - TECHNICAL:    Option to make items with random effect dependent on receiveditems index
-- FEATURE:      Gifting mechanic for other games by making certain shapes, only filler/including useful/including progression
+- FEATURE:      Produce and send products to other games via gifting api
+- FEATURE:      Online shop to order gifts as expansion to gifting api
+  - Example: ```
+    "Shops;[teamNumber]": {
+      "[slotNumber]": {
+        "ShopDataVersion": 1, // Like gift data version in case anything changes later on
+        "ShopVersion": 1, // Increment if shop is updated mid-run
+        "Offers": [
+          {
+            "ItemName": "Copper Plate", // Should be unique within the shop
+            "Traits": [], // See GiftTrait Specification
+            "Price": 10 // in AP currency
+          }, {
+            "ItemName": "Coffee",
+            "Traits": [],
+            "Price": 420
+          }
+        ]
+      }
+    }
+    "ShopOrders;[teamNumber];[slotName]": {
+      "[unique ID]": {
+        "ID": "[unique ID]", // Could be the id of the gift later on, maybe better to use something like shapez_order_72093872137
+        "CustomerSlot": 1,
+        "CustomerTeam": 0,
+        "ShopVersion": 1, // In case the shop is updated mid-run, so the seller knows the correct price
+        "ItemName": "Copper Plate",
+        "Amount": 7
+      }
+    }
+    ```
 - FEATURE:      Upgrade speed x2 multiplier (sort of gamble item, the later you receive it the better)
 ### Labels
 - IMPORTANT:    Text
