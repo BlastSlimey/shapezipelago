@@ -71,24 +71,24 @@ Client mod for the Archipelago multiworld randomizer.
             "Offers": [
                 {
                     "ItemName": "Copper Plate", // Should be unique within the shop
-                    "Traits": [], // See GiftTrait Specification
-                    "Price": 10 // in AP currency
+                    "Traits": [...], // See GiftTrait Specification
+                    "Price": 288000 // in AP currency, will also be the ItemValue of the delivered gift
                 }, {
                     "ItemName": "Coffee",
-                    "Traits": [],
-                    "Price": 420
+                    "Traits": [...],
+                    "Price": 1500000000
                 }
             ]
         }
     }
     "ShopOrders;[teamNumber];[slotName]": {
         "[unique ID]": {
-            "ID": "[unique ID]", // Could be the id of the gift later on, maybe better to use something like shop_order_72093872137
+            "ID": "[unique ID]", // Will be the id of the delivered gift, maybe better to use something like shop_order_72093872137
             "CustomerSlot": 1,
             "CustomerTeam": 0,
             "ShopVersion": 1, // In case the shop is updated mid-run, so the seller knows the correct price
             "ItemName": "Copper Plate",
-            "Amount": 7
+            "Amount": 15
         }
     }
     ```
