@@ -59,13 +59,15 @@ Client mod for the Archipelago multiworld randomizer.
   - shop order
 - TECHNICAL:    Option to make items with random effect dependent on receiveditems index
 - FEATURE:      Produce and send products to other games via gifting api
-- FEATURE:      Online shop to order gifts as expansion to gifting api
+- FEATURE:      Online shop to order gifts as expansion to gifting api, can be disabled
   - Example:
     ```
     "Shops;[teamNumber]": {
         "[slotNumber]": {
             "ShopDataVersion": 1, // Like gift data version in case anything changes later on
             "ShopVersion": 1, // Increment if shop is updated mid-run
+            "ShopName": "Player1's factory",
+            "Payment": "Send anything", // Information for customers on how to pay
             "Offers": [
                 {
                     "ItemName": "Copper Plate", // Should be unique within the shop
@@ -81,7 +83,7 @@ Client mod for the Archipelago multiworld randomizer.
     }
     "ShopOrders;[teamNumber];[slotName]": {
         "[unique ID]": {
-            "ID": "[unique ID]", // Could be the id of the gift later on, maybe better to use something like shapez_order_72093872137
+            "ID": "[unique ID]", // Could be the id of the gift later on, maybe better to use something like shop_order_72093872137
             "CustomerSlot": 1,
             "CustomerTeam": 0,
             "ShopVersion": 1, // In case the shop is updated mid-run, so the seller knows the correct price
@@ -90,6 +92,8 @@ Client mod for the Archipelago multiworld randomizer.
         }
     }
     ```
+  - Base price is calculated with amount of operations to create the shape, with mulitplier option ranging 0.0-3.0
+  - Make sure item list only contains what is currently producable (=> update shop when receiving more progression items)
 - FEATURE:      Upgrade speed x2 multiplier (sort of gamble item, the later you receive it the better)
 ### Labels
 - IMPORTANT:    Text
