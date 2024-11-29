@@ -71,7 +71,7 @@ Client mod for the Archipelago multiworld randomizer.
     ```
     "Shops;[teamNumber]": {
         "[slotNumber]": {
-            "ShopDataVersion": 1, // Like gift data version in case anything changes later on
+            "DataVersion": 2, // Same as gift data version
             "ShopVersion": 1, // Increment if shop is updated mid-run
             "ShopName": "Player1's factory",
             "Payment": "Send anything", // Information for customers on how to pay
@@ -79,7 +79,7 @@ Client mod for the Archipelago multiworld randomizer.
                 {
                     "ItemName": "Copper Plate", // Should be unique within the shop
                     "Traits": [...], // See GiftTrait Specification
-                    "Price": 288000 // in AP currency, will also be the ItemValue of the delivered gift
+                    "Price": 288000 // in AP currency
                 }, {
                     "ItemName": "Coffee",
                     "Traits": [...],
@@ -90,7 +90,7 @@ Client mod for the Archipelago multiworld randomizer.
     }
     "ShopOrders;[teamNumber];[slotName]": {
         "[unique ID]": {
-            "ID": "[unique ID]", // Will be the id of the delivered gift, maybe better to use something like shop_order_72093872137
+            "ID": "[unique ID]", // Will also be the id of the delivered gift
             "CustomerSlot": 1,
             "CustomerTeam": 0,
             "ShopVersion": 1, // In case the shop is updated mid-run, so the seller knows the correct price
