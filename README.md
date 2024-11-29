@@ -2,6 +2,9 @@
 Client mod for the Archipelago multiworld randomizer.
 
 ## TODO list
+### Bugs
+- Error in shape generator (layer) with comp=5, available=tasked=important=(true,true,true,true,false)
+
 ### Technicalities 
 - TECHNICAL:    Build input box in HUD class
 - TECHNICAL:    storing reoccuring strings in global data to prevent errors:
