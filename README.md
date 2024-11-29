@@ -48,6 +48,7 @@ Client mod for the Archipelago multiworld randomizer.
   - Wrexcavator
   - Plantz
   - Hexagonal
+  - Diamond shape (original)
 - TECHNICAL:    Option to make items with random effect dependent on receiveditems index
 - FEATURE:      Upgrade speed x2 multiplier (sort of gamble item, the later you receive it the better)
 
