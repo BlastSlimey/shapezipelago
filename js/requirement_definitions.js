@@ -24,12 +24,16 @@ export function vanillaShapes() {
         {shape: "Sg----Sg:CgCgCgCg:--CyCy--", required: Math.ceil(20000*multiplier/10), reward: customRewards.ap, throughputOnly: false},
         {shape: "CpRpCp--:SwSwSwSw", required: Math.ceil(25000*multiplier/10), reward: customRewards.ap, throughputOnly: false},
         {shape: "RuCw--Cw:----Ru--", required: Math.ceil(25000*multiplier/10), reward: customRewards.easter_egg, throughputOnly: false},
-        {shape: "CrCwCrCw:CwCrCwCr:CrCwCrCw:CwCrCwCr", required: Math.ceil(25000*multiplier/10), reward: customRewards.ap, throughputOnly: false},
-        {shape: "Cg----Cr:Cw----Cw:Sy------:Cy----Cy", required: Math.ceil(25000*multiplier/10), reward: customRewards.ap, throughputOnly: false},
+        {shape: "CrCwCrCw:CwCrCwCr:CrCwCrCw:CwCrCwCr", required: Math.ceil(25000*multiplier/10), 
+            reward: customRewards.ap, throughputOnly: false},
+        {shape: "Cg----Cr:Cw----Cw:Sy------:Cy----Cy", required: Math.ceil(25000*multiplier/10), 
+            reward: customRewards.ap, throughputOnly: false},
         {shape: "CcSyCcSy:SyCcSyCc:CcSyCcSy", required: Math.ceil(25000*multiplier/10), reward: customRewards.ap, throughputOnly: false},
-        {shape: "CcRcCcRc:RwCwRwCw:Sr--Sw--:CyCyCyCy", required: Math.ceil(25000*multiplier/10), reward: customRewards.ap, throughputOnly: false},
+        {shape: "CcRcCcRc:RwCwRwCw:Sr--Sw--:CyCyCyCy", required: Math.ceil(25000*multiplier/10), 
+            reward: customRewards.ap, throughputOnly: false},
         {shape: "Rg--Rg--:CwRwCwRw:--Rg--Rg", required: Math.ceil(25000*multiplier/10), reward: customRewards.ap, throughputOnly: false},
-        {shape: "CbCuCbCu:Sr------:--CrSrCr:CwCwCwCw", required: Math.ceil(50000*multiplier/10), reward: customRewards.ap, throughputOnly: false}
+        {shape: "CbCuCbCu:Sr------:--CrSrCr:CwCwCwCw", required: Math.ceil(50000*multiplier/10), 
+            reward: customRewards.ap, throughputOnly: false}
     ];
 }
 
@@ -126,7 +130,7 @@ export function randomizedStretchedShapes(randomizer) {
     const throughputratio = connection.throughputLevelsRatio;
     const phase = connection.positionOfLevelBuilding;
     for (let i = 0; i < phaselength; i++) {
-        levelsdefs.push({shape: calcRandomShape(randomizer, 0, false, false, false, false, false), 
+        levelsdefs.push({shape: calcRandomShape(randomizer, Math.floor(i/2), false, false, false, false, false), 
             required: getAmountByLevel(i+1), reward: customRewards.ap,
                 throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio});
     }
@@ -252,7 +256,7 @@ export function randomizedRandomStepsShapes(randomizer) {
         for (var i = 0; i < phaselength[i_phases]; i++) {
             levelsdefs.push({
                 shape: calcRandomShape(
-                    randomizer, Math.ceil(i_phases*(1.5+1.5*i/phaselength[i_phases])), 
+                    randomizer, Math.ceil(i_phases*(1.5+3.5*i/phaselength[i_phases]) + Math.min(2, Math.floor(i/2))), 
                     phase[baseBuildingNames.cutter] <= i_phases, 
                     phase[baseBuildingNames.rotator] <= i_phases, phase[baseBuildingNames.stacker] <= i_phases, 
                     phase[baseBuildingNames.painter] <= i_phases, phase[baseBuildingNames.mixer] <= i_phases
@@ -262,8 +266,9 @@ export function randomizedRandomStepsShapes(randomizer) {
             });
         }
     }
-    for (var ii = levelsdefs.length+1; ii <= levelstogenerate; ii++) {
-        levelsdefs.push({shape: calcRandomShape(randomizer, Math.ceil(8+(ii-levelsdefs.length)/2), true, true, true, true, true), 
+    let startAllBuildings = levelsdefs.length;
+    for (var ii = startAllBuildings+1; ii <= levelstogenerate; ii++) {
+        levelsdefs.push({shape: calcRandomShape(randomizer, Math.ceil(8+(ii-startAllBuildings)/2), true, true, true, true, true), 
             required: getAmountByLevel(ii), reward: customRewards.ap,
             throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio});
     };
@@ -344,7 +349,9 @@ function getAmountByLevel(level) {
         currentIngame.amountByLevelCache[24] = Math.ceil(25000*connection.requiredShapesMultiplier/10);
         currentIngame.amountByLevelCache[25] = Math.ceil(50000*connection.requiredShapesMultiplier/10);
         for (var i = 26; i < connection.levelsToGenerate; i++) {
-            currentIngame.amountByLevelCache[i] = Math.ceil((25000+(175000*(i+1)/connection.levelsToGenerate))*connection.requiredShapesMultiplier/10);
+            currentIngame.amountByLevelCache[i] = Math.ceil(
+                (25000+(175000*(i+1)/connection.levelsToGenerate))*connection.requiredShapesMultiplier/10
+            );
             currentIngame.amountByLevelCache[i] -= currentIngame.amountByLevelCache[i] % 500;
         }
     } else {
@@ -358,13 +365,17 @@ function getAmountByLevel(level) {
         const buildupAmount = currentIngame.amountByLevelCache[earlyLevels-1];
         const buildupNeeded = 50000-buildupAmount;
         for (var i = earlyLevels; i < buildupLevels; i++) {
-            currentIngame.amountByLevelCache[i] = Math.ceil((buildupAmount+(buildupNeeded)*(i+1-earlyLevels)/earlyToBuildupLevels)*connection.requiredShapesMultiplier/10);
+            currentIngame.amountByLevelCache[i] = Math.ceil(
+                (buildupAmount+(buildupNeeded)*(i+1-earlyLevels)/earlyToBuildupLevels)*connection.requiredShapesMultiplier/10
+            );
             currentIngame.amountByLevelCache[i] -= currentIngame.amountByLevelCache[i] % 500;
         }
         const lateAmount = currentIngame.amountByLevelCache[buildupLevels-1];
         const lateNeeded = 200000-lateAmount;
         for (var i = buildupLevels; i < connection.levelsToGenerate; i++) {
-            currentIngame.amountByLevelCache[i] = Math.ceil((lateAmount+(lateNeeded)*(i+1-buildupLevels)/remainingAfterBuildup)*connection.requiredShapesMultiplier/10);
+            currentIngame.amountByLevelCache[i] = Math.ceil(
+                (lateAmount+(lateNeeded)*(i+1-buildupLevels)/remainingAfterBuildup)*connection.requiredShapesMultiplier/10
+            );
             currentIngame.amountByLevelCache[i] -= currentIngame.amountByLevelCache[i] % 500;
         }
     }
@@ -392,44 +403,20 @@ export function vanillaUpgradeShapes() {
     const preparementShape = "CpRpCp--:SwSwSwSw";
     const finalGameShape = "RuCw--Cw:----Ru--";
     const beltshapes = [
-        "CuCuCuCu",
-        "--CuCu--",
-        "CpCpCpCp",
-        "SrSrSrSr:CyCyCyCy",
-        "SrSrSrSr:CyCyCyCy:SwSwSwSw",
-        preparementShape,
-        finalGameShape,
-        rocketShape
+        "CuCuCuCu", "--CuCu--", "CpCpCpCp", "SrSrSrSr:CyCyCyCy", "SrSrSrSr:CyCyCyCy:SwSwSwSw",
+        preparementShape, finalGameShape, rocketShape
     ];
     const minershapes = [
-        "RuRuRuRu",
-        "Cu------",
-        "ScScScSc",
-        "CwCwCwCw:WbWbWbWb",
-        "CbRbRbCb:CwCwCwCw:WbWbWbWb",
-        preparementShape,
-        finalGameShape,
-        rocketShape
+        "RuRuRuRu", "Cu------", "ScScScSc", "CwCwCwCw:WbWbWbWb", "CbRbRbCb:CwCwCwCw:WbWbWbWb",
+        preparementShape, finalGameShape, rocketShape
     ];
     const processorsshapes = [
-        "SuSuSuSu",
-        "RuRu----",
-        "CgScScCg",
-        "CwCrCwCr:SgSgSgSg",
-        "WrRgWrRg:CwCrCwCr:SgSgSgSg",
-        preparementShape,
-        finalGameShape,
-        rocketShape
+        "SuSuSuSu", "RuRu----", "CgScScCg", "CwCrCwCr:SgSgSgSg", "WrRgWrRg:CwCrCwCr:SgSgSgSg",
+        preparementShape, finalGameShape, rocketShape
     ];
     const paintingshapes = [
-        "RbRb----",
-        "WrWrWrWr",
-        "RpRpRpRp:CwCwCwCw",
-        "WpWpWpWp:CwCwCwCw:WpWpWpWp",
-        "WpWpWpWp:CwCwCwCw:WpWpWpWp:CwCwCwCw",
-        preparementShape,
-        finalGameShape,
-        rocketShape
+        "RbRb----", "WrWrWrWr", "RpRpRpRp:CwCwCwCw", "WpWpWpWp:CwCwCwCw:WpWpWpWp", "WpWpWpWp:CwCwCwCw:WpWpWpWp:CwCwCwCw",
+        preparementShape, finalGameShape, rocketShape
     ];
     return constructUpgradeShapes(null, beltshapes, minershapes, processorsshapes, paintingshapes);
 }
@@ -480,70 +467,43 @@ export function vanillaLikeUpgradeShapes(randomizer) {
 
 export function linearUpgradeShapes(randomizer) {
     const phase = connection.positionOfUpgradeBuilding;
-    const beltshapes = [calcRandomShape(randomizer, 0, false, false, false, false, false)];
-    for (var nextindex = 1; nextindex < 5; nextindex++) {
-        beltshapes.push(calcRandomShape(randomizer, nextindex+1, 
-            phase[baseBuildingNames.cutter] <= nextindex, 
-            phase[baseBuildingNames.rotator] <= nextindex, 
-            phase[baseBuildingNames.stacker] <= nextindex, 
-            phase[baseBuildingNames.painter] <= nextindex, 
-            phase[baseBuildingNames.mixer] <= nextindex, 
-            beltshapes));
-    }
-    const minershapes = [calcRandomShape(randomizer, 0, false, false, false, false, false)];
-    for (var nextindex = 1; nextindex < 5; nextindex++) {
-        minershapes.push(calcRandomShape(randomizer, nextindex+1, 
-            phase[baseBuildingNames.cutter] <= nextindex, 
-            phase[baseBuildingNames.rotator] <= nextindex, 
-            phase[baseBuildingNames.stacker] <= nextindex, 
-            phase[baseBuildingNames.painter] <= nextindex, 
-            phase[baseBuildingNames.mixer] <= nextindex, 
-            minershapes));
-    }
-    const processorsshapes = [calcRandomShape(randomizer, 0, false, false, false, false, false)];
-    for (var nextindex = 1; nextindex < 5; nextindex++) {
-        processorsshapes.push(calcRandomShape(randomizer, nextindex+1, 
-            phase[baseBuildingNames.cutter] <= nextindex, 
-            phase[baseBuildingNames.rotator] <= nextindex, 
-            phase[baseBuildingNames.stacker] <= nextindex, 
-            phase[baseBuildingNames.painter] <= nextindex, 
-            phase[baseBuildingNames.mixer] <= nextindex, 
-            processorsshapes));
-    }
-    const paintingshapes = [calcRandomShape(randomizer, 0, false, false, false, false, false)];
-    for (var nextindex = 1; nextindex < 5; nextindex++) {
-        paintingshapes.push(calcRandomShape(randomizer, nextindex+1, 
-            phase[baseBuildingNames.cutter] <= nextindex, 
-            phase[baseBuildingNames.rotator] <= nextindex, 
-            phase[baseBuildingNames.stacker] <= nextindex, 
-            phase[baseBuildingNames.painter] <= nextindex, 
-            phase[baseBuildingNames.mixer] <= nextindex, 
-            paintingshapes));
+    const beltshapes = [], minershapes = [], processorsshapes = [], paintingshapes = [];
+    for (let shapesarray of [beltshapes, minershapes, processorsshapes, paintingshapes]) {
+        shapesarray = [calcRandomShape(randomizer, 0, false, false, false, false, false)];
+        for (var nextindex = 1; nextindex < 5; nextindex++) {
+            beltshapes.push(calcRandomShape(randomizer, nextindex+2, 
+                phase[baseBuildingNames.cutter] <= nextindex, 
+                phase[baseBuildingNames.rotator] <= nextindex, 
+                phase[baseBuildingNames.stacker] <= nextindex, 
+                phase[baseBuildingNames.painter] <= nextindex, 
+                phase[baseBuildingNames.mixer] <= nextindex, 
+                shapesarray));
+        }
     }
     return constructUpgradeShapes(randomizer, beltshapes, minershapes, processorsshapes, paintingshapes);
 }
 
 export function categoryUpgradeShapes(randomizer) {
     const beltshapes = [calcRandomShape(randomizer, 0, false, false, false, false, false)];
-    beltshapes.push(calcRandomShape(randomizer, 0, false, false, false, false, false, beltshapes));
-    beltshapes.push(calcRandomShape(randomizer, 0, false, false, false, false, false, beltshapes));
-    beltshapes.push(calcRandomShape(randomizer, 0, false, false, false, false, false, beltshapes));
-    beltshapes.push(calcRandomShape(randomizer, 8, true, true, true, true, true, beltshapes));
+    beltshapes.push(calcRandomShape(randomizer, 1, false, false, false, false, false, beltshapes));
+    beltshapes.push(calcRandomShape(randomizer, 2, false, false, false, false, false, beltshapes));
+    beltshapes.push(calcRandomShape(randomizer, 2, false, false, false, false, false, beltshapes));
+    beltshapes.push(calcRandomShape(randomizer, 2, false, false, false, false, false, beltshapes));
     const minershapes = [calcRandomShape(randomizer, 0, false, false, false, false, false)];
-    minershapes.push(calcRandomShape(randomizer, 0, false, false, false, false, false, minershapes));
-    minershapes.push(calcRandomShape(randomizer, 0, false, false, false, false, false, minershapes));
-    minershapes.push(calcRandomShape(randomizer, 0, false, false, false, false, false, minershapes));
-    minershapes.push(calcRandomShape(randomizer, 8, true, true, true, true, true, minershapes));
+    minershapes.push(calcRandomShape(randomizer, 1, false, false, false, false, false, minershapes));
+    minershapes.push(calcRandomShape(randomizer, 2, false, false, false, false, false, minershapes));
+    minershapes.push(calcRandomShape(randomizer, 2, false, false, false, false, false, minershapes));
+    minershapes.push(calcRandomShape(randomizer, 2, false, false, false, false, false, minershapes));
     const processorsshapes = [calcRandomShape(randomizer, 1, true, false, false, false, false)];
-    processorsshapes.push(calcRandomShape(randomizer, 1, true, false, false, false, false, processorsshapes));
     processorsshapes.push(calcRandomShape(randomizer, 2, true, true, false, false, false, processorsshapes));
     processorsshapes.push(calcRandomShape(randomizer, 3, true, true, false, false, false, processorsshapes));
+    processorsshapes.push(calcRandomShape(randomizer, 4, true, true, true, false, false, processorsshapes));
     processorsshapes.push(calcRandomShape(randomizer, 6, true, true, true, false, false, processorsshapes));
     const paintingshapes = [calcRandomShape(randomizer, 1, false, false, false, true, false)];
-    paintingshapes.push(calcRandomShape(randomizer, 2, true, false, false, true, false, paintingshapes));
-    paintingshapes.push(calcRandomShape(randomizer, 5, true, false, true, true, false, paintingshapes));
-    paintingshapes.push(calcRandomShape(randomizer, 5, false, false, true, true, true, paintingshapes));
-    paintingshapes.push(calcRandomShape(randomizer, 8, true, true, true, true, true, paintingshapes));
+    paintingshapes.push(calcRandomShape(randomizer, 3, false, false, false, true, false, paintingshapes));
+    paintingshapes.push(calcRandomShape(randomizer, 4, false, false, false, true, true, paintingshapes));
+    paintingshapes.push(calcRandomShape(randomizer, 6, false, false, true, true, true, paintingshapes));
+    paintingshapes.push(calcRandomShape(randomizer, 8, false, false, true, true, true, paintingshapes));
     return constructUpgradeShapes(randomizer, beltshapes, minershapes, processorsshapes, paintingshapes);
 }
 
@@ -553,110 +513,34 @@ export function categoryRandomUpgradeShapes(randomizer) {
     const amountMiner = connection.categoryRandomBuildingsAmounts.miner;
     const amountProcessors = connection.categoryRandomBuildingsAmounts.processors;
     const amountPainting = connection.categoryRandomBuildingsAmounts.painting;
-    const beltshapes = [calcRandomShape(randomizer, amountBelt+1, 
-        phase[baseBuildingNames.cutter] <= amountBelt, phase[baseBuildingNames.rotator] <= amountBelt, 
-        phase[baseBuildingNames.stacker] <= amountBelt, phase[baseBuildingNames.painter] <= amountBelt, 
-        phase[baseBuildingNames.mixer] <= amountBelt)];
-    beltshapes.push(calcRandomShape(randomizer, amountBelt+2, 
-        phase[baseBuildingNames.cutter] <= amountBelt, phase[baseBuildingNames.rotator] <= amountBelt, 
-        phase[baseBuildingNames.stacker] <= amountBelt, phase[baseBuildingNames.painter] <= amountBelt, 
-        phase[baseBuildingNames.mixer] <= amountBelt, 
-        beltshapes));
-    beltshapes.push(calcRandomShape(randomizer, amountBelt+3, 
-        phase[baseBuildingNames.cutter] <= amountBelt, phase[baseBuildingNames.rotator] <= amountBelt, 
-        phase[baseBuildingNames.stacker] <= amountBelt, phase[baseBuildingNames.painter] <= amountBelt, 
-        phase[baseBuildingNames.mixer] <= amountBelt, 
-        beltshapes));
-    beltshapes.push(calcRandomShape(randomizer, amountBelt+4, 
-        phase[baseBuildingNames.cutter] <= amountBelt, phase[baseBuildingNames.rotator] <= amountBelt, 
-        phase[baseBuildingNames.stacker] <= amountBelt, phase[baseBuildingNames.painter] <= amountBelt, 
-        phase[baseBuildingNames.mixer] <= amountBelt, 
-        beltshapes));
-    beltshapes.push(calcRandomShape(randomizer, 10, true, true, true, true, true, beltshapes));
-    const minershapes = [calcRandomShape(randomizer, amountMiner+1, 
-        phase[baseBuildingNames.cutter] <= amountMiner, phase[baseBuildingNames.rotator] <= amountMiner, 
-        phase[baseBuildingNames.stacker] <= amountMiner, phase[baseBuildingNames.painter] <= amountMiner, 
-        phase[baseBuildingNames.mixer] <= amountMiner)];
-    minershapes.push(calcRandomShape(randomizer, amountMiner+2, 
-        phase[baseBuildingNames.cutter] <= amountMiner, phase[baseBuildingNames.rotator] <= amountMiner, 
-        phase[baseBuildingNames.stacker] <= amountMiner, phase[baseBuildingNames.painter] <= amountMiner, 
-        phase[baseBuildingNames.mixer] <= amountMiner, 
-        minershapes));
-    minershapes.push(calcRandomShape(randomizer, amountMiner+3, 
-        phase[baseBuildingNames.cutter] <= amountMiner, phase[baseBuildingNames.rotator] <= amountMiner, 
-        phase[baseBuildingNames.stacker] <= amountMiner, phase[baseBuildingNames.painter] <= amountMiner, 
-        phase[baseBuildingNames.mixer] <= amountMiner, 
-        minershapes));
-    minershapes.push(calcRandomShape(randomizer, amountMiner+4, 
-        phase[baseBuildingNames.cutter] <= amountMiner, phase[baseBuildingNames.rotator] <= amountMiner, 
-        phase[baseBuildingNames.stacker] <= amountMiner, phase[baseBuildingNames.painter] <= amountMiner, 
-        phase[baseBuildingNames.mixer] <= amountMiner, 
-        minershapes));
-    minershapes.push(calcRandomShape(randomizer, 10, true, true, true, true, true, minershapes));
-    const processorsshapes = [calcRandomShape(randomizer, amountProcessors+1, 
-        phase[baseBuildingNames.cutter] <= amountProcessors, phase[baseBuildingNames.rotator] <= amountProcessors, 
-        phase[baseBuildingNames.stacker] <= amountProcessors, phase[baseBuildingNames.painter] <= amountProcessors, 
-        phase[baseBuildingNames.mixer] <= amountProcessors)];
-    processorsshapes.push(calcRandomShape(randomizer, amountProcessors+2, 
-        phase[baseBuildingNames.cutter] <= amountProcessors, phase[baseBuildingNames.rotator] <= amountProcessors, 
-        phase[baseBuildingNames.stacker] <= amountProcessors, phase[baseBuildingNames.painter] <= amountProcessors, 
-        phase[baseBuildingNames.mixer] <= amountProcessors, 
-        processorsshapes));
-    processorsshapes.push(calcRandomShape(randomizer, amountProcessors+3, 
-        phase[baseBuildingNames.cutter] <= amountProcessors, phase[baseBuildingNames.rotator] <= amountProcessors, 
-        phase[baseBuildingNames.stacker] <= amountProcessors, phase[baseBuildingNames.painter] <= amountProcessors, 
-        phase[baseBuildingNames.mixer] <= amountProcessors, 
-        processorsshapes));
-    processorsshapes.push(calcRandomShape(randomizer, amountProcessors+4, 
-        phase[baseBuildingNames.cutter] <= amountProcessors, phase[baseBuildingNames.rotator] <= amountProcessors, 
-        phase[baseBuildingNames.stacker] <= amountProcessors, phase[baseBuildingNames.painter] <= amountProcessors, 
-        phase[baseBuildingNames.mixer] <= amountProcessors, 
-        processorsshapes));
-    processorsshapes.push(calcRandomShape(randomizer, 10, true, true, true, true, true, processorsshapes));
-    const paintingshapes = [calcRandomShape(randomizer, amountPainting+1, 
-        phase[baseBuildingNames.cutter] <= amountPainting, phase[baseBuildingNames.rotator] <= amountPainting, 
-        phase[baseBuildingNames.stacker] <= amountPainting, phase[baseBuildingNames.painter] <= amountPainting, 
-        phase[baseBuildingNames.mixer] <= amountPainting)];
-    paintingshapes.push(calcRandomShape(randomizer, amountPainting+2, 
-        phase[baseBuildingNames.cutter] <= amountPainting, phase[baseBuildingNames.rotator] <= amountPainting, 
-        phase[baseBuildingNames.stacker] <= amountPainting, phase[baseBuildingNames.painter] <= amountPainting, 
-        phase[baseBuildingNames.mixer] <= amountPainting, 
-        paintingshapes));
-    paintingshapes.push(calcRandomShape(randomizer, amountPainting+3, 
-        phase[baseBuildingNames.cutter] <= amountPainting, phase[baseBuildingNames.rotator] <= amountPainting, 
-        phase[baseBuildingNames.stacker] <= amountPainting, phase[baseBuildingNames.painter] <= amountPainting, 
-        phase[baseBuildingNames.mixer] <= amountPainting, 
-        paintingshapes));
-    paintingshapes.push(calcRandomShape(randomizer, amountPainting+4, 
-        phase[baseBuildingNames.cutter] <= amountPainting, phase[baseBuildingNames.rotator] <= amountPainting, 
-        phase[baseBuildingNames.stacker] <= amountPainting, phase[baseBuildingNames.painter] <= amountPainting, 
-        phase[baseBuildingNames.mixer] <= amountPainting, 
-        paintingshapes));
-    paintingshapes.push(calcRandomShape(randomizer, 10, true, true, true, true, true, paintingshapes));
+    // First shape always amountCategory+0, to have 0 complexity when 0 amountCategory
+    const beltshapes = [], minershapes = [], processorsshapes = [], paintingshapes = [];
+    let pairs = [
+        {"array": beltshapes, "amount": amountBelt},
+        {"array": minershapes, "amount": amountMiner},
+        {"array": processorsshapes, "amount": amountProcessors},
+        {"array": paintingshapes, "amount": amountPainting}
+    ];
+    for (let pair of pairs) {
+        for (let i = 0; i < 5; i++) {
+            pair.array.push(calcRandomShape(randomizer, pair.amount+i, 
+                phase[baseBuildingNames.cutter] <= pair.amount, phase[baseBuildingNames.rotator] <= pair.amount, 
+                phase[baseBuildingNames.stacker] <= pair.amount, phase[baseBuildingNames.painter] <= pair.amount, 
+                phase[baseBuildingNames.mixer] <= pair.amount, pair.array
+            ));
+        }
+    }
     return constructUpgradeShapes(randomizer, beltshapes, minershapes, processorsshapes, paintingshapes);
 }
 
 export function hardcoreUpgradeShapes(randomizer) {
-    const beltshapes = [calcRandomShape(randomizer, 5, false, false, false, false, false)];
-    beltshapes.push(calcRandomShape(randomizer, 6, true, true, true, true, true, beltshapes));
-    beltshapes.push(calcRandomShape(randomizer, 7, true, true, true, true, true, beltshapes));
-    beltshapes.push(calcRandomShape(randomizer, 8, true, true, true, true, true, beltshapes));
-    beltshapes.push(calcRandomShape(randomizer, 9, true, true, true, true, true, beltshapes));
-    const minershapes = [calcRandomShape(randomizer, 5, false, false, false, false, false)];
-    minershapes.push(calcRandomShape(randomizer, 6, true, true, true, true, true, minershapes));
-    minershapes.push(calcRandomShape(randomizer, 7, true, true, true, true, true, minershapes));
-    minershapes.push(calcRandomShape(randomizer, 8, true, true, true, true, true, minershapes));
-    minershapes.push(calcRandomShape(randomizer, 9, true, true, true, true, true, minershapes));
-    const processorsshapes = [calcRandomShape(randomizer, 5, false, false, false, false, false)];
-    processorsshapes.push(calcRandomShape(randomizer, 6, true, true, true, true, true, processorsshapes));
-    processorsshapes.push(calcRandomShape(randomizer, 7, true, true, true, true, true, processorsshapes));
-    processorsshapes.push(calcRandomShape(randomizer, 8, true, true, true, true, true, processorsshapes));
-    processorsshapes.push(calcRandomShape(randomizer, 9, true, true, true, true, true, processorsshapes));
-    const paintingshapes = [calcRandomShape(randomizer, 5, false, false, false, false, false)];
-    paintingshapes.push(calcRandomShape(randomizer, 6, true, true, true, true, true, paintingshapes));
-    paintingshapes.push(calcRandomShape(randomizer, 7, true, true, true, true, true, paintingshapes));
-    paintingshapes.push(calcRandomShape(randomizer, 8, true, true, true, true, true, paintingshapes));
-    paintingshapes.push(calcRandomShape(randomizer, 9, true, true, true, true, true, paintingshapes));
+    const beltshapes = [], minershapes = [], processorsshapes = [], paintingshapes = [];
+    for (let shapesarray of [beltshapes, minershapes, processorsshapes, paintingshapes]) {
+        shapesarray.push(calcRandomShape(randomizer, 0, false, false, false, false, false));
+        for (let i = 6; i < 10; i++) {
+            shapesarray.push(calcRandomShape(randomizer, i, true, true, true, true, true, shapesarray));
+        }
+    }
     return constructUpgradeShapes(randomizer, beltshapes, minershapes, processorsshapes, paintingshapes);
 }
 
@@ -865,21 +749,31 @@ const HORIZONTAL = 2;
  * @param {Array<string>} exclude
  */
 function calcRandomShape(randomizer, complexity, hasCutter, hasRotator, hasStacker, hasPainter, hasMixer, exclude = []) {
+    // Detailed console output for debugging
     if (modImpl.settings.debugGeneratorLogDepth >= 1) apdebuglog(
         `SHAPE comp=${complexity} ` 
         + [hasCutter, hasRotator, hasStacker, hasPainter, hasMixer].join(" ") 
         + (exclude.length ? " EXCLUDE " + exclude.join(" ") : "")
     );
+    // Make sure that there is enough complexity to have every operation at least once
+    // No (hasPainter || hasMixer) needed, as hasMixer always gets added after hasPainter
+    if (complexity < addBoolean(hasCutter, hasRotator, hasStacker, hasPainter, hasMixer)) {
+        throw new Error(`Complexity ${complexity} too low for important=${
+            [hasCutter, hasRotator, hasStacker, hasPainter, hasMixer].join(",")
+        }`);
+    }
     // complexity = Math.min(complexity, 40);
-    let hash = "";
+    let hash;
     do {
         // There should always be at least as many complexity as there are available buildings.
         // !hasCutter because single layer always needs cutting as first processing.
         // complexity < 3 || (complexity == 3 && hasRotator) because single layers need more processing to get to first stacking.
         // 33% chance to still be single layer.
+        let complexityProcessing = complexity - addBoolean(hasPainter, hasMixer);
         if (hasStacker && (
-            !hasCutter || complexity < 3 || (complexity < 5 && hasRotator) || randomizer.choice([true, true, true, false])
+            !hasCutter || complexityProcessing < 3 || (complexityProcessing == 3 && hasRotator) || randomizer.choice([true, true, true, false])
         )) { 
+            hash = "";
             let available = getBuildingBools(hasCutter, hasRotator, hasStacker, hasPainter, hasMixer);
             let tasked = getBuildingBools(hasCutter, hasRotator, false, hasPainter, hasMixer);
             /** @type {[number]}*/ let floatCutting = [NONE];
@@ -907,7 +801,7 @@ function calcRandomShape(randomizer, complexity, hasCutter, hasRotator, hasStack
                 randomizer, complexity, available, copyBuildingBools(available), copyBuildingBools(available)
             );
         }
-    } while (exclude.includes(hash) || (hash.length > 8 && hash.startsWith("RrRrRrRr")));
+    } while (exclude.includes(hash) || (hash.length > 8 && hash.startsWith("RrRrRrRr"))); // Blacklist
     return hash;
 }
 
@@ -970,208 +864,290 @@ function calcRandomLayer(randomizer, complexity, available, tasked, important) {
     if (modImpl.settings.debugGeneratorLogDepth >= 2) apdebuglog(
         `LAYER comp=${complexity} ${JSON.stringify(available)} ${JSON.stringify(tasked)} ${JSON.stringify(important)}`
     );
-    // Save complexities for later if rotator, painter, and mixer is important.
-    let savedRotator = addBoolean(important.rotator);
-    if (savedRotator) important.rotator = false;
-    let savedPainterMixer = important.mixer ? 2 : (important.painter ? 1 : 0);
-    complexity -= savedRotator + savedPainterMixer;
-    let variant = [8];
+    if (complexity < addBoolean(
+        important.cutter, important.rotator, important.stacker, important.painter || important.mixer, important.mixer
+    )) throw new Error(`Complexity ${complexity} too low for important=${JSON.stringify(important)}`);
+    // Save painter and mixer as they are irrelevant for deciding on the variant
+    complexity -= important.mixer ? 2 : (important.painter ? 1 : 0);
+    // Add everything possible to variant pool
+    let variant = new Array(10).fill(false);
+    variant[0] = true;
     if (available.cutter) {
-        if (complexity) variant.push(1, 9);
-        if (available.stacker) {
-            if (complexity >= 3) variant.push(2, 10);
-            if (available.rotator) {
-                if (complexity >= 9) variant.push(7);
-                if (complexity >= 4) variant.push(3);
-                if (complexity >= 5) variant.push(5);
-                if (complexity >= 8) variant.push(4);
-                if (complexity >= 11) variant.push(6);
-            }
-        }
-        if (important.cutter || important.rotator || important.stacker) {
-            if (!available.stacker) variant = [1, 9];
-            else if (!available.rotator) { // stacker available, but not rotator
-                variant = [];
-                if (complexity >= 3) variant = [2, 10];
-                if (!important.stacker) variant.push(1, 9);
-            } else { // stacker and rotator available
-                // remove 8, it's always first element
-                variant.splice(0, 1);
-                if (important.rotator) {
-                    // remove 1, 9 if cutterImp or comp < 7
-                    if ((important.cutter || complexity < 7) && variant[0] == 1) {
-                        variant.splice(0, 2);
-                    }
-                } else if (important.stacker) {
-                    // First remove 1, 2, 9, 10 to then re-add them
-                    if (variant[0] == 1) variant.splice(0, 2);
-                    if (variant[0] == 2) variant.splice(0, 2);
-                    // add 1, 9 if comp >= 7 and 2, 10 if comp >= 9
-                    if (complexity >= 7) variant.push(1, 9);
-                    if (complexity >= 9) variant.push(2, 10);
-                }
-            }
+        if (complexity) variant[1] = true;
+        if (available.rotator && complexity >= 2) variant[2] = true;
+        if (available.stacker && complexity >= 3) variant[3] = true;
+        if (available.rotator && available.stacker) {
+            if (complexity >= 4) variant[4] = true;
+            if (complexity >= 4) variant[5] = true;
+            if (complexity >= 8) variant[6] = true;
+            if (complexity >= 5) variant[7] = true;
+            if (complexity >= 15) variant[8] = true;
+            if (complexity >= 9) variant[9] = true;
         }
     }
-    // Bring back needed painter and mixer complexity
-    complexity += savedPainterMixer;
-    let layer = "";
-    switch (randomizer.choice(variant)) {
-        case 1:
+    // Disable everything that would make important things impossible
+    if (important.cutter) variant[0] = false;
+    if (important.rotator) {
+        if (complexity < 3) variant[1] = false;
+        if (complexity < 5) variant[3] = false;
+    }
+    if (important.stacker) {
+        variant[0] = false;
+        if (complexity < 7 || !available.rotator) variant[1] = false;
+        if (complexity < 8) variant[2] = false;
+    }
+    // Disable some low-complexity variants if high complexity given
+    // With available.cutter, there will always
+    if (available.cutter && !important.cutter && !important.rotator && !important.stacker) {
+        if (complexity > 10) variant[0] = false;
+        if (complexity > 12) variant[5] = false;
+        if (complexity > 12) variant[7] = false;
+    }
+    // Restore painter and mixer
+    complexity += important.mixer ? 2 : (important.painter ? 1 : 0);
+    // Convert variant pool to be useable in randomizer.choice()
+    let variantPool = [];
+    for (let i = 0; i < variant.length; i++) if (variant[i]) variantPool.push(i);
+    // Same scope variables
+    let layer = "", single, color1, patterns, complexityPart, shapePool, resetTasked, resetImportant;
+    // Get random variant
+    switch (randomizer.choice(variantPool)) {
+        case 0: // Full (fixed pattern + random color)
+            // Save rotator if important
+            if (important.rotator) complexity--;
+            // Split complexity between painting and rare patterns
+            complexityPart = Math.max(important.mixer ? 2 : (important.painter ? 1 : 0), randomizer.nextIntRange(0, complexity+1));
+            complexity -= complexityPart;
+            color1 = calcRandomColor(randomizer, complexityPart, available, tasked, important);
+            // Restore important rotator
+            if (important.rotator) complexity++;
+            // Base patterns with no complexity barrier
+            patterns = [
+                "C"+color1+"C"+color1+"C"+color1+"C"+color1,
+                "R"+color1+"R"+color1+"R"+color1+"R"+color1
+            ];
+            // Patterns with some distance and one of them rotatable
+            if (complexity) patterns.push(
+                "S"+color1+"S"+color1+"S"+color1+"S"+color1,
+                "R"+color1+"R"+color1+"W"+color1+"W"+color1
+            );
+            // Patterns with more distance and rotatable
+            if (complexity >= 2) patterns.push(
+                "C"+color1+"C"+color1+"R"+color1+"R"+color1,
+                "C"+color1+"C"+color1+"S"+color1+"S"+color1,
+                "R"+color1+"R"+color1+"C"+color1+"C"+color1,
+                "R"+color1+"R"+color1+"S"+color1+"S"+color1,
+                "S"+color1+"S"+color1+"C"+color1+"C"+color1,
+                "S"+color1+"S"+color1+"R"+color1+"R"+color1
+            );
+            // Exclude unrotatable if rotator important
+            // important.rotator includes having 1 complexity restored
+            if (important.rotator) patterns.splice(0, 3);
+            // Get random pattern, barrier is not supposed to consume complexity
+            layer = randomizer.choice(patterns);
+            // Rotate if either important or enough complexity left (only sometimes)
+            if (important.rotator || (available.rotator && complexity && randomizer.choice([true, false]))) {
+                if (randomizer.choice([true, false])) layer = layer.substring(2, 8) + layer.substring(0, 2);
+                else layer = layer.substring(6, 8) + layer.substring(0, 6);
+                tasked.rotator = false;
+                important.rotator = false;
+            }
+            return layer;
+        case 1: // Vertical half (using calcRandomHalf)
+            // Check 1 cutting
             tasked.cutter = false;
             important.cutter = false;
             complexity--;
-            layer = calcRandomHalf(randomizer, complexity, available, tasked, important);
-            if (isWindmillHalf(layer) || randomizer.choice([true, false])) layer = "----" + layer;
-            else layer = layer + "----";
-            break;
-        case 2:
-            // There is no point in updating important
+            // Get random half and use all complexity for that
+            layer = calcRandomHalf(randomizer, complexity, available, tasked, important, true);
+            complexity = 0;
+            // Get random side while being aware of east windmills
+            if (isWindmillHalf(layer) && !available.rotator) return "----" + layer;
+            else if (randomizer.choice([true, false])) return "----" + layer;
+            else return layer + "----";
+        case 2: // Horizontal half (using calcRandomHalf)
+            // Check 1 cutting and 1 rotating
             tasked.cutter = false;
+            important.cutter = false;
+            tasked.rotator = false;
+            important.rotator = false;
+            complexity -= 2;
+            // Get random half and use all complexity for that
+            layer = calcRandomHalf(randomizer, complexity, available, tasked, important, true);
+            complexity = 0;
+            // Get random side, windmills don't matter here as it's already rotated
+            layer = "--" + layer + "--";
+            if (randomizer.choice([true, false])) layer = layer.substring(4, 8) + layer.substring(0, 4);
+            return layer;
+        case 3: // Vertical half-half (using calcRandomHalf)
+            // Check 2 cutting and 1 stacking
+            tasked.cutter = false;
+            important.cutter = false;
             tasked.stacker = false;
+            important.stacker = false;
             complexity -= 3;
-            var complexityPart = weightedRandomIntRange(randomizer, 0, complexity-addBoolean(
-                important.rotator, important.painter || important.mixer, important.mixer
+            // Split complexity between both halves, while saving some for important 
+            // Double important.rotator because rotator needs 2 complexity within calcRandomHalf
+            // There will always be at least 2 complexity left if you subtract the 3 minimum and 2 painter&mixer
+            complexityPart = weightedRandomIntRange(randomizer, 0, complexity-addBoolean(
+                important.rotator, important.rotator, important.painter || important.mixer, important.mixer
             ));
             complexity -= complexityPart;
-            /** @type {buildingBools} */var resetTasked;
-            do {
-                resetTasked = copyBuildingBools(tasked)
-                layer = calcRandomHalf(randomizer, complexityPart, available, resetTasked, getEmptyBuildingBools());
-            }
-            while (isWindmillHalf(layer));
-            layer += calcRandomHalf(
-                randomizer, complexity, available, resetTasked, updateBuildingBoolCompletions(important, resetTasked)
+            // Generate both halves, considering east windmill and important only in second half
+            // update instead of copy because what if important is empty from the beginning
+            // TODO make both halves not be the same, see variant 9
+            layer = calcRandomHalf(randomizer, complexityPart, available, tasked, getEmptyBuildingBools(), available.rotator);
+            return layer + calcRandomHalf(
+                randomizer, complexity, available, tasked, updateBuildingBoolCompletions(important, tasked), true
             );
-            break;
-        case 3:
-            // There is no point in updating painting-unrelated important
+        case 4: // Horizontal half-half (using calcRandomHalf)
+            // Checking 2 cutting, 1 rotating, and 1 stacking
             tasked.cutter = false;
+            important.cutter = false;
             tasked.rotator = false;
+            important.rotator = false;
             tasked.stacker = false;
+            important.stacker = false;
             complexity -= 4;
-            layer = calcRandomSubShape(randomizer, true) + calcRandomColor(randomizer, complexity, available, tasked, important);
-            switch (randomizer.nextIntRange(0, 4)) {
-                case 0: layer = "--" + layer + layer + layer; break
-                case 1: layer = layer + "--" + layer + layer; break
-                case 2: layer = layer + layer + "--" + layer; break
-                case 3: layer = layer + layer + layer + "--"; break
-            }
-            break;
-        case 4:
-            // There is no point in updating important
-            tasked.cutter = false;
-            tasked.rotator = false;
-            tasked.stacker = false;
-            complexity -= 8;
-            var complexityPart = weightedRandomIntRange(randomizer, 0, complexity-addBoolean(
+            // Split complexity between both halves, while saving some for important 
+            complexityPart = weightedRandomIntRange(randomizer, 0, complexity-addBoolean(
                 important.painter || important.mixer, important.mixer
             ));
             complexity -= complexityPart;
-            layer = calcRandomSubShape(randomizer, true) + calcRandomColor(
-                randomizer, complexity, available, tasked, getEmptyBuildingBools()
+            // Generate both halves, with important only in second half
+            // update instead of copy because what if important is empty from the beginning
+            // TODO make both halves not be the same, see variant 9
+            layer = calcRandomHalf(randomizer, complexityPart, available, tasked, getEmptyBuildingBools(), true);
+            layer += calcRandomHalf(
+                randomizer, complexity, available, tasked, updateBuildingBoolCompletions(important, tasked), true
             );
-            let single = calcRandomSubShape(randomizer, true) + calcRandomColor(
-                randomizer, complexity, available, tasked, updateBuildingBoolCompletions(important, tasked), layer.charAt(1)
-            );
-            switch (randomizer.nextIntRange(0, 4)) {
-                case 0: layer = single + layer + layer + layer; break
-                case 1: layer = layer + single + layer + layer; break
-                case 2: layer = layer + layer + single + layer; break
-                case 3: layer = layer + layer + layer + single; break
-            }
-            break;
-        case 5:
-            // There is no point in updating painting-unrelated important
+            return layer.substring(6, 8) + layer.substring(0, 6);
+        case 5: // Cut-out
+            // Checking 2 cutting, 1 rotating, and 1 stacking
             tasked.cutter = false;
+            important.cutter = false;
             tasked.rotator = false;
+            important.rotator = false;
             tasked.stacker = false;
-            complexity -= 5;
+            important.stacker = false;
+            complexity -= 4;
+            // Get random shape, color, and rotation
             layer = calcRandomSubShape(randomizer, true) + calcRandomColor(randomizer, complexity, available, tasked, important);
-            if (randomizer.choice([true, false])) layer = "--" + layer + "--" + layer;
-            else layer = layer + "--" + layer + "--";
-            break;
-        case 6:
-            // There is no point in updating painting-unrelated important
-            tasked.cutter = false;
-            tasked.rotator = false;
-            tasked.stacker = false;
-            complexity -= 11;
-            var color = calcRandomColor(randomizer, complexity, available, tasked, important);
-            let shapePool = ["--", "C"+color, "R"+color, "S"+color, "W"+color];
-            for (let i = 0; i < 4; i++) {
-                let index = randomizer.nextIntRange(0, shapePool.length);
-                layer += shapePool[index];
-                shapePool.splice(index, 1);
-            }
-            break;
-        case 7:
-            tasked.cutter = false;
-            important.cutter = false;
-            // Do NOT update rotator and stacker, as it might lead to simple halves, and thereby simple shapes
-            // Min 9 complexity to ensure it's actually checkered
-            complexity -= 3;
-            layer = calcRandomHalf(randomizer, complexity, available, tasked, important);
-            layer += layer;
-            break;
-        case 8:
-            var color = calcRandomColor(randomizer, complexity, available, tasked, important);
             switch (randomizer.nextIntRange(0, 4)) {
-                case 0: layer = "C"+color+"C"+color+"C"+color+"C"+color; break;
-                case 1: layer = "R"+color+"R"+color+"R"+color+"R"+color; break;
-                case 2: layer = "S"+color+"S"+color+"S"+color+"S"+color; break;
-                case 3: layer = "R"+color+"R"+color+"W"+color+"W"+color; break;
+                case 0: return "--" + layer + layer + layer; 
+                case 1: return layer + "--" + layer + layer; 
+                case 2: return layer + layer + "--" + layer; 
+                case 3: return layer + layer + layer + "--"; 
+                default: throw new Error("Illegal random value");
             }
-            break;
-        case 9:
+        case 6: // 3-1
+            // Checking 4 cutting, 2 rotating, and 2 stacking
             tasked.cutter = false;
             important.cutter = false;
-            complexity--;
-            layer = calcRandomHalf(randomizer, complexity, available, tasked, important);
-            if (!complexity || randomizer.choice([true, false])) layer = "----" + layer;
-            else {
-                if (isWindmillHalf(layer)) complexity--;
-                layer = layer + "----"
-            };
-            break;
-        case 10:
-            // There is no point in updating important
-            tasked.cutter = false;
+            tasked.rotator = false;
+            important.rotator = false;
             tasked.stacker = false;
-            complexity -= 3;
-            var complexityPart = weightedRandomIntRange(randomizer, 0, complexity-addBoolean(
-                important.rotator, important.painter || important.mixer, important.mixer
+            important.stacker = false;
+            complexity -= 8;
+            // Split complexity between both sides, while saving some for important 
+            complexityPart = weightedRandomIntRange(randomizer, 0, complexity-addBoolean(
+                important.painter || important.mixer, important.mixer
             ));
             complexity -= complexityPart;
-            var resetTasked = copyBuildingBools(tasked);
-            layer = calcRandomHalf(randomizer, complexityPart, available, resetTasked, getEmptyBuildingBools());
-            if (complexity) {
-                if (isWindmillHalf(layer)) complexity--;
-                layer += calcRandomHalf(
-                    randomizer, complexity, available, resetTasked, updateBuildingBoolCompletions(important, resetTasked)
-                );
-            } else {
-                while (isWindmillHalf(layer)) {
-                    resetTasked = copyBuildingBools(tasked);
-                    layer = calcRandomHalf(randomizer, complexityPart, available, resetTasked, getEmptyBuildingBools());
-                }
-                layer += calcRandomHalf(randomizer, complexity, available, resetTasked, 
-                    updateBuildingBoolCompletions(important, resetTasked)
-                );
+            // Getting both random shapes and colors
+            // Second color should only preferably be the same if shapes are not the same
+            layer = calcRandomSubShape(randomizer, true) + calcRandomColor(
+                randomizer, complexityPart, available, tasked, getEmptyBuildingBools()
+            );
+            single = calcRandomSubShape(randomizer, true);
+            color1 = layer.charAt(0) === single ? null : layer.charAt(1);
+            single += calcRandomColor(
+                randomizer, complexity, available, tasked, updateBuildingBoolCompletions(important, tasked), color1
+            );
+            // Get random rotation
+            switch (randomizer.nextIntRange(0, 4)) {
+                case 0: return single + layer + layer + layer; 
+                case 1: return layer + single + layer + layer; 
+                case 2: return layer + layer + single + layer; 
+                case 3: return layer + layer + layer + single; 
+                default: throw new Error("Illegal random value");
             }
-            break;
+        case 7: // Cornered
+            // Checking 2 cutting, 2 rotating, and 1 stacking
+            tasked.cutter = false;
+            important.cutter = false;
+            tasked.rotator = false;
+            important.rotator = false;
+            tasked.stacker = false;
+            important.stacker = false;
+            complexity -= 5;
+            // Get random shape, color, and rotation
+            layer = calcRandomSubShape(randomizer, true) + calcRandomColor(randomizer, complexity, available, tasked, important);
+            if (randomizer.choice([true, false])) return "--" + layer + "--" + layer;
+            else return layer + "--" + layer + "--";
+        case 8: // 4 shapes 1 color
+            // Checking 8 cutting, 4 rotating, and 3 stacking
+            tasked.cutter = false;
+            important.cutter = false;
+            tasked.rotator = false;
+            important.rotator = false;
+            tasked.stacker = false;
+            important.stacker = false;
+            complexity -= 15;
+            // Get random color and random order of shapes
+            color1 = calcRandomColor(randomizer, complexity, available, tasked, important);
+            shapePool = ["C", "R", "S", "W"];
+            for (let i = 0; i < 4; i++) {
+                let index = randomizer.nextIntRange(0, shapePool.length);
+                layer += shapePool[index] + color1;
+                shapePool.splice(index, 1);
+            }
+            return layer;
+        case 9: // Checkered (aka cloned half)
+            // Checking 4 cutting, 3 rotating, and 2 stacking
+            tasked.cutter = false;
+            important.cutter = false;
+            tasked.rotator = false;
+            important.rotator = false;
+            tasked.stacker = false;
+            important.stacker = false;
+            complexity -= 9;
+            // Split complexity between both colors, while saving some for important 
+            complexityPart = weightedRandomIntRange(randomizer, 0, complexity-addBoolean(
+                important.painter || important.mixer, important.mixer
+            ));
+            complexity -= complexityPart;
+            // Get first random side, with nothing being important yet
+            layer = calcRandomSubShape(randomizer, true) + calcRandomColor(
+                randomizer, complexityPart, available, tasked, getEmptyBuildingBools()
+            );
+            // Update important with what is left in tasked tasked
+            // If important was empty to begin with, it stays empty
+            // If important had something, it was the same as tasked
+            updateBuildingBoolCompletions(important, tasked);
+            // Get second random side, but repeating if both sides are the same
+            do {
+                // tasked and important must not update yet in case this has to be repeated
+                resetTasked = copyBuildingBools(tasked);
+                resetImportant = copyBuildingBools(important);
+                layer = layer.substring(0, 2) + calcRandomSubShape(randomizer, true) + calcRandomColor(
+                    randomizer, complexity, available, resetTasked, resetImportant
+                );
+            } while (layer.substring(0, 2) === layer.substring(2, 4));
+            // Update tasked and important with what was checked in the last loop iteration
+            updateBuildingBoolCompletions(tasked, resetTasked);
+            updateBuildingBoolCompletions(important, resetImportant);
+            // Clone to get full layer
+            return layer + layer;
+        default:
+            throw new Error("Illegal layer variant");
     }
-    // savedRotator is only 1 if it's important
-    if (savedRotator || (available.rotator && complexity && randomizer.choice([true, false]))) {
-        layer = layer.substring(2, 8) + layer.substring(0, 2);
-    }
-    return layer;
 }
 
 /**
  * 
  * @param {string} half 
- * @returns {boolean} WxWx
+ * @returns {boolean} half === WxWx[...]
  */
 function isWindmillHalf(half) {
     return half.charAt(0) === "W" && half.charAt(2) === "W";
@@ -1185,11 +1161,14 @@ function isWindmillHalf(half) {
  * @param {buildingBools} available
  * @param {buildingBools} tasked
  * @param {buildingBools} important
+ * @param {boolean} windmillAllowed
  */
-function calcRandomHalf(randomizer, complexity, available, tasked, important) {
+function calcRandomHalf(randomizer, complexity, available, tasked, important, windmillAllowed) {
     if (modImpl.settings.debugGeneratorLogDepth >= 3) apdebuglog(
         `HALF comp=${complexity} ${JSON.stringify(available)} ${JSON.stringify(tasked)} ${JSON.stringify(important)}`
     );
+    if (complexity < addBoolean(important.cutter, important.rotator, important.stacker, important.painter || important.mixer, important.mixer))
+        throw new Error(`Complexity ${complexity} too low for important=${JSON.stringify(important)}`);
     let complexityProcessing = complexity - addBoolean(important.painter || important.mixer, important.mixer);
     let pool = [0];
     let part = "";
@@ -1199,14 +1178,14 @@ function calcRandomHalf(randomizer, complexity, available, tasked, important) {
     if (important.stacker && pool[0] == 1) pool.splice(0, 1);
     switch (randomizer.choice(pool)) {
         case 0:
-            part = calcRandomSubShape(randomizer, true) + calcRandomColor(randomizer, complexity, available, tasked, important);
+            part = calcRandomSubShape(randomizer, windmillAllowed) + calcRandomColor(randomizer, complexity, available, tasked, important);
             part += part;
             break;
         case 1:
             // There is no point in updating important
             tasked.rotator = false;
             complexity -= 2;
-            part = calcRandomSubShape(randomizer, true) + calcRandomColor(randomizer, complexity, available, tasked, important);
+            part = calcRandomSubShape(randomizer, windmillAllowed) + calcRandomColor(randomizer, complexity, available, tasked, important);
             if (randomizer.choice([true, false])) part += "--";
             else part = "--" + part;
             break;
@@ -1218,10 +1197,10 @@ function calcRandomHalf(randomizer, complexity, available, tasked, important) {
             let complexityPart = weightedRandomIntRange(randomizer, 0, complexity-addBoolean(
                 important.painter || important.mixer, important.mixer
             ));
-            part = calcRandomSubShape(randomizer, true) + calcRandomColor(
+            part = calcRandomSubShape(randomizer, windmillAllowed) + calcRandomColor(
                 randomizer, complexityPart, available, tasked, getEmptyBuildingBools()
             );
-            part += calcRandomSubShape(randomizer, true) + calcRandomColor(
+            part += calcRandomSubShape(randomizer, windmillAllowed) + calcRandomColor(
                 randomizer, complexity-complexityPart, available, tasked, 
                 updateBuildingBoolCompletions(important, tasked), part.charAt(1)
             );
@@ -1251,20 +1230,32 @@ function calcRandomColor(randomizer, complexity, available, tasked, important, p
     if (modImpl.settings.debugGeneratorLogDepth >= 4) apdebuglog(
         `COLOR comp=${complexity} ${JSON.stringify(available)} ${JSON.stringify(tasked)} ${JSON.stringify(important)} ${preferredColor}`
     );
+    if (complexity < addBoolean(important.painter || important.mixer, important.mixer))
+        throw new Error(`Complexity ${complexity} too low for important=${JSON.stringify(important)}`);
+    // Start with uncolored
     let pool = ["u"];
+    // Add colors if possible and enough complexity
+    // available.mixer always includes available.painter
     if (available.painter && complexity) pool.push("r", "g", "b");
     if (available.mixer && complexity >= 2) pool.push("y", "p", "c");
     if (available.mixer && complexity >= 3) pool.push("w");
-    if (important.painter || important.mixer) pool.splice(0, 1);
+    // Remove lower colors if important or too much complexity (so it doesn't waste too much complexity)
+    // Important buildings always include enough complexity and availability
+    // Check for pool length, so we don't get an empty pool
+    if (important.painter || important.mixer || (complexity >= 4 && pool.length > 1)) pool.splice(0, 1);
     if (important.mixer) pool.splice(0, 3);
+    // Populate preferred color, but only if it's already included
     if (preferredColor) {
         let includePreferred = false;
         for (let c of pool) if (c === preferredColor) includePreferred = true;
         if (includePreferred) for (let i = pool.length-2; i > 0; i--) pool.push(preferredColor);
     }
+    // Get random color
     let ret = randomizer.choice(pool);
+    // Check tasked/important if a (mixed) color is chosen
     if (ret !== "u") {tasked.painter = false; important.painter = false;}
     if (!["u", "r", "g", "b"].includes(ret)) {tasked.mixer = false; important.mixer = false;}
+    // Return
     return ret;
 }
 
@@ -1279,6 +1270,9 @@ function weightedRandomIntRange(randomizer, start, end) {
         + randomizer.nextIntRange(0, Math.ceil((end-start)/2)+1);
 }
 
+/**
+ * @param {boolean[]} bool
+ */
 function addBoolean(... bool) {
     let sum = 0;
     for (let b of bool) if (b) sum++;
@@ -1292,6 +1286,8 @@ function addBoolean(... bool) {
  * @param {boolean} hasPainter
  * @param {boolean} hasMixer
  * @returns {buildingBools}
+ * 
+ * Creates a buildingBools object with given values.
  */
 function getBuildingBools(hasCutter, hasRotator, hasStacker, hasPainter, hasMixer) {
     return {
@@ -1305,6 +1301,8 @@ function getBuildingBools(hasCutter, hasRotator, hasStacker, hasPainter, hasMixe
 
 /**
  * @returns {buildingBools}
+ * 
+ * Creates a buildingBools object with everything set to false.
  */
 function getEmptyBuildingBools() {
     return {
@@ -1319,6 +1317,8 @@ function getEmptyBuildingBools() {
 /**
  * @param {buildingBools} old
  * @returns {buildingBools}
+ * 
+ * Creates a deep copy of old.
  */
 function copyBuildingBools(old) {
     let copy = getEmptyBuildingBools();
@@ -1329,6 +1329,11 @@ function copyBuildingBools(old) {
 /**
  * @param {buildingBools} toupdate
  * @param {buildingBools} template
+ * 
+ * Sets every building in toupdate to true, if it's true in both toupdate and template.
+ * 
+ * This effectively checks everything in toupdate, if it was checked in template.
+ * 
  * @returns {buildingBools} toupdate
  */
 function updateBuildingBoolCompletions(toupdate, template) {
