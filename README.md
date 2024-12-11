@@ -24,6 +24,9 @@ Client mod for the Archipelago multiworld randomizer.
 - Repurpose shapesanity box to multiple tabs AP box
   - Add slot details tab (goal, goal amount, seed) 
   - Add achievements tab
+ 
+### APWorld Qol
+- Item groups
 
 ### Gameplay
 - Something with energy link
@@ -110,7 +113,7 @@ Client mod for the Archipelago multiworld randomizer.
   - Make sure item list only contains what is currently producable (=> update shop when receiving more progression items)
 - Goal "Customer satisfaction": Deliver certain amount of certain shop orders (minimum 5?), goal shape should be cheap and requiring all buildings, requires other players to take part
 
-### Labels
+### Labels (Deprecated)
 - IMPORTANT:    Text
 - GOOD LOOKING: Text
 - FEATURE:      Text
