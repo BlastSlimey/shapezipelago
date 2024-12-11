@@ -21,8 +21,9 @@ Client mod for the Archipelago multiworld randomizer.
   - when connected replace ap inventory, else load from save file
 - Text box (read only), received non-progression items only there
 - Details when checking Level location, override hud
-- Repurpose shapesanity box to AP box
+- Repurpose shapesanity box to multiple tabs AP box
   - Add slot details tab (goal, goal amount, seed) 
+  - Add achievements tab
 
 ### Gameplay
 - Something with energy link
