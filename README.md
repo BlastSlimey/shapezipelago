@@ -9,10 +9,9 @@ Client mod for the Archipelago multiworld randomizer.
 - storing reoccuring strings in global data to prevent errors:
   - "Shapesanity" and its different types, put together with [].join(" ")
 - merge level requirement generation using phases
-- Rework building overrides for future mod 
-- Rework item receiving from "only index 0" to expected behavior
+- Rework building overrides for future mod compatibility
 - Convert to TypeScript
-- Update archipelago.js to 2.0
+- ~~Update archipelago.js to 2.0~~ Incompatible with create-shapezio-mod
 
 ### Client QoL
 - meantime offline playing
@@ -24,6 +23,7 @@ Client mod for the Archipelago multiworld randomizer.
 - Repurpose shapesanity box to multiple tabs AP box
   - Add slot details tab (goal, goal amount, seed) 
   - Add achievements tab
+- Update shop ui on item receiving
  
 ### APWorld Qol
 - Item groups
