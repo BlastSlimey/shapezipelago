@@ -111,6 +111,7 @@ Client mod for the Archipelago multiworld randomizer.
     ```
   - Base price is calculated with amount of operations to create the shape, with mulitplier option ranging 0.0-3.0
   - Make sure item list only contains what is currently producable (=> update shop when receiving more progression items)
+  - Shop items can consist of multiple shapes (so they are not restricted by 4 corners)
 - Goal "Customer satisfaction": Deliver certain amount of certain shop orders (minimum 5?), goal shape should be cheap and requiring all buildings, requires other players to take part
 
 ### Labels (Deprecated)
