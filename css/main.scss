@@ -1,129 +1,159 @@
-#state_InGameState .shapesanityButton {
-    grid-column: 1;
-    background-image: url("../res/icons/AP.png");
-}
-#state_InGameState button.shop {
-    grid-column: 2;
-}
-#state_InGameState button.stats {
-    grid-column: 3;
-}
-#state_InGameState .button.save {
-    grid-column: 4;
-}
-#state_InGameState .button.settings {
-    grid-column: 5;
+#state_InGameState {
+    .shapesanityButton {
+        grid-column: 1;
+        background-image: url("../res/icons/AP.png");
+    }
+    button.shop {
+        grid-column: 2;
+    }
+    button.stats {
+        grid-column: 3;
+    }
+    .button.save {
+        grid-column: 4;
+    }
+    .button.settings {
+        grid-column: 5;
+    }
 }
 #ingame_HUD_Shapesanity {
     z-index: 420;
+    .dialogInner {
+        &[currentTab="shapesanity"] .tabsButtonShapesanity,
+        &[currentTab="slotDetails"] .tabButtonSlotDetails,
+        &[currentTab="achievements"] .tabButtonAchievements,
+        &[currentTab="giftShop"] .tabButtonGiftShop {
+            opacity: 1;
+        }
+    }
+    .shapesanityRow {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-radius: calc(6px*var(--ui-scale));
+        padding-left: calc(10px*var(--ui-scale));
+        padding-right: calc(10px*var(--ui-scale));
+        padding-top: calc(2px*var(--ui-scale));
+        padding-bottom: calc(2px*var(--ui-scale));
+    }
+    .shapesanityName {
+        padding-right: calc(10px * var(--ui-scale));
+    }
+    .content {
+        margin-top: calc(10px * var(--ui-scale));
+        padding-right: calc(10px * var(--ui-scale));
+        overflow-y: scroll;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        justify-items: stretch;
+        width: auto;
+        height: calc(350px * var(--ui-scale));
+    }
+    button {
+        color: #fff;
+        opacity: 0.25;
+        border-radius: 0;
+        &:first-child {
+            border-top-left-radius: 10px;
+            border-bottom-left-radius: 10px;
+        }
+        &:last-child {
+            border-top-right-radius: 10px;
+            border-bottom-right-radius: 10px;
+        }
+        background-color: #44484a !important;
+        transition: opacity 0.2s ease-in-out;
+    }
 }
-#ingame_HUD_Shapesanity .shapesanityRow {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-radius: calc(6px*var(--ui-scale));
-    padding-left: calc(10px*var(--ui-scale));
-    padding-right: calc(10px*var(--ui-scale));
-    padding-top: calc(2px*var(--ui-scale));
-    padding-bottom: calc(2px*var(--ui-scale));
+html[data-theme=dark] #ingame_HUD_Shapesanity button {
+    background-color: #5e6474 !important;
 }
-html[data-theme=dark] .ingameDialog > .dialogInner > .content > .locationChecked, .ingameDialog > .dialogInner > .content > .locationChecked[data-theme=dark] {
+html[data-theme=dark] .ingameDialog > .dialogInner > .content > .locationChecked {
     background-color: #007d91;
 }
-html[data-theme=light] .ingameDialog > .dialogInner > .content > .locationChecked, .ingameDialog > .dialogInner > .content > .locationChecked[data-theme=light] {
+html[data-theme=light] .ingameDialog > .dialogInner > .content > .locationChecked {
     background-color: #96f6ff;
 }
-#ingame_HUD_Shapesanity .shapesanityName {
-    padding-right: calc(10px * var(--ui-scale));
-}
-#ingame_HUD_Shapesanity .content {
-    margin-top: calc(10px * var(--ui-scale));
-    padding-right: calc(10px * var(--ui-scale));
-    overflow-y: scroll;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    justify-items: stretch;
-    width: fit-content;
-    height: calc(350px * var(--ui-scale));
-}
-#state_MainMenuState .inputContainer {
-    display: flex;
-    width: 90%;
-    flex-direction: column;
-    grid-gap: calc(5px*var(--ui-scale));
-    background: #65a4b3;
-    border-radius: calc(6px*var(--ui-scale));
-    justify-content: center;
-    align-items: flex-start;
-    padding: calc(10px * var(--ui-scale));
-    box-shadow: 0 calc(5px * var(--ui-scale)) calc(15px * var(--ui-scale)) rgba(0, 0, 0, 0.2);
-}
-#state_MainMenuState .playerContainer {
-    display: flex;
-    width: 100%;
-    flex-direction: row;
-    grid-gap: calc(5px*var(--ui-scale));
-    background: #65a4b3;
-    align-items: center;
-    justify-content: flex-end;
-}
-#state_MainMenuState .addressContainer {
-    display: flex;
-    width: 100%;
-    flex-direction: row;
-    grid-gap: calc(5px*var(--ui-scale));
-    background: #65a4b3;
-    align-items: center;
-    justify-content: flex-end;
-}
-#state_MainMenuState .portContainer {
-    display: flex;
-    width: 100%;
-    flex-direction: row;
-    grid-gap: calc(5px*var(--ui-scale));
-    background: #65a4b3;
-    align-items: center;
-    justify-content: flex-end;
-}
-#state_MainMenuState .passwordContainer {
-    display: flex;
-    width: 100%;
-    flex-direction: row;
-    grid-gap: calc(5px*var(--ui-scale));
-    background: #65a4b3;
-    align-items: center;
-    justify-content: flex-end;
-}
-#state_MainMenuState .statusContainer {
-    display: flex;
-    width: 100%;
-    flex-direction: row;
-    grid-gap: calc(5px*var(--ui-scale));
-    background: #65a4b3;
-    align-items: center;
-    justify-content: flex-end;
-}
-#state_MainMenuState .playerInput {
-    color: #000;
-    padding: calc(1px * var(--ui-scale)) calc(3px * var(--ui-scale));
-    margin: calc(0px * var(--ui-scale)) calc(0px * var(--ui-scale));
-}
-#state_MainMenuState .addressInput {
-    color: #000;
-    padding: calc(1px * var(--ui-scale)) calc(3px * var(--ui-scale));
-    margin: calc(0px * var(--ui-scale)) calc(0px * var(--ui-scale));
-}
-#state_MainMenuState .portInput {
-    padding: calc(1px * var(--ui-scale)) calc(3px * var(--ui-scale));
-    margin: calc(0px * var(--ui-scale)) calc(0px * var(--ui-scale));
-}
-#state_MainMenuState .passwordInput {
-    padding: calc(1px * var(--ui-scale)) calc(3px * var(--ui-scale));
-    margin: calc(0px * var(--ui-scale)) calc(0px * var(--ui-scale));
-}
-#state_MainMenuState .statusButton {
-    padding: calc(1px * var(--ui-scale)) calc(3px * var(--ui-scale));
-    margin: calc(0px * var(--ui-scale)) calc(0px * var(--ui-scale));
-    background-color: red;
+#state_MainMenuState {
+    .inputContainer {
+        display: flex;
+        width: 90%;
+        flex-direction: column;
+        grid-gap: calc(5px*var(--ui-scale));
+        background: #65a4b3;
+        border-radius: calc(6px*var(--ui-scale));
+        justify-content: center;
+        align-items: flex-start;
+        padding: calc(10px * var(--ui-scale));
+        box-shadow: 0 calc(5px * var(--ui-scale)) calc(15px * var(--ui-scale)) rgba(0, 0, 0, 0.2);
+    }
+    .playerContainer {
+        display: flex;
+        width: 100%;
+        flex-direction: row;
+        grid-gap: calc(5px*var(--ui-scale));
+        background: #65a4b3;
+        align-items: center;
+        justify-content: flex-end;
+    }
+    .addressContainer {
+        display: flex;
+        width: 100%;
+        flex-direction: row;
+        grid-gap: calc(5px*var(--ui-scale));
+        background: #65a4b3;
+        align-items: center;
+        justify-content: flex-end;
+    }
+    .portContainer {
+        display: flex;
+        width: 100%;
+        flex-direction: row;
+        grid-gap: calc(5px*var(--ui-scale));
+        background: #65a4b3;
+        align-items: center;
+        justify-content: flex-end;
+    }
+    .passwordContainer {
+        display: flex;
+        width: 100%;
+        flex-direction: row;
+        grid-gap: calc(5px*var(--ui-scale));
+        background: #65a4b3;
+        align-items: center;
+        justify-content: flex-end;
+    }
+    .statusContainer {
+        display: flex;
+        width: 100%;
+        flex-direction: row;
+        grid-gap: calc(5px*var(--ui-scale));
+        background: #65a4b3;
+        align-items: center;
+        justify-content: flex-end;
+    }
+    .playerInput {
+        color: #000;
+        padding: calc(1px * var(--ui-scale)) calc(3px * var(--ui-scale));
+        margin: calc(0px * var(--ui-scale)) calc(0px * var(--ui-scale));
+    }
+    .addressInput {
+        color: #000;
+        padding: calc(1px * var(--ui-scale)) calc(3px * var(--ui-scale));
+        margin: calc(0px * var(--ui-scale)) calc(0px * var(--ui-scale));
+    }
+    .portInput {
+        padding: calc(1px * var(--ui-scale)) calc(3px * var(--ui-scale));
+        margin: calc(0px * var(--ui-scale)) calc(0px * var(--ui-scale));
+    }
+    .passwordInput {
+        padding: calc(1px * var(--ui-scale)) calc(3px * var(--ui-scale));
+        margin: calc(0px * var(--ui-scale)) calc(0px * var(--ui-scale));
+    }
+    .statusButton {
+        padding: calc(1px * var(--ui-scale)) calc(3px * var(--ui-scale));
+        margin: calc(0px * var(--ui-scale)) calc(0px * var(--ui-scale));
+        background-color: red;
+    }
 }

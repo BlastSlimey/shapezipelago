@@ -469,9 +469,9 @@ export function linearUpgradeShapes(randomizer) {
     const phase = connection.positionOfUpgradeBuilding;
     const beltshapes = [], minershapes = [], processorsshapes = [], paintingshapes = [];
     for (let shapesarray of [beltshapes, minershapes, processorsshapes, paintingshapes]) {
-        shapesarray = [calcRandomShape(randomizer, 0, false, false, false, false, false)];
+        shapesarray.push(calcRandomShape(randomizer, 0, false, false, false, false, false));
         for (var nextindex = 1; nextindex < 5; nextindex++) {
-            beltshapes.push(calcRandomShape(randomizer, nextindex+2, 
+            shapesarray.push(calcRandomShape(randomizer, nextindex+2, 
                 phase[baseBuildingNames.cutter] <= nextindex, 
                 phase[baseBuildingNames.rotator] <= nextindex, 
                 phase[baseBuildingNames.stacker] <= nextindex, 

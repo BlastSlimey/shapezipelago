@@ -181,7 +181,7 @@ export const receiveItemFunctions = {
  */
 export function checkLocation(resyncMessage, goal, ...names) {
     aptry("Checking location failed", () => {
-        apdebuglog(`Checking ${names.length} locations (goal==${goal})`);
+        apdebuglog(`Checking ${names.length} locations (goal==${goal}): ${names.toString()}`);
         if (goal) 
             connection.reportStatusToServer(CLIENT_STATUS.GOAL);
         const locids = [];
@@ -208,9 +208,7 @@ export function processItemsPacket(packet) {
     // Prevent errors in main menu
     if (!currentIngame)
         return;
-    // Only use packets that have all items as they are sent every time
-    if (packet.index != 0)
-        return;
+    let all_items = connection.client.items.received;
     // Resync already received items at first packet
     if (!currentIngame.isItemsResynced) {
         currentIngame.isItemsResynced = true;
@@ -225,7 +223,7 @@ export function processItemsPacket(packet) {
         // Re-receive items without popup
         const cachedprocessedItemCount = currentIngame.processedItemCount;
         for (var i = 0; i < cachedprocessedItemCount; i++) {
-            receiveItem(packet.items[i], false, true);
+            receiveItem(all_items[i], false, true);
         }
         // Backwards compatibility to 0.5.3
         const datacache = connection.client.data.slotData["lock_belt_and_extractor"];
@@ -239,27 +237,27 @@ export function processItemsPacket(packet) {
             apdebuglog("No lock_belt_and_extractor found in slotData");
         }
     }
-    if (currentIngame.processedItemCount == packet.items.length) {
+    if (currentIngame.processedItemCount == all_items.length) {
         apdebuglog("Items up-to-date");
-    } else if (currentIngame.processedItemCount == packet.items.length - 1) {
-        receiveItem(packet.items[currentIngame.processedItemCount], true, false);
+    } else if (currentIngame.processedItemCount == all_items.length - 1) {
+        receiveItem(all_items[currentIngame.processedItemCount], true, false);
         currentIngame.processedItemCount++;
-    } else if (currentIngame.processedItemCount == packet.items.length - 2) {
-        receiveItem(packet.items[currentIngame.processedItemCount], true, false);
+    } else if (currentIngame.processedItemCount == all_items.length - 2) {
+        receiveItem(all_items[currentIngame.processedItemCount], true, false);
         currentIngame.processedItemCount++;
-        receiveItem(packet.items[currentIngame.processedItemCount], true, false);
+        receiveItem(all_items[currentIngame.processedItemCount], true, false);
         currentIngame.processedItemCount++;
-    } else if (currentIngame.processedItemCount == packet.items.length - 3) {
-        receiveItem(packet.items[currentIngame.processedItemCount], true, false);
+    } else if (currentIngame.processedItemCount == all_items.length - 3) {
+        receiveItem(all_items[currentIngame.processedItemCount], true, false);
         currentIngame.processedItemCount++;
-        receiveItem(packet.items[currentIngame.processedItemCount], true, false);
+        receiveItem(all_items[currentIngame.processedItemCount], true, false);
         currentIngame.processedItemCount++;
-        receiveItem(packet.items[currentIngame.processedItemCount], true, false);
+        receiveItem(all_items[currentIngame.processedItemCount], true, false);
         currentIngame.processedItemCount++;
     } else {
         var itemCounting = [];
-        for (var i = currentIngame.processedItemCount; i < packet.items.length; i++) {
-            itemCounting.push(receiveItem(packet.items[i], false, false));
+        for (var i = currentIngame.processedItemCount; i < all_items.length; i++) {
+            itemCounting.push(receiveItem(all_items[i], false, false));
             currentIngame.processedItemCount++;
         }
         modImpl.dialogs.showInfo(shapez.T.mods.shapezipelago.itemReceivingBox.title.multiple, itemCounting.join("<br />"));

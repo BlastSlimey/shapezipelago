@@ -661,7 +661,7 @@ function resyncLocationChecks() {
         checkLocation("Resynced", false, `Level ${i}`);
     }
     if (currentIngame.root.hubGoals.level > 20) {
-        checkLocation("Resynced", false, "Level 1 Additional", "Level 20 Additional");
+        checkLocation("Resynced", false, "Level 1 Additional", "Level 20 Additional", "Level 20 Additional 2");
     } else if (currentIngame.root.hubGoals.level > 1) {
         checkLocation("Resynced", false, "Level 1 Additional");
     }

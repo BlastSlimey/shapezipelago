@@ -1,7 +1,7 @@
 import { apdebuglog, aptry, Connection, connection, currentIngame, modImpl } from "./global_data";
 import { CLIENT_STATUS, ITEMS_HANDLING_FLAGS } from "archipelago.js";
 import { processItemsPacket } from "./server_communication";
-import { makeDiv, removeAllChildren } from "shapez/core/utils";
+import { makeButton, makeDiv, removeAllChildren } from "shapez/core/utils";
 import { BaseHUDPart } from "shapez/game/hud/base_hud_part";
 import { DynamicDomAttach } from "shapez/game/hud/dynamic_dom_attach";
 import { InputReceiver } from "shapez/core/input_receiver";
@@ -142,29 +142,95 @@ class HUDShapesanity extends BaseHUDPart {
 
     createElements(parent) {
         this.background = makeDiv(parent, "ingame_HUD_Shapesanity", ["ingameDialog"]);
+
         this.dialogInner = makeDiv(this.background, null, ["dialogInner"]);
-        this.title = makeDiv(this.dialogInner, null, ["title"], shapez.T.mods.shapezipelago.shapesanityBox.title);
+        this.title = makeDiv(this.dialogInner, null, ["title"], shapez.T.mods.shapezipelago.APBox.title);
         this.closeButton = makeDiv(this.title, null, ["closeButton"]);
         this.trackClicks(this.closeButton, this.close);
+
+        this.tabs = makeDiv(this.dialogInner, null, ["tabs"]);
+        this.tabButtonShapesanity = makeButton(this.tabs, ["tabsButtonShapesanity"], shapez.T.mods.shapezipelago.shapesanityBox.title);
+        this.trackClicks(this.tabButtonShapesanity, this.setTabShapesanity);
+        this.tabButtonSlotDetails = makeButton(this.tabs, ["tabButtonSlotDetails"], shapez.T.mods.shapezipelago.slotDetailsBox.title);
+        this.trackClicks(this.tabButtonSlotDetails, this.setTabSlotDetails);
+        this.tabButtonAchievements = makeButton(this.tabs, ["tabButtonAchievements"], shapez.T.mods.shapezipelago.achievementsBox.title);
+        this.trackClicks(this.tabButtonAchievements, this.setTabAchievements);
+        this.tabButtonGiftShop = makeButton(this.tabs, ["tabButtonGiftShop"], shapez.T.mods.shapezipelago.giftShopBox.title);
+        this.trackClicks(this.tabButtonGiftShop, this.setTabGiftShop);
+
         this.contentDiv = makeDiv(this.dialogInner, null, ["content"]);
         this.visible = false;
     }
 
-    rerenderFull() {
-        removeAllChildren(this.contentDiv);
-        if (this.visible) {
-            for (var index = 0; index < connection.shapesanityNames.length; index++) {
-                var divElem = makeDiv(this.contentDiv, null, ["shapesanityRow"]);
-                var nextName = document.createElement("span");
-                nextName.classList.add("shapesanityName");
-                nextName.innerText = `${index+1}: ${translateShapesanity(connection.shapesanityNames[index])}`;
-                if (currentIngame.scoutedShapesanity[index]) {
-                    divElem.classList.add("locationChecked");
+    setTabShapesanity() {
+        aptry("Showing gift shop failed", () => {
+            apdebuglog("Showing shapesanity checklist");
+            removeAllChildren(this.contentDiv);
+            this.dialogInner.setAttribute("currentTab", "shapesanity");
+            if (this.visible) {
+                for (var index = 0; index < connection.shapesanityNames.length; index++) {
+                    var divElem = makeDiv(this.contentDiv, null, ["shapesanityRow"]);
+                    var nextName = document.createElement("span");
+                    nextName.classList.add("shapesanityName");
+                    nextName.innerText = `${index+1}: ${translateShapesanity(connection.shapesanityNames[index])}`;
+                    if (currentIngame.scoutedShapesanity[index]) {
+                        divElem.classList.add("locationChecked");
+                    }
+                    divElem.appendChild(nextName);
+                    divElem.appendChild(currentIngame.shapesanityExamples[index]);
                 }
-                divElem.appendChild(nextName);
-                divElem.appendChild(currentIngame.shapesanityExamples[index]);
             }
-        }
+        });
+    }
+
+    setTabSlotDetails() {
+        aptry("Showing slot details failed", () => {
+            apdebuglog("Showing slot details");
+            removeAllChildren(this.contentDiv);
+            this.dialogInner.setAttribute("currentTab", "slotDetails");
+            if (this.visible) {
+                let detailsElem = document.createElement("span");
+                detailsElem.innerHTML = shapez.T.mods.shapezipelago.slotDetailsBox.goal + ": " + connection.goal 
+                + "<br />" + shapez.T.mods.shapezipelago.slotDetailsBox.levelAmount + ": " + connection.levelsToGenerate.toString() 
+                + "<br />" + shapez.T.mods.shapezipelago.slotDetailsBox.upgradeAmount + ": " + connection.tiersToGenerate.toString() 
+                + "<br />" + shapez.T.mods.shapezipelago.slotDetailsBox.levelLogic + ": " 
+                + (connection.israndomizedLevels ? connection.levelsLogic : shapez.T.mods.shapezipelago.slotDetailsBox.notRandomized)
+                + "<br />" + shapez.T.mods.shapezipelago.slotDetailsBox.upgradeLogic + ": " 
+                + (connection.isRandomizedUpgrades ? connection.upgradesLogic : shapez.T.mods.shapezipelago.slotDetailsBox.notRandomized)
+                + "<br />" + shapez.T.mods.shapezipelago.slotDetailsBox.seed + ": " + connection.clientSeed.toString() 
+                + "<br />" + shapez.T.mods.shapezipelago.slotDetailsBox.floatingLayers + ": " + connection.isFloatingLayersAllowed 
+                + "<br />" + shapez.T.mods.shapezipelago.slotDetailsBox.shop + ": " + shapez.T.mods.shapezipelago.slotDetailsBox.shopNone;
+                this.contentDiv.appendChild(detailsElem);
+            }
+        });
+    }
+
+    setTabAchievements() {
+        aptry("Showing achievement checklist failed", () => {
+            apdebuglog("Showing achievements checklist");
+            removeAllChildren(this.contentDiv);
+            this.dialogInner.setAttribute("currentTab", "achievements");
+            if (this.visible) {
+                let placeholder = document.createElement("span", {});
+                placeholder.classList.add("comingSoonPlaceholder");
+                placeholder.innerText = "Coming Soon™";
+                this.contentDiv.appendChild(placeholder);
+            }
+        });
+    }
+
+    setTabGiftShop() {
+        aptry("Showing gift shop failed", () => {
+            apdebuglog("Showing gift shop overview");
+            removeAllChildren(this.contentDiv);
+            this.dialogInner.setAttribute("currentTab", "giftShop");
+            if (this.visible) {
+                let placeholder = document.createElement("span", {});
+                placeholder.classList.add("comingSoonPlaceholder");
+                placeholder.innerText = "Coming Soon™";
+                this.contentDiv.appendChild(placeholder);
+            }
+        });
     }
 
     initialize() {
@@ -177,26 +243,26 @@ class HUDShapesanity extends BaseHUDPart {
         this.keyActionMapper.getBinding(KEYMAPPINGS.ingame.menuClose).add(this.close, this);
         this.lastFullRerender = 0;
         this.close();
-        this.rerenderFull();
     }
 
     scout() {
         for (let checked of connection.getCheckedLocationNames()) {
-            let name = checked.split(" ");
-            if (name[0] === "Shapesanity") {
-                currentIngame.scoutedShapesanity[Number(name[1])-1] = true;
+            if (checked.startsWith("Shapesanity")) {
+                currentIngame.scoutedShapesanity[Number(checked.split(" ")[1])-1] = true;
+            } else if (false) {
+                // Scout for achievements
             }
         }
     }
 
     show() {
-        aptry("Shapesanity hud failed", () => {
-            apdebuglog("Showing shapesanity checklist");
+        aptry("AP hud failed", () => {
+            apdebuglog("Showing AP hud");
             this.visible = true;
             this.root.app.inputMgr.makeSureAttachedAndOnTop(this.inputReciever);
             if (connection) this.scout();
             this.update();
-            this.rerenderFull();
+            this.setTabShapesanity();
         });
     }
 

@@ -11,6 +11,8 @@ mods:
       notConnected: Nicht verbunden
       disconnected: Verbindung getrennt
       failed: Verbindung fehlgeschlagen
+    APBox:
+      title: Archipelago
     shapesanityBox:
       title: Shapesanity
       1Color4Shapes:
@@ -115,6 +117,22 @@ mods:
         Adjacent2-1-1: 2-1-1 <codes> (benachbart)
         Cornered2-1-1: 2-1-1 <codes> (aneckend)
         Singles: Einzelne <codes>
+    slotDetailsBox:
+      title: Slotdetails
+      goal: Ziel
+      levelAmount: Levelanzahl
+      upgradeAmount: Upgradeanzahl
+      levelLogic: Levelgenerator-Logik
+      upgradeLogic: Upgradegenerator-Logik
+      seed: Seed des Spiels
+      floatingLayers: Schwebende Ebenen erlaubt
+      shop: Geschenkeshop geöffnet
+      notRandomized: Nicht gerandomized
+      shopNone: Nicht implementiert
+    achievementsBox:
+      title: Achievements
+    giftShopBox:
+      title: Geschenkeshop
     infoBox:
       impossible:
         title: Du hast gerade einen Bug gefunden! :)
