@@ -23,6 +23,8 @@ Client mod for the Archipelago multiworld randomizer.
 - Update shop ui on item receiving
 - Complete achievement checklist tab
 - Add buttons to pin shapesanity
+- Multiplier for complexity as player option
+- Level logic type `dopamine(_overflow)`: Level 1 requires no building, final level requires all buildings, everything else requires 2 (or no) buildings
  
 ### APWorld Qol
 - Item groups
