@@ -12,6 +12,7 @@ Client mod for the Archipelago multiworld randomizer.
 - Rework building overrides for future mod compatibility
 - Convert to TypeScript
 - Update archipelago.js to 2.0 (need fix for `structuredClone()`)
+- Make all level logic have the same complexity principle: Every new phase begins with least possible and then grows every x level
 
 ### Client QoL
 - meantime offline playing
@@ -23,9 +24,6 @@ Client mod for the Archipelago multiworld randomizer.
 - Update shop ui on item receiving
 - Complete achievement checklist tab
 - Add buttons to pin shapesanity
-- (player option) complexity growth delay
-- Level logic type `dopamine(_overflow)`: Level 1 requires no building, final level requires all buildings, everything else requires 2 (or no) buildings
-- Make all level logic have the same complexity principle: Every new phase begins with least possible and then grows every x level
  
 ### APWorld Qol
 - Item groups
@@ -58,7 +56,14 @@ Client mod for the Archipelago multiworld randomizer.
   - Hexagonal
   - Diamond shape (original)
 - Option to make items with random effect dependent on receiveditems index
-- Upgrade speed x2 multiplier (sort of gamble item, the later you receive it the better)
+- Option: Include whacky upgrades
+  - +10 
+  - x2 multiplier (sort of gamble item, the later you receive it the better)
+  - -3 trap
+  - x0.5 trap (the later you receive it the worse) 
+  - Disable traps on efficiency_iii goal
+- (player option) complexity growth delay
+- Level logic type `dopamine(_overflow)`: Level 1 requires no building, final level requires all buildings, everything else requires 2 (or no) buildings
 
 ### More Randomization
 - Randomize blueprint shape
@@ -115,6 +120,7 @@ Client mod for the Archipelago multiworld randomizer.
   - Make sure item list only contains what is currently producable (=> update shop when receiving more progression items)
   - Shop items can consist of multiple shapes (so they are not restricted by 4 corners)
 - Goal "Customer satisfaction": Deliver certain amount of certain shop orders (minimum 5?), goal shape should be cheap and requiring all buildings, requires other players to take part
+- Add host setting to force disable gift shop (without error, only info in log) 
 
 ### Labels (Deprecated)
 - IMPORTANT:    Text
@@ -122,4 +128,3 @@ Client mod for the Archipelago multiworld randomizer.
 - FEATURE:      Text
 - BEFORE PR:    Text
 - TECHNICAL:    Text
-
