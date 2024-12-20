@@ -23,8 +23,9 @@ Client mod for the Archipelago multiworld randomizer.
 - Update shop ui on item receiving
 - Complete achievement checklist tab
 - Add buttons to pin shapesanity
-- Multiplier for complexity as player option
+- (player option) complexity growth delay
 - Level logic type `dopamine(_overflow)`: Level 1 requires no building, final level requires all buildings, everything else requires 2 (or no) buildings
+- Make all level logic have the same complexity principle: Every new phase begins with least possible and then grows every x level
  
 ### APWorld Qol
 - Item groups
