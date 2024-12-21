@@ -12,7 +12,6 @@ Client mod for the Archipelago multiworld randomizer.
 - Rework building overrides for future mod compatibility
 - Convert to TypeScript
 - Update archipelago.js to 2.0 (need fix for `structuredClone()`)
-- Make all level logic have the same complexity principle: Every new phase begins with least possible and then grows every x level
 
 ### Client QoL
 - meantime offline playing
@@ -27,6 +26,7 @@ Client mod for the Archipelago multiworld randomizer.
  
 ### APWorld Qol
 - Item groups
+- Enhance options using NamedRange etc.
 
 ### Gameplay
 - Something with energy link
@@ -62,8 +62,6 @@ Client mod for the Archipelago multiworld randomizer.
   - -3 trap
   - x0.5 trap (the later you receive it the worse) 
   - Disable traps on efficiency_iii goal
-- (player option) complexity growth delay
-- Level logic type `dopamine(_overflow)`: Level 1 requires no building, final level requires all buildings, everything else requires 2 (or no) buildings
 
 ### More Randomization
 - Randomize blueprint shape
