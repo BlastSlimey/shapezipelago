@@ -262,6 +262,7 @@ export function processItemsPacket(packet) {
         }
         modImpl.dialogs.showInfo(shapez.T.mods.shapezipelago.itemReceivingBox.title.multiple, itemCounting.join("<br />"));
     }
+    currentIngame.itemReceiveSignal.dispatch();
 }
 
 /**

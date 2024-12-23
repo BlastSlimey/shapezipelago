@@ -1,6 +1,6 @@
-import { apdebuglog, aptry, connection, currentIngame, customRewards, methodNames, modImpl, roman, upgradeIdNames } from "./global_data";
+import { apassert, apdebuglog, aptry, connection, currentIngame, customRewards, methodNames, modImpl, roman, upgradeIdNames } from "./global_data";
 import { RandomNumberGenerator } from "shapez/core/rng";
-import { categoryRandomUpgradeShapes, categoryUpgradeShapes, hardcoreUpgradeShapes, linearUpgradeShapes, randomizedHardcoreShapes, randomizedQuickShapes, randomizedRandomStepsShapes, randomizedStretchedShapes, randomizedVanillaStepsShapes, vanillaLikeUpgradeShapes, vanillaShapes, vanillaUpgradeShapes } from "./requirement_definitions";
+import { categoryRandomUpgradeShapes, categoryUpgradeShapes, hardcoreUpgradeShapes, linearUpgradeShapes, randomizedHardcoreDopamineShapes, randomizedQuickShapes, randomizedRandomStepsShapes, randomizedStretchedShapes, randomizedVanillaStepsShapes, vanillaLikeUpgradeShapes, vanillaShapes, vanillaUpgradeShapes } from "./requirement_definitions";
 import { checkLocation, shapesanityAnalyzer } from "./server_communication";
 import { enumAnalyticsDataSource } from "shapez/game/production_analytics";
 import { defaultBuildingVariant } from "shapez/game/meta_building";
@@ -140,6 +140,11 @@ export function overrideLocationsListenToItems() {
             this.root.entityMgr.registerEntity(hub);
             this.root.camera.center = new Vector(-5, 2).multiplyScalar(globalConfig.tileSize);
         });
+    });
+    modImpl.modInterface.replaceMethod(shapez.HUDShop, "initialize", function ($original, []) {
+        $original();
+        // Register the rerendering of the shop to item receiving signal, so that it immediately updates upon receiving an upgrade item
+        currentIngame.itemReceiveSignal.add(this.rerenderFull, this);
     });
     modImpl.signals.gameInitialized.add(function (/** @type {GameRoot} */ root) {
         if (connection) {
@@ -626,8 +631,14 @@ function calcLevelDefinitions() {
             return randomizedQuickShapes(randomizer);
         } else if (logic.startsWith("random_steps")) {
             return randomizedRandomStepsShapes(randomizer);
+        } else if (logic === "hardcore") {
+            return randomizedHardcoreDopamineShapes(randomizer, 5);
+        } else if (logic === "dopamine") {
+            return randomizedHardcoreDopamineShapes(randomizer, 2);
+        } else if (logic === "dopamine_overflow") {
+            return randomizedHardcoreDopamineShapes(randomizer, 0);
         } else {
-            return randomizedHardcoreShapes(randomizer);
+            apassert(false, "Illegal level logic type: " + logic);
         }
     } else {
         return vanillaShapes();

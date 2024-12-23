@@ -53,7 +53,7 @@ export function randomizedVanillaStepsShapes(randomizer) {
     for (var i = 2; i <= 4; i++) {
         levelsdefs[i-1] = {
             shape: calcRandomShape(
-                randomizer, Math.ceil(i/2), phase[baseBuildingNames.cutter] == 1, 
+                randomizer, getGrowingComplexity(1, i-2), phase[baseBuildingNames.cutter] == 1, 
                 phase[baseBuildingNames.rotator] == 1, phase[baseBuildingNames.stacker] == 1, 
                 phase[baseBuildingNames.painter] == 1, phase[baseBuildingNames.mixer] == 1
             ), 
@@ -64,7 +64,7 @@ export function randomizedVanillaStepsShapes(randomizer) {
     for (var i = 5; i <= 6; i++) {
         levelsdefs[i-1] = {
             shape: calcRandomShape(
-                randomizer, 3, phase[baseBuildingNames.cutter] <= 2, 
+                randomizer, getGrowingComplexity(2, i-5), phase[baseBuildingNames.cutter] <= 2, 
                 phase[baseBuildingNames.rotator] <= 2, phase[baseBuildingNames.stacker] <= 2, 
                 phase[baseBuildingNames.painter] <= 2, phase[baseBuildingNames.mixer] <= 2
             ), 
@@ -75,7 +75,7 @@ export function randomizedVanillaStepsShapes(randomizer) {
     for (var i = 7; i <= 8; i++) {
         levelsdefs[i-1] = {
             shape: calcRandomShape(
-                randomizer, 4, phase[baseBuildingNames.cutter] <= 3, 
+                randomizer, getGrowingComplexity(3, i-7), phase[baseBuildingNames.cutter] <= 3, 
                 phase[baseBuildingNames.rotator] <= 3, phase[baseBuildingNames.stacker] <= 3, 
                 phase[baseBuildingNames.painter] <= 3, phase[baseBuildingNames.mixer] <= 3
             ), 
@@ -86,7 +86,7 @@ export function randomizedVanillaStepsShapes(randomizer) {
     for (var i = 9; i <= 10; i++) {
         levelsdefs[i-1] = {
             shape: calcRandomShape(
-                randomizer, 5, phase[baseBuildingNames.cutter] <= 4, 
+                randomizer, getGrowingComplexity(4, i-9), phase[baseBuildingNames.cutter] <= 4, 
                 phase[baseBuildingNames.rotator] <= 4, phase[baseBuildingNames.stacker] <= 4, 
                 phase[baseBuildingNames.painter] <= 4, phase[baseBuildingNames.mixer] <= 4
             ), 
@@ -96,7 +96,7 @@ export function randomizedVanillaStepsShapes(randomizer) {
     }
     for (var i = 11; i <= 26; i++) {
         levelsdefs[i-1] = {
-            shape: calcRandomShape(randomizer, i-6, true, true, true, true, true), 
+            shape: calcRandomShape(randomizer, getGrowingComplexity(5, i-11), true, true, true, true, true), 
             required: getAmountByLevel(i), reward: customRewards.ap,
             throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio
         };
@@ -105,7 +105,7 @@ export function randomizedVanillaStepsShapes(randomizer) {
     levelsdefs[19].reward = customRewards.easter_egg;
     for (var i = 27; i <= connection.levelsToGenerate; i++) {
         levelsdefs.push({
-            shape: calcRandomShape(randomizer, i-22, true, true, true, true, true), 
+            shape: calcRandomShape(randomizer, getGrowingComplexity(5, i-11), true, true, true, true, true), 
             required: getThroughputByLevel(27), reward: customRewards.ap,
             throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio || throughputratio == -1
         });
@@ -130,12 +130,12 @@ export function randomizedStretchedShapes(randomizer) {
     const throughputratio = connection.throughputLevelsRatio;
     const phase = connection.positionOfLevelBuilding;
     for (let i = 0; i < phaselength; i++) {
-        levelsdefs.push({shape: calcRandomShape(randomizer, Math.floor(i/2), false, false, false, false, false), 
+        levelsdefs.push({shape: calcRandomShape(randomizer, getGrowingComplexity(0, i), false, false, false, false, false), 
             required: getAmountByLevel(i+1), reward: customRewards.ap,
                 throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio});
     }
     for (let i = phaselength; i < phaselength*2; i++) {
-        levelsdefs.push({shape: calcRandomShape(randomizer, Math.ceil(i/3), 
+        levelsdefs.push({shape: calcRandomShape(randomizer, getGrowingComplexity(1, i-phaselength), 
             phase[baseBuildingNames.cutter] == 1, 
             phase[baseBuildingNames.rotator] == 1, 
             phase[baseBuildingNames.stacker] == 1, 
@@ -145,7 +145,7 @@ export function randomizedStretchedShapes(randomizer) {
             throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio});
     }
     for (let i = phaselength*2; i < phaselength*3; i++) {
-        levelsdefs.push({shape: calcRandomShape(randomizer, Math.ceil(i/2), 
+        levelsdefs.push({shape: calcRandomShape(randomizer, getGrowingComplexity(2, i-phaselength*2), 
             phase[baseBuildingNames.cutter] <= 2, 
             phase[baseBuildingNames.rotator] <= 2, 
             phase[baseBuildingNames.stacker] <= 2, 
@@ -155,7 +155,7 @@ export function randomizedStretchedShapes(randomizer) {
             throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio});
     }
     for (let i = phaselength*3; i < phaselength*4; i++) {
-        levelsdefs.push({shape: calcRandomShape(randomizer, Math.ceil(i/2), 
+        levelsdefs.push({shape: calcRandomShape(randomizer, getGrowingComplexity(3, i-phaselength*3), 
             phase[baseBuildingNames.cutter] <= 3, 
             phase[baseBuildingNames.rotator] <= 3, 
             phase[baseBuildingNames.stacker] <= 3, 
@@ -165,7 +165,7 @@ export function randomizedStretchedShapes(randomizer) {
             throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio});
     }
     for (let i = phaselength*4; i < phaselength*5; i++) {
-        levelsdefs.push({shape: calcRandomShape(randomizer, Math.ceil(i/1.5), 
+        levelsdefs.push({shape: calcRandomShape(randomizer, getGrowingComplexity(4, i-phaselength*4), 
             phase[baseBuildingNames.cutter] <= 4, 
             phase[baseBuildingNames.rotator] <= 4, 
             phase[baseBuildingNames.stacker] <= 4, 
@@ -175,7 +175,7 @@ export function randomizedStretchedShapes(randomizer) {
             throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio});
     }
     for (let ii = levelsdefs.length+1; ii <= levelstogenerate; ii++) {
-        levelsdefs.push({shape: calcRandomShape(randomizer, ii, true, true, true, true, true), 
+        levelsdefs.push({shape: calcRandomShape(randomizer, getGrowingComplexity(5, ii-1-phaselength*5), true, true, true, true, true), 
             required: getAmountByLevel(ii), reward: customRewards.ap,
             throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio});
     };
@@ -207,7 +207,7 @@ export function randomizedQuickShapes(randomizer) {
     for (var i_phases = 1; i_phases <= 4; i_phases++) {
         levelsdefs[i_phases] = {
             shape: calcRandomShape(
-                randomizer, i_phases+2, phase[baseBuildingNames.cutter] <= i_phases, 
+                randomizer, i_phases, phase[baseBuildingNames.cutter] <= i_phases, 
                 phase[baseBuildingNames.rotator] <= i_phases, phase[baseBuildingNames.stacker] <= i_phases, 
                 phase[baseBuildingNames.painter] <= i_phases, phase[baseBuildingNames.mixer] <= i_phases
             ), 
@@ -217,7 +217,7 @@ export function randomizedQuickShapes(randomizer) {
     }
     for (var i = 6; i <= 26; i++) {
         levelsdefs[i-1] = {
-            shape: calcRandomShape(randomizer, Math.ceil(i/2)+4, true, true, true, true, true), 
+            shape: calcRandomShape(randomizer, getGrowingComplexity(5, i-6), true, true, true, true, true), 
             required: getAmountByLevel(i), reward: customRewards.ap,
             throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio
         };
@@ -225,7 +225,7 @@ export function randomizedQuickShapes(randomizer) {
     if (throughputratio == -1) levelsdefs[13].throughputOnly = true;
     levelsdefs[19].reward = customRewards.easter_egg;
     for (var i = 27; i <= levelstogenerate; i++) {
-        levelsdefs.push({shape: calcRandomShape(randomizer, Math.ceil(i/2)+4, true, true, true, true, true), 
+        levelsdefs.push({shape: calcRandomShape(randomizer, getGrowingComplexity(5, i-6), true, true, true, true, true), 
             required: getThroughputByLevel(i), reward: customRewards.ap,
             throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio || throughputratio == -1});
     };
@@ -256,7 +256,7 @@ export function randomizedRandomStepsShapes(randomizer) {
         for (var i = 0; i < phaselength[i_phases]; i++) {
             levelsdefs.push({
                 shape: calcRandomShape(
-                    randomizer, Math.ceil(i_phases*(1.5+3.5*i/phaselength[i_phases]) + Math.min(2, Math.floor(i/2))), 
+                    randomizer, getGrowingComplexity(i_phases, i), 
                     phase[baseBuildingNames.cutter] <= i_phases, 
                     phase[baseBuildingNames.rotator] <= i_phases, phase[baseBuildingNames.stacker] <= i_phases, 
                     phase[baseBuildingNames.painter] <= i_phases, phase[baseBuildingNames.mixer] <= i_phases
@@ -268,7 +268,7 @@ export function randomizedRandomStepsShapes(randomizer) {
     }
     let startAllBuildings = levelsdefs.length;
     for (var ii = startAllBuildings+1; ii <= levelstogenerate; ii++) {
-        levelsdefs.push({shape: calcRandomShape(randomizer, Math.ceil(8+(ii-startAllBuildings)/2), true, true, true, true, true), 
+        levelsdefs.push({shape: calcRandomShape(randomizer, getGrowingComplexity(5, ii-startAllBuildings-1), true, true, true, true, true), 
             required: getAmountByLevel(ii), reward: customRewards.ap,
             throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio});
     };
@@ -286,8 +286,9 @@ export function randomizedRandomStepsShapes(randomizer) {
     return levelsdefs;
 }
 
-export function randomizedHardcoreShapes(randomizer) {
+export function randomizedHardcoreDopamineShapes(randomizer, buildingsCount) {
     const multiplier = connection.requiredShapesMultiplier;
+    const phase = connection.positionOfLevelBuilding;
     const throughputratio = connection.throughputLevelsRatio;
     const levelstogenerate = connection.levelsToGenerate;
     var levelsdefs = [
@@ -295,18 +296,35 @@ export function randomizedHardcoreShapes(randomizer) {
             required: getAmountByLevel(1), reward: customRewards.ap,
             throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio}
     ];
-    for (var i = 2; i <= levelstogenerate; i++) {
-        levelsdefs.push({shape: calcRandomShape(randomizer, i+3, true, true, true, true, true), 
+    let lastLevelGoal = connection.goal === "vanilla" || connection.goal === "mam" ? 1 : 0;
+    for (let i = 2; i <= levelstogenerate-lastLevelGoal; i++) {
+        levelsdefs.push({
+            shape: calcRandomShape(
+                randomizer, getGrowingComplexity(buildingsCount, i-2), 
+                phase[baseBuildingNames.cutter] <= buildingsCount, 
+                phase[baseBuildingNames.rotator] <= buildingsCount, phase[baseBuildingNames.stacker] <= buildingsCount, 
+                phase[baseBuildingNames.painter] <= buildingsCount, phase[baseBuildingNames.mixer] <= buildingsCount
+            ), 
             required: getAmountByLevel(i), reward: customRewards.ap,
-            throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio});
+            throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio
+        });
     };
+    if (lastLevelGoal) {
+        levelsdefs.push({
+            shape: calcRandomShape(
+                randomizer, buildingsCount == 5 ? getGrowingComplexity(5, levelstogenerate-2) : 5, true, true, true, true, true
+            ),
+            required: getAmountByLevel(levelstogenerate), reward:customRewards.ap,
+            throughputOnly: randomizer.nextIntRange(0, 100) < throughputratio
+        });
+    }
     if (throughputratio == -1) {
         levelsdefs[13].throughputOnly = true;
-        for (var i = 26; i < levelsdefs.length; i++) {
+        for (let i = 26; i < levelsdefs.length; i++) {
             levelsdefs[i].throughputOnly = true;
         }
     }
-    for (var i = 0; i < levelsdefs.length; i++) {
+    for (let i = 0; i < levelsdefs.length; i++) {
         if (levelsdefs[i].throughputOnly) {
             levelsdefs[i].required = getThroughputByLevel(i+1);
         }
@@ -396,6 +414,14 @@ function getThroughputByLevel(level) {
         currentIngame.throughputByLevelCache[i] = Math.min((4+(i-26)*0.25)*connection.requiredShapesMultiplier/10, 200);
     }
     return currentIngame.throughputByLevelCache[level-1];
+}
+
+/**
+ * @param {number} base
+ * @param {number} step
+ */
+function getGrowingComplexity(base, step) {
+    return Math.floor(base + connection.complexityGrowthGradient * step);
 }
 
 export function vanillaUpgradeShapes() {

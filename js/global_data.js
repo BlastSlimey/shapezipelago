@@ -1,5 +1,6 @@
 import { Client, CLIENT_PACKET_TYPE, CLIENT_STATUS, SERVER_PACKET_TYPE } from "archipelago.js";
 import { Dialog } from "shapez/core/modal_dialog_elements";
+import { Signal } from "shapez/core/signal";
 import { GameRoot } from "shapez/game/root";
 import { enumHubGoalRewards } from "shapez/game/tutorial_goals";
 import { Mod } from "shapez/mods/mod";
@@ -344,6 +345,11 @@ export class Connection {
                 this.isFloatingLayersAllowed = Boolean(slotData["allow_floating_layers"]);
                 apdebuglog(`Loaded slotData allow_floating_layers=${slotData["allow_floating_layers"]}`);
 
+                // undefined until 0.5.10, float since 0.5.11
+                datacache = slotData["complexity_growth_gradient"];
+                this.complexityGrowthGradient = datacache == null ? 0.5 : Number(datacache);
+                apdebuglog(`Loaded slotData complexity_growth_gradient=${slotData["complexity_growth_gradient"]}`);
+
             })
             .catch((error) => {
                 apuserlog("Failed to connect: " + error.name + ", " + error.message);
@@ -451,6 +457,10 @@ export class Connection {
     isFloatingLayersAllowed;
     // This was never intended to be private, but to catch cheaters
     debug = 20010707;
+    /**
+     * @type {number}
+     */
+    complexityGrowthGradient;
 
     /**
      * 
@@ -592,6 +602,14 @@ export class Ingame {
      * @type {HTMLCanvasElement[]}
      */
     shapesanityExamples = [];
+    /**
+     * @type {String[]}
+     */
+    shapesanityExamplesHash = [];
+    /**
+     * @type {TypedSignal<[]>}
+     */
+    itemReceiveSignal = new Signal();
 
     constructor() {
         apdebuglog("Constructing Ingame object");

@@ -1,3 +1,4 @@
+@import "../../../shapez/src/css/mixins.scss";
 #state_InGameState {
     .shapesanityButton {
         grid-column: 1;
@@ -27,14 +28,113 @@
         }
     }
     .shapesanityRow {
+        position: relative;
         display: flex;
+        flex-direction: row;
         justify-content: space-between;
         align-items: center;
         border-radius: calc(6px*var(--ui-scale));
         padding-left: calc(10px*var(--ui-scale));
-        padding-right: calc(10px*var(--ui-scale));
+        padding-right: calc(16px*var(--ui-scale));
         padding-top: calc(2px*var(--ui-scale));
         padding-bottom: calc(2px*var(--ui-scale));
+        button.pin {
+            & {
+                /* @load-async */
+                background: url("../../../shapez/res/ui/icons/pin.png") center center / 95% no-repeat;
+            }
+            width: calc(12px * var(--ui-scale));
+            height: calc(12px * var(--ui-scale));
+            position: absolute;
+            top: calc(2px * var(--ui-scale));
+            right: calc(2px * var(--ui-scale));
+            opacity: 0.6;
+            cursor: pointer;
+            pointer-events: all;
+            @include IncreasedClickArea(5px);
+            transition: opacity 0.12s ease-in-out;
+            @include DarkThemeInvert;
+            $disabledOpacity: 0.6;
+            $enabledOpacity: 0.6;
+            &:hover {
+                opacity: $enabledOpacity + 0.1;
+            }
+            &.alreadyPinned {
+                opacity: $disabledOpacity !important;
+                &:hover {
+                    opacity: $disabledOpacity + 0.1 !important;
+                }
+            }
+            &.isGoal {
+                /* @load-async */
+                background: url("../../../shapez/res/ui/icons/current_goal_marker.png") center center / 95% no-repeat;
+                opacity: $disabledOpacity !important;
+                cursor: default;
+                pointer-events: none;
+            }
+            &.pinned {
+                opacity: $disabledOpacity;
+                & {
+                    /* @load-async */
+                    background: url("../../../shapez/res/ui/icons/unpin_shape.png") center center / 75% no-repeat !important;
+                }
+                @include InlineAnimation(0.3s ease-in-out) {
+                    0% {
+                        opacity: 1;
+                        transform: scale(0.8);
+                    }
+                    30% {
+                        opacity: 1;
+                        transform: scale(1.2);
+                    }
+                    100% {
+                        transform: scale(1);
+                    }
+                }
+                &:hover {
+                    opacity: $disabledOpacity + 0.1;
+                }
+            }
+            &.unpinned {
+                opacity: $enabledOpacity;
+                @include InlineAnimation(0.3s ease-in-out) {
+                    0% {
+                        opacity: 1;
+                        transform: scale(0.8);
+                    }
+                    30% {
+                        opacity: 1;
+                        transform: scale(1.2);
+                    }
+                    100% {
+                        transform: scale(1);
+                    }
+                }
+                &:hover {
+                    opacity: $enabledOpacity + 0.1;
+                }
+            }
+        }
+        button.showInfo {
+            width: calc(11px * var(--ui-scale));
+            height: calc(11px * var(--ui-scale));
+            position: absolute;
+            top: calc(17px * var(--ui-scale));
+            right: calc(2.5px * var(--ui-scale));
+            opacity: 0.5;
+            cursor: pointer;
+            pointer-events: all;
+            @include IncreasedClickArea(5px);
+            transition: opacity 0.12s ease-in-out;
+            @include DarkThemeInvert;
+            &:hover {
+                opacity: 0.6;
+            }
+            & {
+                /* @load-async */
+                background: url("../../../shapez/res/ui/icons/info_button.png") center center / 95% no-repeat;
+            }
+        }
     }
     .shapesanityName {
         padding-right: calc(10px * var(--ui-scale));
@@ -50,7 +150,7 @@
         width: auto;
         height: calc(350px * var(--ui-scale));
     }
-    button {
+    .tabs > button {
         color: #fff;
         opacity: 0.25;
         border-radius: 0;
@@ -66,8 +166,10 @@
         transition: opacity 0.2s ease-in-out;
     }
 }
-html[data-theme=dark] #ingame_HUD_Shapesanity button {
-    background-color: #5e6474 !important;
+html[data-theme=dark] #ingame_HUD_Shapesanity {
+    .tabs > button {
+        background-color: #5e6474 !important;
+    }
 }
 html[data-theme=dark] .ingameDialog > .dialogInner > .content > .locationChecked {
     background-color: #007d91;

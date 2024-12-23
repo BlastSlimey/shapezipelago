@@ -7,6 +7,7 @@ import { DynamicDomAttach } from "shapez/game/hud/dynamic_dom_attach";
 import { InputReceiver } from "shapez/core/input_receiver";
 import { KeyActionMapper, KEYMAPPINGS } from "shapez/game/key_action_mapper";
 import { GameRoot } from "shapez/game/root";
+import { ClickDetector } from "shapez/core/click_detector";
 
 export function addInputContainer() {
     apdebuglog("Calling addInputContainer");
@@ -131,8 +132,10 @@ export function addShapesanityBox() {
             });
             connection.reportStatusToServer(CLIENT_STATUS.PLAYING);
             currentIngame.scoutedShapesanity = new Array(connection.shapesanityNames.length).fill(false);
-            for (var name of connection.shapesanityNames) {
-                currentIngame.shapesanityExamples.push(root.shapeDefinitionMgr.getShapeFromShortKey(shapesanityExample(name)).generateAsCanvas(50));
+            for (let name of connection.shapesanityNames) {
+                let hash = shapesanityExample(name);
+                currentIngame.shapesanityExamplesHash.push(hash);
+                currentIngame.shapesanityExamples.push(root.shapeDefinitionMgr.getShapeFromShortKey(hash).generateAsCanvas(50));
             }
         }
     });
@@ -168,16 +171,48 @@ class HUDShapesanity extends BaseHUDPart {
             removeAllChildren(this.contentDiv);
             this.dialogInner.setAttribute("currentTab", "shapesanity");
             if (this.visible) {
-                for (var index = 0; index < connection.shapesanityNames.length; index++) {
-                    var divElem = makeDiv(this.contentDiv, null, ["shapesanityRow"]);
-                    var nextName = document.createElement("span");
+                let currentGoalShape = this.root.hubGoals.currentGoal.definition.getHash();
+                for (let index = 0; index < connection.shapesanityNames.length; index++) {
+                    // Create div for every row
+                    const divElem = makeDiv(this.contentDiv, null, ["shapesanityRow"]);
+                    // Create name and translate it
+                    const nextName = document.createElement("span");
                     nextName.classList.add("shapesanityName");
                     nextName.innerText = `${index+1}: ${translateShapesanity(connection.shapesanityNames[index])}`;
+                    // Mark already checked rows
                     if (currentIngame.scoutedShapesanity[index]) {
                         divElem.classList.add("locationChecked");
                     }
+                    // Append everything to div
                     divElem.appendChild(nextName);
                     divElem.appendChild(currentIngame.shapesanityExamples[index]);
+                    // Create pin button 
+                    const pinButton = makeButton(divElem, ["pin"]);
+                    pinButton.classList.remove("styledButton");
+                    // Determine appearence and behavior of pin button
+                    if (currentIngame.shapesanityExamplesHash[index] === currentGoalShape) 
+                        pinButton.classList.add("isGoal");
+                    else if (this.root.hud.parts["pinnedShapes"].isShapePinned(currentIngame.shapesanityExamplesHash[index]))
+                        pinButton.classList.add("alreadyPinned");
+                    // Add listener to pin button
+                    const shapedef = this.root.shapeDefinitionMgr.getShapeFromShortKey(currentIngame.shapesanityExamplesHash[index]);
+                    new ClickDetector(pinButton, {consumeEvents: true, preventDefault: true}).click.add(() => {
+                        if (this.root.hud.parts["pinnedShapes"].isShapePinned(currentIngame.shapesanityExamplesHash[index])) {
+                            this.root.hud.signals.shapeUnpinRequested.dispatch(currentIngame.shapesanityExamplesHash[index]);
+                            pinButton.classList.add("unpinned");
+                            pinButton.classList.remove("pinned", "alreadyPinned");
+                        } else {
+                            this.root.hud.signals.shapePinRequested.dispatch(shapedef);
+                            pinButton.classList.add("pinned");
+                            pinButton.classList.remove("unpinned");
+                        }
+                    });
+                    // Create shape details button and add button listener
+                    const detailsButton = makeButton(divElem, ["showInfo"]);
+                    detailsButton.classList.remove("styledButton");
+                    new ClickDetector(detailsButton, {consumeEvents: true, preventDefault: true}).click.add(() => {
+                        this.root.hud.signals.viewShapeDetailsRequested.dispatch(shapedef);
+                    });
                 }
             }
         });
