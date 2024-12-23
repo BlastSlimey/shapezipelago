@@ -20,13 +20,9 @@ Client mod for the Archipelago multiworld randomizer.
   - when connected replace ap inventory, else load from save file
 - Text box (read only), received non-progression items only there
 - Details when checking Level location, override hud
-- Update shop ui on item receiving
 - Complete achievement checklist tab
-- Add buttons to pin shapesanity
  
 ### APWorld Qol
-- Item groups
-- Enhance options using NamedRange etc.
 
 ### Gameplay
 - Something with energy link
