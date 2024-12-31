@@ -51,13 +51,14 @@ Client mod for the Archipelago multiworld randomizer.
   - Plantz
   - Hexagonal
   - Diamond shape (original)
-- Option to make items with random effect dependent on receiveditems index
 - Option: Include whacky upgrades
   - +10 
   - x2 multiplier (sort of gamble item, the later you receive it the better)
   - -3 trap
   - x0.5 trap (the later you receive it the worse) 
   - Disable traps on efficiency_iii goal
+  - random category +0.2 or +2
+- Option: additional upgrade categories, needs another datapackage setting
 
 ### More Randomization
 - Randomize blueprint shape
