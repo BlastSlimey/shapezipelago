@@ -60,6 +60,12 @@ Client mod for the Archipelago multiworld randomizer.
   - Disable traps on efficiency_iii goal
   - random category +0.2 or +2
 - Option: additional upgrade categories, needs another datapackage setting
+- Time trials
+  - trials to build a factory for a random shape in a limited time frame
+  - adjustable punishment
+  - different difficulties based on available buildings and complexity
+  - new tab in AP box with button for each trial to start and reveal the shape
+  - New goal requiring all trials to be completed
 
 ### More Randomization
 - Randomize blueprint shape
