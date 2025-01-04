@@ -1,139 +1,332 @@
 import { enumSubShapeToShortcode, ShapeDefinition } from "shapez/game/shape_definition";
-import { apdebuglog, aptry, baseBuildingNames, colorNames, connection, currentIngame, customRewards, getIsUnlockedForTrap, modImpl, subShapeNames, upgradeIdNames } from "./global_data";
+import { apassert, apdebuglog, aptry, baseBuildingNames, colorNames, Connection, connection, currentIngame, customRewards, getIsUnlockedForTrap, modImpl, subShapeNames, upgradeIdNames } from "./global_data";
 import { CLIENT_STATUS } from "archipelago.js";
 import { enumColorToShortcode } from "shapez/game/colors";
 import { enumHubGoalRewards } from "shapez/game/tutorial_goals";
+import { GameRoot } from "shapez/game/root";
+import { RandomNumberGenerator } from "shapez/core/rng";
 
+/**
+ * @type {{[x:string]: (root: GameRoot, resynced: Boolean, index: number) => String}}
+ */
 export const receiveItemFunctions = {
-    "Belt": (root, resynced) => {root.hubGoals.gainedRewards[customRewards.belt] = 1; return "";},
-    "Extractor": (root, resynced) => {root.hubGoals.gainedRewards[customRewards.extractor] = 1; return "";},
-    "Cutter": (root, resynced) => {root.hubGoals.gainedRewards[customRewards.cutter] = 1; return "";},
-    "Rotator": (root, resynced) => {root.hubGoals.gainedRewards[enumHubGoalRewards.reward_rotater] = 1; return "";},
-    "Painter": (root, resynced) => {root.hubGoals.gainedRewards[enumHubGoalRewards.reward_painter] = 1; return "";},
-    "Rotator (CCW)": (root, resynced) => {root.hubGoals.gainedRewards[enumHubGoalRewards.reward_rotater_ccw] = 1; return "";},
-    "Color Mixer": (root, resynced) => {root.hubGoals.gainedRewards[enumHubGoalRewards.reward_mixer] = 1; return "";},
-    "Stacker": (root, resynced) => {root.hubGoals.gainedRewards[enumHubGoalRewards.reward_stacker] = 1; return "";},
-    "Quad Cutter": (root, resynced) => {root.hubGoals.gainedRewards[enumHubGoalRewards.reward_cutter_quad] = 1; return "";},
-    "Double Painter": (root, resynced) => {root.hubGoals.gainedRewards[enumHubGoalRewards.reward_painter_double] = 1; return "";},
-    "Rotator (180°)": (root, resynced) => {root.hubGoals.gainedRewards[enumHubGoalRewards.reward_rotater_180] = 1; return "";},
-    "Quad Painter": (root, resynced) => {root.hubGoals.gainedRewards[customRewards.painter_quad] = 1; return "";},
-    "Balancer": (root, resynced) => {root.hubGoals.gainedRewards[enumHubGoalRewards.reward_balancer] = 1; return "";},
-    "Tunnel": (root, resynced) => {root.hubGoals.gainedRewards[enumHubGoalRewards.reward_tunnel] = 1; return "";},
-    "Compact Merger": (root, resynced) => {root.hubGoals.gainedRewards[enumHubGoalRewards.reward_merger] = 1; return "";},
-    "Tunnel Tier II": (root, resynced) => {root.hubGoals.gainedRewards[enumHubGoalRewards.reward_underground_belt_tier_2] = 1; return "";},
-    "Compact Splitter": (root, resynced) => {root.hubGoals.gainedRewards[enumHubGoalRewards.reward_splitter] = 1; return "";},
-    "Trash": (root, resynced) => {root.hubGoals.gainedRewards[customRewards.trash] = 1; return "";},
-    "Chaining Extractor": (root, resynced) => {root.hubGoals.gainedRewards[enumHubGoalRewards.reward_miner_chainable] = 1; return "";},
-    "Belt Reader": (root, resynced) => {root.hubGoals.gainedRewards[enumHubGoalRewards.reward_belt_reader] = 1; return "";},
-    "Storage": (root, resynced) => {root.hubGoals.gainedRewards[enumHubGoalRewards.reward_storage] = 1; return "";},
-    "Switch": (root, resynced) => {root.hubGoals.gainedRewards[customRewards.switch] = 1; return "";},
-    "Item Filter": (root, resynced) => {root.hubGoals.gainedRewards[enumHubGoalRewards.reward_filter] = 1; return "";},
-    "Display": (root, resynced) => {root.hubGoals.gainedRewards[enumHubGoalRewards.reward_display] = 1; return "";},
-    "Wires": (root, resynced) => {root.hubGoals.gainedRewards[customRewards.wires] = 1; return "";},
-    "Constant Signal": (root, resynced) => {root.hubGoals.gainedRewards[enumHubGoalRewards.reward_constant_signal] = 1; return "";},
-    "Logic Gates": (root, resynced) => {root.hubGoals.gainedRewards[enumHubGoalRewards.reward_logic_gates] = 1; return "";},
-    "Virtual Processing": (root, resynced) => {root.hubGoals.gainedRewards[enumHubGoalRewards.reward_virtual_processing] = 1; return "";},
-    "Blueprints": (root, resynced) => {root.hubGoals.gainedRewards[enumHubGoalRewards.reward_blueprints] = 1; return "";},
-    "Big Belt Upgrade": (root, resynced) => {root.hubGoals.upgradeImprovements["belt"] += 1; return "";},
-    "Big Miner Upgrade": (root, resynced) => {root.hubGoals.upgradeImprovements["miner"] += 1; return "";},
-    "Big Processors Upgrade": (root, resynced) => {root.hubGoals.upgradeImprovements["processors"] += 1; return "";},
-    "Big Painting Upgrade": (root, resynced) => {root.hubGoals.upgradeImprovements["painting"] += 1; return "";},
-    "Small Belt Upgrade": (root, resynced) => {root.hubGoals.upgradeImprovements["belt"] += 0.1; return "";},
-    "Small Miner Upgrade": (root, resynced) => {root.hubGoals.upgradeImprovements["miner"] += 0.1; return "";},
-    "Small Processors Upgrade": (root, resynced) => {root.hubGoals.upgradeImprovements["processors"] += 0.1; return "";},
-    "Small Painting Upgrade": (root, resynced) => {root.hubGoals.upgradeImprovements["painting"] += 0.1; return "";},
-    "Blueprint Shapes Bundle": (root, resynced) => {
+    "Progressive Extractor": (root, resynced, index) => {
+        if (root.hubGoals.gainedRewards[customRewards.extractor]) root.hubGoals.gainedRewards[enumHubGoalRewards.reward_miner_chainable] = 1;
+        else root.hubGoals.gainedRewards[customRewards.extractor] = 1; 
+        return "";
+    },
+    "Progressive Cutter": (root, resynced, index) => {
+        if (connection.unlockVariant === "backwards") {
+            if (root.hubGoals.gainedRewards[enumHubGoalRewards.reward_cutter_quad]) root.hubGoals.gainedRewards[customRewards.cutter] = 1;
+            else root.hubGoals.gainedRewards[enumHubGoalRewards.reward_cutter_quad] = 1;
+        } else {
+            if (root.hubGoals.gainedRewards[customRewards.cutter]) root.hubGoals.gainedRewards[enumHubGoalRewards.reward_cutter_quad] = 1;
+            else root.hubGoals.gainedRewards[customRewards.cutter] = 1;
+        }
+        return "";
+    },
+    "Progressive Rotator": (root, resynced, index) => {
+        if (connection.unlockVariant === "backwards") {
+            if (root.hubGoals.gainedRewards[enumHubGoalRewards.reward_rotater_ccw]) root.hubGoals.gainedRewards[enumHubGoalRewards.reward_rotater] = 1;
+            else if (root.hubGoals.gainedRewards[enumHubGoalRewards.reward_rotater_180]) root.hubGoals.gainedRewards[enumHubGoalRewards.reward_rotater_ccw] = 1;
+            else root.hubGoals.gainedRewards[enumHubGoalRewards.reward_rotater_180] = 1;
+        } else {
+            if (root.hubGoals.gainedRewards[enumHubGoalRewards.reward_rotater_ccw]) root.hubGoals.gainedRewards[enumHubGoalRewards.reward_rotater_180] = 1;
+            else if (root.hubGoals.gainedRewards[enumHubGoalRewards.reward_rotater]) root.hubGoals.gainedRewards[enumHubGoalRewards.reward_rotater_ccw] = 1;
+            else root.hubGoals.gainedRewards[enumHubGoalRewards.reward_rotater] = 1;
+        }
+        root.hubGoals.gainedRewards[customRewards.belt] = 1; 
+        return "";
+    },
+    "Progressive Painter": (root, resynced, index) => {
+        if (connection.unlockVariant === "backwards") {
+            if (root.hubGoals.gainedRewards[enumHubGoalRewards.reward_painter_double]) root.hubGoals.gainedRewards[enumHubGoalRewards.reward_painter] = 1;
+            else if (root.hubGoals.gainedRewards[customRewards.painter_quad]) root.hubGoals.gainedRewards[enumHubGoalRewards.reward_painter_double] = 1;
+            else root.hubGoals.gainedRewards[customRewards.painter_quad] = 1;
+        } else {
+            if (root.hubGoals.gainedRewards[enumHubGoalRewards.reward_painter_double]) root.hubGoals.gainedRewards[customRewards.painter_quad] = 1;
+            else if (root.hubGoals.gainedRewards[enumHubGoalRewards.reward_painter]) root.hubGoals.gainedRewards[enumHubGoalRewards.reward_painter_double] = 1;
+            else root.hubGoals.gainedRewards[enumHubGoalRewards.reward_painter] = 1;
+        }
+        root.hubGoals.gainedRewards[customRewards.belt] = 1; 
+        return "";
+    },
+    "Progressive Tunnel": (root, resynced, index) => {
+        if (connection.unlockVariant === "backwards") {
+            if (root.hubGoals.gainedRewards[enumHubGoalRewards.reward_underground_belt_tier_2]) root.hubGoals.gainedRewards[enumHubGoalRewards.reward_tunnel] = 1;
+            else root.hubGoals.gainedRewards[enumHubGoalRewards.reward_underground_belt_tier_2] = 1;
+        } else {
+            if (root.hubGoals.gainedRewards[enumHubGoalRewards.reward_tunnel]) root.hubGoals.gainedRewards[enumHubGoalRewards.reward_underground_belt_tier_2] = 1;
+            else root.hubGoals.gainedRewards[enumHubGoalRewards.reward_tunnel] = 1;
+        }
+        return "";
+    },
+    "Progressive Balancer": (root, resynced, index) => {
+        if (connection.unlockVariant === "backwards") {
+            if (root.hubGoals.gainedRewards[enumHubGoalRewards.reward_merger]) root.hubGoals.gainedRewards[enumHubGoalRewards.reward_balancer] = 1;
+            else if (root.hubGoals.gainedRewards[enumHubGoalRewards.reward_splitter]) root.hubGoals.gainedRewards[enumHubGoalRewards.reward_merger] = 1;
+            else root.hubGoals.gainedRewards[enumHubGoalRewards.reward_splitter] = 1;
+        } else {
+            if (root.hubGoals.gainedRewards[enumHubGoalRewards.reward_merger]) root.hubGoals.gainedRewards[enumHubGoalRewards.reward_splitter] = 1;
+            else if (root.hubGoals.gainedRewards[enumHubGoalRewards.reward_balancer]) root.hubGoals.gainedRewards[enumHubGoalRewards.reward_merger] = 1;
+            else root.hubGoals.gainedRewards[enumHubGoalRewards.reward_balancer] = 1;
+        }
+        root.hubGoals.gainedRewards[customRewards.belt] = 1; 
+        return "";
+    },
+    "Belt": (root, resynced, index) => {root.hubGoals.gainedRewards[customRewards.belt] = 1; return "";},
+    "Extractor": (root, resynced, index) => {root.hubGoals.gainedRewards[customRewards.extractor] = 1; return "";},
+    "Cutter": (root, resynced, index) => {root.hubGoals.gainedRewards[customRewards.cutter] = 1; return "";},
+    "Rotator": (root, resynced, index) => {root.hubGoals.gainedRewards[enumHubGoalRewards.reward_rotater] = 1; return "";},
+    "Painter": (root, resynced, index) => {root.hubGoals.gainedRewards[enumHubGoalRewards.reward_painter] = 1; return "";},
+    "Rotator (CCW)": (root, resynced, index) => {root.hubGoals.gainedRewards[enumHubGoalRewards.reward_rotater_ccw] = 1; return "";},
+    "Color Mixer": (root, resynced, index) => {root.hubGoals.gainedRewards[enumHubGoalRewards.reward_mixer] = 1; return "";},
+    "Stacker": (root, resynced, index) => {root.hubGoals.gainedRewards[enumHubGoalRewards.reward_stacker] = 1; return "";},
+    "Quad Cutter": (root, resynced, index) => {root.hubGoals.gainedRewards[enumHubGoalRewards.reward_cutter_quad] = 1; return "";},
+    "Double Painter": (root, resynced, index) => {root.hubGoals.gainedRewards[enumHubGoalRewards.reward_painter_double] = 1; return "";},
+    "Rotator (180°)": (root, resynced, index) => {root.hubGoals.gainedRewards[enumHubGoalRewards.reward_rotater_180] = 1; return "";},
+    "Quad Painter": (root, resynced, index) => {root.hubGoals.gainedRewards[customRewards.painter_quad] = 1; return "";},
+    "Balancer": (root, resynced, index) => {root.hubGoals.gainedRewards[enumHubGoalRewards.reward_balancer] = 1; return "";},
+    "Tunnel": (root, resynced, index) => {root.hubGoals.gainedRewards[enumHubGoalRewards.reward_tunnel] = 1; return "";},
+    "Compact Merger": (root, resynced, index) => {root.hubGoals.gainedRewards[enumHubGoalRewards.reward_merger] = 1; return "";},
+    "Tunnel Tier II": (root, resynced, index) => {root.hubGoals.gainedRewards[enumHubGoalRewards.reward_underground_belt_tier_2] = 1; return "";},
+    "Compact Splitter": (root, resynced, index) => {root.hubGoals.gainedRewards[enumHubGoalRewards.reward_splitter] = 1; return "";},
+    "Trash": (root, resynced, index) => {root.hubGoals.gainedRewards[customRewards.trash] = 1; return "";},
+    "Chaining Extractor": (root, resynced, index) => {root.hubGoals.gainedRewards[enumHubGoalRewards.reward_miner_chainable] = 1; return "";},
+    "Belt Reader": (root, resynced, index) => {root.hubGoals.gainedRewards[enumHubGoalRewards.reward_belt_reader] = 1; return "";},
+    "Storage": (root, resynced, index) => {root.hubGoals.gainedRewards[enumHubGoalRewards.reward_storage] = 1; return "";},
+    "Switch": (root, resynced, index) => {root.hubGoals.gainedRewards[customRewards.switch] = 1; return "";},
+    "Item Filter": (root, resynced, index) => {root.hubGoals.gainedRewards[enumHubGoalRewards.reward_filter] = 1; return "";},
+    "Display": (root, resynced, index) => {root.hubGoals.gainedRewards[enumHubGoalRewards.reward_display] = 1; return "";},
+    "Wires": (root, resynced, index) => {root.hubGoals.gainedRewards[customRewards.wires] = 1; return "";},
+    "Constant Signal": (root, resynced, index) => {root.hubGoals.gainedRewards[enumHubGoalRewards.reward_constant_signal] = 1; return "";},
+    "Logic Gates": (root, resynced, index) => {root.hubGoals.gainedRewards[enumHubGoalRewards.reward_logic_gates] = 1; return "";},
+    "Virtual Processing": (root, resynced, index) => {root.hubGoals.gainedRewards[enumHubGoalRewards.reward_virtual_processing] = 1; return "";},
+    "Blueprints": (root, resynced, index) => {root.hubGoals.gainedRewards[enumHubGoalRewards.reward_blueprints] = 1; return "";},
+    "Big Belt Upgrade": (root, resynced, index) => {root.hubGoals.upgradeImprovements["belt"] += 1; return "";},
+    "Big Miner Upgrade": (root, resynced, index) => {root.hubGoals.upgradeImprovements["miner"] += 1; return "";},
+    "Big Processors Upgrade": (root, resynced, index) => {root.hubGoals.upgradeImprovements["processors"] += 1; return "";},
+    "Big Painting Upgrade": (root, resynced, index) => {root.hubGoals.upgradeImprovements["painting"] += 1; return "";},
+    "Small Belt Upgrade": (root, resynced, index) => {root.hubGoals.upgradeImprovements["belt"] += 0.1; return "";},
+    "Small Miner Upgrade": (root, resynced, index) => {root.hubGoals.upgradeImprovements["miner"] += 0.1; return "";},
+    "Small Processors Upgrade": (root, resynced, index) => {root.hubGoals.upgradeImprovements["processors"] += 0.1; return "";},
+    "Small Painting Upgrade": (root, resynced, index) => {root.hubGoals.upgradeImprovements["painting"] += 0.1; return "";},
+    "Blueprint Shapes Bundle": (root, resynced, index) => {
         if (resynced) return "";
         root.hubGoals.storedShapes[connection.blueprintShape] = (root.hubGoals.storedShapes[connection.blueprintShape] || 0) + 1000; 
-        if (root.hubGoals.storedShapes[connection.blueprintShape] > 0) {
-            shapesanityAnalyzer(ShapeDefinition.fromShortKey(connection.blueprintShape));
-        }
+        shapesanityAnalyzer(ShapeDefinition.fromShortKey(connection.blueprintShape));
         return ": 1000";
     },
-    "Level Shapes Bundle": (root, resynced) => {
+    "Level Shapes Bundle": (root, resynced, index) => {
         if (resynced) return "";
-        const levelShape = root.hubGoals.currentGoal.definition.getHash();
-        const requiredLevelShapes = root.hubGoals.currentGoal.required;
-        const storedLevelShapes = root.hubGoals.storedShapes[levelShape] || 0;
-        var addedAmount = Math.floor((requiredLevelShapes - storedLevelShapes) / 2);
-        if (addedAmount < 0) {
-            addedAmount = 100;
-        }
-        root.hubGoals.storedShapes[levelShape] = (storedLevelShapes || 0) + addedAmount;
-        if (root.hubGoals.storedShapes[levelShape] > 0) {
-            shapesanityAnalyzer(root.hubGoals.currentGoal.definition);
-        }
-        return ": " + addedAmount.toString();
-    },
-    "Upgrade Shapes Bundle": (/** @type {import("shapez/game/root").GameRoot} */ root, resynced) => {
-        if (resynced) return "";
-        const upgradeIds = ["belt", "miner", "processors", "painting"];
-        var addedAmount = 0, randomID, requiredShapes, requirement, stored;
-        for (var tries = 0; tries < 10 && addedAmount <= 0; tries++) {
-            randomID = upgradeIds[Math.floor(Math.random()*4)];
-            requiredShapes = currentIngame.upgradeDefs[randomID][Math.min(root.hubGoals.getUpgradeLevel(randomID), connection.tiersToGenerate-2)].required;
-            requirement = requiredShapes[Math.floor(Math.random()*requiredShapes.length)];
-            for (var tries2 = 0; tries2 < 10 && 
-                    requirement.shape === root.hubGoals.currentGoal.definition.getHash(); tries2++) {
-                randomID = upgradeIds[Math.floor(Math.random()*4)];
-                requiredShapes = currentIngame.upgradeDefs[randomID][Math.min(root.hubGoals.getUpgradeLevel(randomID), connection.tiersToGenerate-2)].required;
-                requirement = requiredShapes[Math.floor(Math.random()*requiredShapes.length)];
+        /**
+         * @type {{[x: string]: number}}
+         */
+        const upgrades = {};
+        for (let category in currentIngame.upgradeDefs) {
+            for (let tier of currentIngame.upgradeDefs[category]) {
+                for (let next of tier.required) {
+                    const remaining = next.amount - (root.hubGoals.storedShapes[next.shape] || 0);
+                    upgrades[next.shape] = (
+                        upgrades[next.shape] == null ? 
+                        // If this shape wasn't written down yet, just use the calculated remaining
+                        // If it was already written down, only update remaining if it's less than before
+                        remaining : Math.min(upgrades[next.shape], remaining)
+                    );
+                }
             }
-            stored = root.hubGoals.storedShapes[requirement.shape] || 0;
-            addedAmount = Math.floor((requirement.amount - stored) / 2);
         }
-        if (addedAmount < 0) {
-            addedAmount = 100;
+        levelLoop: for (let levelIndex = root.hubGoals.level-1; levelIndex < currentIngame.levelDefs.length; levelIndex++) {
+            const definition = currentIngame.levelDefs[levelIndex];
+            const stored = root.hubGoals.storedShapes[definition.shape] || 0;
+            let addedAmount;
+            if (upgrades[definition.shape] > 0) {
+                if (definition.throughputOnly) {
+                    addedAmount = Math.floor(upgrades[definition.shape] / 2);
+                } else {
+                    addedAmount = Math.floor(Math.min(upgrades[definition.shape], definition.required - (stored)) / 2);
+                }
+            } else if (upgrades[definition.shape] == null && !definition.throughputOnly) {
+                // No throughput, so stored will never be higher than required
+                addedAmount = Math.floor((definition.required - (stored)) / 2);
+            } else {
+                addedAmount = 1000;
+            }
+            if (addedAmount == 0) continue levelLoop;
+            apassert(addedAmount >= 0, `Trying to give negative amount of shapes: ${addedAmount}`);
+            root.hubGoals.storedShapes[definition.shape] = stored + addedAmount;
+            shapesanityAnalyzer(ShapeDefinition.fromShortKey(definition.shape));
+            return `: ${addedAmount} ${definition.shape}`;
         }
-        root.hubGoals.storedShapes[requirement.shape] = (stored || 0) + addedAmount;
-        if (root.hubGoals.storedShapes[requirement.shape] > 0) {
-            shapesanityAnalyzer(ShapeDefinition.fromShortKey(requirement.shape));
+        if (root.hubGoals.currentGoal.throughputOnly) {
+            const definition = root.hubGoals.currentGoal;
+            const stored = root.hubGoals.storedShapes[definition.definition.getHash()] || 0;
+            let addedAmount;
+            if (upgrades[definition.definition.getHash()] > 0) {
+                addedAmount = Math.floor(upgrades[definition.definition.getHash()] / 2);
+            } else {
+                addedAmount = 1000;
+            }
+            if (addedAmount != 0) {
+                apassert(addedAmount >= 0, `Trying to give negative amount of shapes: ${addedAmount}`);
+                root.hubGoals.storedShapes[definition.definition.getHash()] = stored + addedAmount;
+                shapesanityAnalyzer(ShapeDefinition.fromShortKey(definition.definition.getHash()));
+                return `: ${addedAmount} ${definition.definition.getHash()}`;
+            }
         }
-        return `: ${addedAmount} ${requirement.shape} ${shapez.T.mods.shapezipelago.itemReceivingBox.extraInfo.upgradeId[randomID]}`;
+        // If loop found nothing, then addedAmount can only be 0, so no shapes
+        return ": None";
     },
-    "Inventory Draining Trap": (root, resynced) => {
+    "Upgrade Shapes Bundle": (root, resynced, index) => {
+        // Resyncing should never do something to hubGoals.storedShapes
+        if (resynced) return "";
+        // Write all remaining for every upgrade down
+        // All shapes in current tiers can get the bundle
+        /**
+         * @type {{[x: string]: number}}
+         */
+        const remainingDict = {};
+        /**
+         * @type {string[]}
+         */
+        const addableShapes = [];
+        for (let category in currentIngame.upgradeDefs) {
+            for (let tier of currentIngame.upgradeDefs[category]) {
+                for (let next of tier.required) {
+                    const remaining = next.amount - (root.hubGoals.storedShapes[next.shape] || 0);
+                    remainingDict[next.shape] = (
+                        remainingDict[next.shape] == null ? 
+                        // If this shape wasn't written down yet, just use the calculated remaining
+                        // If it was already written down, only update remaining if it's less than before
+                        remaining : Math.min(remainingDict[next.shape], remaining)
+                    );
+                }
+            }
+            const upgradeLevel = root.hubGoals.getUpgradeLevel(category);
+            if (upgradeLevel < currentIngame.upgradeDefs[category].length) {
+                const tier = currentIngame.upgradeDefs[category][upgradeLevel];
+                for (let next of tier.required) {
+                    addableShapes.push(next.shape);
+                }
+            }
+        }
+        for (let level of currentIngame.levelDefs) {
+            if (!level.throughputOnly) {
+                if (!(remainingDict[level.shape] == null)) {
+                    remainingDict[level.shape] = Math.min(
+                        remainingDict[level.shape],
+                        level.required - (root.hubGoals.storedShapes[level.shape] || 0)
+                    );
+                }
+            }
+        }
+        for (let addable of addableShapes.slice()) {
+            if (remainingDict[addable] == 1) addableShapes.splice(addableShapes.indexOf(addable), 1);
+        }
+        // If loop found nothing, then addedAmount can only be 0, so no shapes
+        if (addableShapes.length == 0) return ": None";
+        const randomShape = addableShapes[Math.floor(Math.random() * addableShapes.length)];
+        let addedAmount;
+        if (remainingDict[randomShape] > 1) addedAmount = Math.floor(remainingDict[randomShape] / 2);
+        else addedAmount = 1000;
+        root.hubGoals.storedShapes[randomShape] = (root.hubGoals.storedShapes[randomShape] || 0) + addedAmount;
+        shapesanityAnalyzer(ShapeDefinition.fromShortKey(randomShape));
+        return `: ${addedAmount} ${randomShape}`;
+    },
+    "Inventory Draining Trap": (root, resynced, index) => {
         if (resynced) return "";
         const r = Math.random()*3;
         if (r < 1) {
-            return receiveItemFunctions["Blueprint Shapes Draining Trap"](root, resynced) + ": " 
+            return receiveItemFunctions["Blueprint Shapes Draining Trap"](root, resynced, index) + " "
                 + shapez.T.mods.shapezipelago.itemReceivingBox.extraInfo.versionBlueprint;
         } else if (r < 2) {
-            return receiveItemFunctions["Level Shapes Draining Trap"](root, resynced) + ": " 
-                + shapez.T.mods.shapezipelago.itemReceivingBox.extraInfo.versionLevel;
+            return receiveItemFunctions["Level Shapes Draining Trap"](root, resynced, index);
         } else {
-            return receiveItemFunctions["Upgrade Shapes Draining Trap"](root, resynced);
+            return receiveItemFunctions["Upgrade Shapes Draining Trap"](root, resynced, index);
         }
     },
-    "Blueprint Shapes Draining Trap": (root, resynced) => {
+    "Blueprint Shapes Draining Trap": (root, resynced, index) => {
         if (resynced) return "";
-        var storedBlueprint = root.hubGoals.storedShapes[connection.blueprintShape] || 0;
-        root.hubGoals.storedShapes[connection.blueprintShape] = Math.floor(storedBlueprint / 2);
-        return "";
+        const storedBlueprint = root.hubGoals.storedShapes[connection.blueprintShape] || 0;
+        const drained = Math.floor(storedBlueprint / Math.log10((storedBlueprint+1000))-2);
+        root.hubGoals.storedShapes[connection.blueprintShape] = storedBlueprint - drained;
+        return `: ${drained}`;
     },
-    "Level Shapes Draining Trap": (root, resynced) => {
+    "Level Shapes Draining Trap": (root, resynced, index) => {
         if (resynced) return "";
-        const levelShape = root.hubGoals.currentGoal.definition.getHash();
-        const storedLevelShapes = root.hubGoals.storedShapes[levelShape] || 0;
-        root.hubGoals.storedShapes[levelShape] = Math.floor((storedLevelShapes || 0) / 2);
-        return "";
-    },
-    "Upgrade Shapes Draining Trap": (root, resynced) => {
-        if (resynced) return "";
-        const upgradeIds = ["belt", "miner", "processors", "painting"];
-        const randomID = upgradeIds[Math.floor(Math.random()*4)];
-        const requiredShapes = currentIngame.upgradeDefs[randomID][Math.min(root.hubGoals.getUpgradeLevel(randomID), connection.tiersToGenerate-2)].required;
-        const requirement = requiredShapes[Math.floor(Math.random()*requiredShapes.length)];
-        const stored = root.hubGoals.storedShapes[requirement.shape] || 0;
-        root.hubGoals.storedShapes[requirement.shape] = Math.floor((stored || 0) / 2);
-        return `: ${requirement.shape} ${shapez.T.mods.shapezipelago.itemReceivingBox.extraInfo.upgradeId[upgradeIdNames[randomID]]}`;
-    },
-    "Locked Building Trap": (root, resynced) => {
-        if (resynced) return "";
-        const keys = Object.keys(currentIngame.trapLocked);
-        var randomBuilding = keys[Math.floor(Math.random()*keys.length)];
-        for (var tries = 0; tries < 10 && !getIsUnlockedForTrap[randomBuilding](root); tries++) {
-            randomBuilding = keys[Math.floor(Math.random()*keys.length)];
+        for (let levelIndex = root.hubGoals.level-1; levelIndex < currentIngame.levelDefs.length; levelIndex++) {
+            const currentLevel = currentIngame.levelDefs[levelIndex];
+            const stored = root.hubGoals.storedShapes[currentLevel.shape] || 0;
+            if (!currentLevel.throughputOnly && stored) {
+                const drained = Math.ceil(stored / 2);
+                root.hubGoals.storedShapes[currentLevel.shape] = stored - drained;
+                return `: ${drained} ${currentLevel.shape}`;
+            }
         }
+        for (let levelIndex = root.hubGoals.level-1; levelIndex < currentIngame.levelDefs.length; levelIndex++) {
+            const currentLevel = currentIngame.levelDefs[levelIndex];
+            const stored = root.hubGoals.storedShapes[currentLevel.shape] || 0;
+            if (stored) {
+                const drained = Math.ceil(stored / 2);
+                root.hubGoals.storedShapes[currentLevel.shape] -= drained;
+                return `: -${drained} ${currentLevel.shape}`;
+            }
+        }
+        if (root.hubGoals.currentGoal.throughputOnly) {
+            const currentLevel = root.hubGoals.currentGoal;
+            const stored = root.hubGoals.storedShapes[currentLevel.definition.getHash()] || 0;
+            if (stored) {
+                const drained = Math.ceil(stored / 2);
+                root.hubGoals.storedShapes[currentLevel.definition.getHash()] -= drained;
+                return `: -${drained} ${currentLevel.definition.getHash()}`;
+            }
+        }
+        return ": None";
+    },
+    "Upgrade Shapes Draining Trap": (root, resynced, index) => {
+        if (resynced) return "";
+        /**
+         * @type {string[]}
+         */
+        const drainable = [];
+        for (let category in currentIngame.upgradeDefs) {
+            const upgradeLevel = root.hubGoals.getUpgradeLevel(category);
+            if (upgradeLevel < currentIngame.upgradeDefs[category].length) {
+                const tier = currentIngame.upgradeDefs[category][upgradeLevel];
+                for (let next of tier.required) {
+                    if (root.hubGoals.storedShapes[next.shape]) drainable.push(next.shape);
+                }
+            }
+        }
+        if (drainable.length == 0) {
+            for (let category in currentIngame.upgradeDefs) {
+                for (let tier of currentIngame.upgradeDefs[category]) {
+                    for (let next of tier.required) {
+                        if (root.hubGoals.storedShapes[next.shape]) drainable.push(next.shape);
+                    }
+                }
+            }
+        }
+        if (drainable.length) {
+            const randomShape = drainable[Math.floor(Math.random() * drainable.length)];
+            const drained = Math.ceil(root.hubGoals.storedShapes[randomShape] / 2);
+            root.hubGoals.storedShapes[randomShape] -= drained;
+            return `: -${drained} ${randomShape}`;
+        } else {
+            return ": None";
+        }
+    },
+    "Locked Building Trap": (root, resynced, index) => {
+        if (resynced) return "";
+        /**
+         * @type {string[]}
+         */
+        const lockable = [];
+        for (let trap in currentIngame.trapLocked) {
+            if (getIsUnlockedForTrap[trap](root)) lockable.push(trap);
+        }
+        if (lockable.length == 0) return ": None";
+        const randomBuilding = lockable[Math.floor(Math.random()*lockable.length)];
         const randomTimeSec = Math.floor(Math.random()*46) + 15;
         currentIngame.trapLocked[randomBuilding] = true;
         setTimeout(() => {
@@ -142,13 +335,17 @@ export const receiveItemFunctions = {
         return `: ${shapez.T.mods.shapezipelago.itemReceivingBox.item[baseBuildingNames[randomBuilding]]} ${
             shapez.T.mods.shapezipelago.itemReceivingBox.extraInfo.time.replace("<x>", randomTimeSec)}`;
     },
-    "Throttled Building Trap": (root, resynced) => {
+    "Throttled Building Trap": (root, resynced, index) => {
         if (resynced) return "";
-        const keys = Object.keys(currentIngame.trapThrottled);
-        var randomBuilding = keys[Math.floor(Math.random()*keys.length)];
-        for (var tries = 0; tries < 10 && !getIsUnlockedForTrap[randomBuilding](root); tries++) {
-            randomBuilding = keys[Math.floor(Math.random()*keys.length)];
+        /**
+         * @type {string[]}
+         */
+        const throttlable = [];
+        for (let trap in currentIngame.trapThrottled) {
+            if (getIsUnlockedForTrap[trap](root) && !currentIngame.trapThrottled[trap]) throttlable.push(trap);
         }
+        if (throttlable.length == 0) return ": None";
+        const randomBuilding = throttlable[Math.floor(Math.random()*throttlable.length)];
         const randomTimeSec = Math.floor(Math.random()*46) + 15;
         currentIngame.trapThrottled[randomBuilding] = true;
         setTimeout(() => {
@@ -157,13 +354,17 @@ export const receiveItemFunctions = {
         return `: ${shapez.T.mods.shapezipelago.itemReceivingBox.item[baseBuildingNames[randomBuilding]]} ${
             shapez.T.mods.shapezipelago.itemReceivingBox.extraInfo.time.replace("<x>", randomTimeSec)}`;
     },
-    "Malfunctioning Trap": (root, resynced) => {
+    "Malfunctioning Trap": (root, resynced, index) => {
         if (resynced) return "";
-        const keys = Object.keys(currentIngame.trapMalfunction);
-        var randomBuilding = keys[Math.floor(Math.random()*keys.length)];
-        for (var tries = 0; tries < 10 && !getIsUnlockedForTrap[randomBuilding](root); tries++) {
-            randomBuilding = keys[Math.floor(Math.random()*keys.length)];
+        /**
+         * @type {string[]}
+         */
+        const malfunctionable = [];
+        for (let trap in currentIngame.trapMalfunction) {
+            if (getIsUnlockedForTrap[trap](root) && !currentIngame.trapMalfunction[trap]) malfunctionable.push(trap);
         }
+        if (malfunctionable.length == 0) return ": None";
+        const randomBuilding = malfunctionable[Math.floor(Math.random()*malfunctionable.length)];
         const randomTimeSec = Math.floor(Math.random()*46) + 15;
         currentIngame.trapMalfunction[randomBuilding] = true;
         setTimeout(() => {
@@ -171,7 +372,73 @@ export const receiveItemFunctions = {
         }, randomTimeSec*1000);
         return `: ${shapez.T.mods.shapezipelago.itemReceivingBox.item[baseBuildingNames[randomBuilding]]} ${
             shapez.T.mods.shapezipelago.itemReceivingBox.extraInfo.time.replace("<x>", randomTimeSec)}`;
-    }
+    },
+    "Gigantic Belt Upgrade": (root, resynced, index) => {root.hubGoals.upgradeImprovements["belt"] += 10; return "";},
+    "Gigantic Miner Upgrade": (root, resynced, index) => {root.hubGoals.upgradeImprovements["miner"] += 10; return "";},
+    "Gigantic Processors Upgrade": (root, resynced, index) => {root.hubGoals.upgradeImprovements["processors"] += 10; return "";},
+    "Gigantic Painting Upgrade": (root, resynced, index) => {root.hubGoals.upgradeImprovements["painting"] += 10; return "";},
+    "Rising Belt Upgrade": (root, resynced, index) => {root.hubGoals.upgradeImprovements["belt"] *= 2; return "";},
+    "Rising Miner Upgrade": (root, resynced, index) => {root.hubGoals.upgradeImprovements["miner"] *= 2; return "";},
+    "Rising Processors Upgrade": (root, resynced, index) => {root.hubGoals.upgradeImprovements["processors"] *= 2; return "";},
+    "Rising Painting Upgrade": (root, resynced, index) => {root.hubGoals.upgradeImprovements["painting"] *= 2; return "";},
+    "Belt Upgrade Trap": (root, resynced, index) => {
+        root.hubGoals.upgradeImprovements["belt"] -= 3;
+        if (root.hubGoals.upgradeImprovements["belt"] < 0.5) root.hubGoals.upgradeImprovements["belt"] = 0.5;
+        return "";
+    },
+    "Miner Upgrade Trap": (root, resynced, index) => {
+        root.hubGoals.upgradeImprovements["miner"] -= 3;
+        if (root.hubGoals.upgradeImprovements["miner"] < 0.5) root.hubGoals.upgradeImprovements["miner"] = 0.5;
+        return "";
+    },
+    "Processors Upgrade Trap": (root, resynced, index) => {
+        root.hubGoals.upgradeImprovements["processors"] -= 3;
+        if (root.hubGoals.upgradeImprovements["processors"] < 0.5) root.hubGoals.upgradeImprovements["processors"] = 0.5;
+        return "";
+    },
+    "Painting Upgrade Trap": (root, resynced, index) => {
+        root.hubGoals.upgradeImprovements["painting"] -= 3;
+        if (root.hubGoals.upgradeImprovements["painting"] < 0.5) root.hubGoals.upgradeImprovements["painting"] = 0.5;
+        return "";
+    },
+    "Demonic Belt Upgrade Trap": (root, resynced, index) => {
+        root.hubGoals.upgradeImprovements["belt"] *= 0.5;
+        if (root.hubGoals.upgradeImprovements["belt"] < 0.5) root.hubGoals.upgradeImprovements["belt"] = 0.5;
+        return "";
+    },
+    "Demonic Miner Upgrade Trap": (root, resynced, index) => {
+        root.hubGoals.upgradeImprovements["miner"] *= 0.5;
+        if (root.hubGoals.upgradeImprovements["miner"] < 0.5) root.hubGoals.upgradeImprovements["miner"] = 0.5;
+        return "";
+    },
+    "Demonic Processors Upgrade Trap": (root, resynced, index) => {
+        root.hubGoals.upgradeImprovements["processors"] *= 0.5;
+        if (root.hubGoals.upgradeImprovements["processors"] < 0.5) root.hubGoals.upgradeImprovements["processors"] = 0.5;
+        return "";
+    },
+    "Demonic Painting Upgrade Trap": (root, resynced, index) => {
+        root.hubGoals.upgradeImprovements["painting"] *= 0.5;
+        if (root.hubGoals.upgradeImprovements["painting"] < 0.5) root.hubGoals.upgradeImprovements["painting"] = 0.5;
+        return "";
+    },
+    "Big Random Upgrade": (root, resynced, index) => {
+        const category = new RandomNumberGenerator(connection.clientSeed + index).choice(["belt", "miner", "processors", "painting"]);
+        root.hubGoals.upgradeImprovements[category] += 2; 
+        return `: ${shapez.T.mods.shapezipelago.itemReceivingBox.extraInfo.upgradeId[category]}`;
+    },
+    "Small Random Upgrade": (root, resynced, index) => {
+        const category = new RandomNumberGenerator(connection.clientSeed + index).choice(["belt", "miner", "processors", "painting"]);
+        root.hubGoals.upgradeImprovements[category] += 0.2; 
+        return `: ${shapez.T.mods.shapezipelago.itemReceivingBox.extraInfo.upgradeId[category]}`;
+    },
+    "Inflation Trap": (root, resynced, index) => {
+        connection.requiredShapesMultiplier++;
+        currentIngame.levelDefs = null;
+        currentIngame.upgradeDefs = null;
+        root.gameMode.getLevelDefinitions();
+        root.gameMode.getUpgrades();
+        return "";
+    },
 };
 
 /**
@@ -223,7 +490,7 @@ export function processItemsPacket(packet) {
         // Re-receive items without popup
         const cachedprocessedItemCount = currentIngame.processedItemCount;
         for (var i = 0; i < cachedprocessedItemCount; i++) {
-            receiveItem(all_items[i], false, true);
+            receiveItem(all_items[i], false, true, i);
         }
         // Backwards compatibility to 0.5.3
         const datacache = connection.client.data.slotData["lock_belt_and_extractor"];
@@ -240,24 +507,24 @@ export function processItemsPacket(packet) {
     if (currentIngame.processedItemCount == all_items.length) {
         apdebuglog("Items up-to-date");
     } else if (currentIngame.processedItemCount == all_items.length - 1) {
-        receiveItem(all_items[currentIngame.processedItemCount], true, false);
+        receiveItem(all_items[currentIngame.processedItemCount], true, false, currentIngame.processedItemCount);
         currentIngame.processedItemCount++;
     } else if (currentIngame.processedItemCount == all_items.length - 2) {
-        receiveItem(all_items[currentIngame.processedItemCount], true, false);
+        receiveItem(all_items[currentIngame.processedItemCount], true, false, currentIngame.processedItemCount);
         currentIngame.processedItemCount++;
-        receiveItem(all_items[currentIngame.processedItemCount], true, false);
+        receiveItem(all_items[currentIngame.processedItemCount], true, false, currentIngame.processedItemCount);
         currentIngame.processedItemCount++;
     } else if (currentIngame.processedItemCount == all_items.length - 3) {
-        receiveItem(all_items[currentIngame.processedItemCount], true, false);
+        receiveItem(all_items[currentIngame.processedItemCount], true, false, currentIngame.processedItemCount);
         currentIngame.processedItemCount++;
-        receiveItem(all_items[currentIngame.processedItemCount], true, false);
+        receiveItem(all_items[currentIngame.processedItemCount], true, false, currentIngame.processedItemCount);
         currentIngame.processedItemCount++;
-        receiveItem(all_items[currentIngame.processedItemCount], true, false);
+        receiveItem(all_items[currentIngame.processedItemCount], true, false, currentIngame.processedItemCount);
         currentIngame.processedItemCount++;
     } else {
         var itemCounting = [];
         for (var i = currentIngame.processedItemCount; i < all_items.length; i++) {
-            itemCounting.push(receiveItem(all_items[i], false, false));
+            itemCounting.push(receiveItem(all_items[i], false, false, i));
             currentIngame.processedItemCount++;
         }
         modImpl.dialogs.showInfo(shapez.T.mods.shapezipelago.itemReceivingBox.title.multiple, itemCounting.join("<br />"));
@@ -266,12 +533,14 @@ export function processItemsPacket(packet) {
 }
 
 /**
- * 
- * @param {import("archipelago.js").NetworkItem} item 
+ * @param {import("archipelago.js").NetworkItem} item
+ * @param {boolean} showInfo
+ * @param {boolean} resynced
+ * @param {number} index
  */
-function receiveItem(item, showInfo, resynced) {
+function receiveItem(item, showInfo, resynced, index) {
     const itemName = connection.getItemName(item.item);
-    const message = receiveItemFunctions[itemName](currentIngame.root, resynced);
+    const message = receiveItemFunctions[itemName](currentIngame.root, resynced, index);
     apdebuglog("Processed item " + itemName + message);
     if (showInfo) {
         const sendingPlayerName = connection.getPlayername(item.player);

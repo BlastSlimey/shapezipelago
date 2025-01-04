@@ -131,6 +131,9 @@ mods:
       shopNone: Not implemented
     achievementsBox:
       title: Achievements
+      disabled: Disabled
+    timeTrialsBox:
+      title: Time Trials
     giftShopBox:
       title: Gift Shop
     infoBox:
@@ -199,15 +202,32 @@ mods:
         Locked Building Trap: Locked Building Trap
         Throttled Building Trap: Throttled Building Trap
         Malfunctioning Trap: Malfunctioning Trap
+        Gigantic Belt Upgrade: Gigantic Belt Upgrade
+        Gigantic Miner Upgrade: Gigantic Miner Upgrade
+        Gigantic Processors Upgrade: Gigantic Processors Upgrade
+        Gigantic Painting Upgrade: Gigantic Painting Upgrade
+        Rising Belt Upgrade: Rising Belt Upgrade
+        Rising Miner Upgrade: Rising Miner Upgrade
+        Rising Processors Upgrade: Rising Processors Upgrade
+        Rising Painting Upgrade: Rising Painting Upgrade
+        Belt Upgrade Trap: Belt Upgrade Trap
+        Miner Upgrade Trap: Miner Upgrade Trap
+        Processors Upgrade Trap: Processors Upgrade Trap
+        Painting Upgrade Trap: Painting Upgrade Trap
+        Demonic Belt Upgrade Trap: Demonic Belt Upgrade Trap
+        Demonic Miner Upgrade Trap: Demonic Miner Upgrade Trap
+        Demonic Processors Upgrade Trap: Demonic Processors Upgrade Trap
+        Demonic Painting Upgrade Trap: Demonic Painting Upgrade Trap
+        Big Random Upgrade: Big Random Upgrade
+        Small Random Upgrade: Small Random Upgrade
       foundBy: found by <player> at <location>
       extraInfo:
         upgradeId:
-          belt: from Belt Upgrades
-          miner: from Miner Upgrades
-          processors: from Processors Upgrades
-          painting: from Painting Upgrades
+          belt: Belt Upgrade
+          miner: Miner Upgrade
+          processors: Processors Upgrade
+          painting: Painting Upgrade
         versionBlueprint: Blueprint shapes
-        versionLevel: Current level shapes
         time: for <x> seconds
     statisticsBox:
       perBelt: Per belt
@@ -232,3 +252,5 @@ storyRewards:
 dialogs:
   blueprintsNotUnlocked:
     desc: You need to look or wait for the AP item!
+tips:
+  - Don't stay too long in the Burger King! (If this takes too long, there might be an error...)

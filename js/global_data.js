@@ -180,33 +180,38 @@ export function apdebuglog(message) {
  * @param {string} message
  */
 export function apassert(condition, message) {
-    if (!condition) {
-        alert(message);
-    }
-    throw new Error(message);
+    if (!condition) apthrow(message, new Error(message));
 }
 
 /**
  * @param {string} title
  * @param {() => any} code
  */
-export function aptry(title, code) { // TODO use this instead
+export function aptry(title, code) {
     try {
         return code();
     } catch (error) {
-        const text = (
-            title + "<br />---<br />" + 
-            error.stack.replaceAll("<", "").replaceAll(">", "").replaceAll("    at ", "<br />- at ")
-        );
-        if (document.body.getElementsByClassName("gameLoadingOverlay").length) {
-            const gameLoadingOverlay = document.body.getElementsByClassName("gameLoadingOverlay").item(0);
-            const prefab_GameHint = gameLoadingOverlay.getElementsByClassName("prefab_GameHint").item(0);
-            prefab_GameHint.innerHTML = ("ERROR " + shapez.T.mods.shapezipelago.infoBox.aptry.title + "<br />" + text);
-        } else {
-            modImpl.dialogs.showInfo(shapez.T.mods.shapezipelago.infoBox.aptry.title, text);
-        }
-        throw error;
+        apthrow(title, error);
     }
+}
+
+/**
+ * @param {string} message
+ * @param {Error} error
+ */
+function apthrow(message, error) {
+    const text = (
+        message + "<br />---<br />" + 
+        error.stack.replaceAll("<", "").replaceAll(">", "").replaceAll("    at ", "<br />- at ")
+    );
+    if (document.body.getElementsByClassName("gameLoadingOverlay").length) {
+        const gameLoadingOverlay = document.body.getElementsByClassName("gameLoadingOverlay").item(0);
+        const prefab_GameHint = gameLoadingOverlay.getElementsByClassName("prefab_GameHint").item(0);
+        prefab_GameHint.innerHTML = ("ERROR " + shapez.T.mods.shapezipelago.infoBox.aptry.title + "<br />" + text);
+    } else {
+        modImpl.dialogs.showInfo(shapez.T.mods.shapezipelago.infoBox.aptry.title, text);
+    }
+    throw error;
 }
 
 /**
@@ -350,6 +355,11 @@ export class Connection {
                 this.complexityGrowthGradient = datacache == null ? 0.5 : Number(datacache);
                 apdebuglog(`Loaded slotData complexity_growth_gradient=${slotData["complexity_growth_gradient"]}`);
 
+                // undefined until at least 0.5.13
+                datacache = slotData["unlock_variant"];
+                this.unlockVariant = datacache == null ? "individual" : String(datacache);
+                apdebuglog(`Loaded slotData unlock_variant=${slotData["unlock_variant"]}`);
+
             })
             .catch((error) => {
                 apuserlog("Failed to connect: " + error.name + ", " + error.message);
@@ -461,6 +471,10 @@ export class Connection {
      * @type {number}
      */
     complexityGrowthGradient;
+    /**
+     * @type {string}
+     */
+    unlockVariant;
 
     /**
      * 
@@ -577,7 +591,7 @@ export class Ingame {
      */
     levelDefs;
     /**
-     * @type {{belt: {required: {shape: any; amount: number;}[]; excludePrevious: boolean; improvement: number;}[]; miner: {required: {shape: any; amount: number;}[]; excludePrevious: boolean; improvement: number;}[]; processors: {required: {shape: any; amount: number;}[]; excludePrevious: boolean; improvement: number;}[]; painting: {required: {shape: any; amount: number;}[]; excludePrevious: boolean; improvement: number;}[];}}
+     * @type {{[x: string]: {required: {shape: string; amount: number;}[]; excludePrevious: boolean; improvement: number;}[]}}
      */
     upgradeDefs;
     /**

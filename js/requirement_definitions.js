@@ -2,6 +2,7 @@ import { RandomNumberGenerator } from "shapez/core/rng";
 import { apdebuglog, baseBuildingNames, connection, currentIngame, customRewards, modImpl } from "./global_data";
 
 export function vanillaShapes() {
+    // No getAmountByLevel() because of mam goal and levelsToGenerate > 120
     const multiplier = connection.requiredShapesMultiplier;
     return [
         {shape: "CuCuCuCu", required: Math.ceil(30*multiplier/10), reward: customRewards.ap, throughputOnly: false},
@@ -194,7 +195,6 @@ export function randomizedStretchedShapes(randomizer) {
 }
 
 export function randomizedQuickShapes(randomizer) {
-    const multiplier = connection.requiredShapesMultiplier;
     const throughputratio = connection.throughputLevelsRatio;
     const phase = connection.positionOfLevelBuilding;
     const levelstogenerate = connection.levelsToGenerate;
@@ -287,7 +287,6 @@ export function randomizedRandomStepsShapes(randomizer) {
 }
 
 export function randomizedHardcoreDopamineShapes(randomizer, buildingsCount) {
-    const multiplier = connection.requiredShapesMultiplier;
     const phase = connection.positionOfLevelBuilding;
     const throughputratio = connection.throughputLevelsRatio;
     const levelstogenerate = connection.levelsToGenerate;

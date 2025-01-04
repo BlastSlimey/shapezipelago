@@ -1,4 +1,4 @@
-import { apdebuglog, aptry, Connection, connection, currentIngame, modImpl } from "./global_data";
+import { achievementNames, apdebuglog, aptry, Connection, connection, currentIngame, modImpl } from "./global_data";
 import { CLIENT_STATUS, ITEMS_HANDLING_FLAGS } from "archipelago.js";
 import { processItemsPacket } from "./server_communication";
 import { makeButton, makeDiv, removeAllChildren } from "shapez/core/utils";
@@ -158,11 +158,14 @@ class HUDShapesanity extends BaseHUDPart {
         this.trackClicks(this.tabButtonSlotDetails, this.setTabSlotDetails);
         this.tabButtonAchievements = makeButton(this.tabs, ["tabButtonAchievements"], shapez.T.mods.shapezipelago.achievementsBox.title);
         this.trackClicks(this.tabButtonAchievements, this.setTabAchievements);
+        this.tabButtonTimeTrials = makeButton(this.tabs, ["tabButtonTimeTrials"], shapez.T.mods.shapezipelago.timeTrialsBox.title);
+        this.trackClicks(this.tabButtonTimeTrials, this.setTabTimeTrials);
         this.tabButtonGiftShop = makeButton(this.tabs, ["tabButtonGiftShop"], shapez.T.mods.shapezipelago.giftShopBox.title);
         this.trackClicks(this.tabButtonGiftShop, this.setTabGiftShop);
 
         this.contentDiv = makeDiv(this.dialogInner, null, ["content"]);
         this.visible = false;
+
     }
 
     setTabShapesanity() {
@@ -246,6 +249,34 @@ class HUDShapesanity extends BaseHUDPart {
             removeAllChildren(this.contentDiv);
             this.dialogInner.setAttribute("currentTab", "achievements");
             if (this.visible) {
+                if (this.achievementsIncluded) {
+                    for (let achievementId in achievementNames) {
+                        const divElem = makeDiv(this.contentDiv, null, ["shapesanityRow"]);
+                        const nextName = document.createElement("span");
+                        nextName.classList.add("achievementName");
+                        nextName.innerText = achievementNames[achievementId];
+                        if (connection.client.locations.checked.includes(
+                            connection.gamepackage.location_name_to_id[achievementNames[achievementId]]
+                        )) {
+                            divElem.classList.add("locationChecked");
+                        }
+                        divElem.appendChild(nextName);
+                    }
+                } else {
+                    let placeholder = document.createElement("span", {});
+                    placeholder.innerText = shapez.T.mods.shapezipelago.achievementsBox.disabled;
+                    this.contentDiv.appendChild(placeholder);
+                }
+            }
+        });
+    }
+
+    setTabTimeTrials() {
+        aptry("Showing time trials failed", () => {
+            apdebuglog("Showing time trials overview");
+            removeAllChildren(this.contentDiv);
+            this.dialogInner.setAttribute("currentTab", "timeTrials");
+            if (this.visible) {
                 let placeholder = document.createElement("span", {});
                 placeholder.classList.add("comingSoonPlaceholder");
                 placeholder.innerText = "Coming Soon™";
@@ -298,6 +329,11 @@ class HUDShapesanity extends BaseHUDPart {
             if (connection) this.scout();
             this.update();
             this.setTabShapesanity();
+            const exampleId = connection.gamepackage.location_name_to_id[achievementNames.cutShape];
+            this.achievementsIncluded = (
+                connection.client.locations.missing.includes(exampleId) || 
+                connection.client.locations.checked.includes(exampleId)
+            );
         });
     }
 

@@ -131,6 +131,9 @@ mods:
       shopNone: Nicht implementiert
     achievementsBox:
       title: Achievements
+      disabled: Deaktiviert
+    timeTrialsBox:
+      title: Time Trials
     giftShopBox:
       title: Geschenkeshop
     infoBox:
@@ -199,15 +202,32 @@ mods:
         Locked Building Trap: Gesperrtes-Gebäude-Falle
         Throttled Building Trap: Verlangsamtes-Gebäude-Falle
         Malfunctioning Trap: Funktionsstörungsfalle
+        Gigantic Belt Upgrade: Gigantisches Fließbänderupgrade
+        Gigantic Miner Upgrade: Gigantisches Extraktorenupgrade
+        Gigantic Processors Upgrade: Gigantisches Verarbeitungsupgrade
+        Gigantic Painting Upgrade: Gigantisches Färbeupgrade
+        Rising Belt Upgrade: Steigendes Fließbänderupgrade
+        Rising Miner Upgrade: Steigendes Extraktorenupgrade
+        Rising Processors Upgrade: Steigendes Verarbeitungsupgrade
+        Rising Painting Upgrade: Steigendes Färbeupgrade
+        Belt Upgrade Trap: Fließbänderupgradefalle
+        Miner Upgrade Trap: Extraktorenupgradefalle
+        Processors Upgrade Trap: Verarbeitungsupgradefalle
+        Painting Upgrade Trap: Färbeupgradefalle
+        Demonic Belt Upgrade Trap: Dämonische Fließbänderupgradefalle
+        Demonic Miner Upgrade Trap: Dämonische Extraktorenupgradefalle
+        Demonic Processors Upgrade Trap: Dämonische Verarbeitungsupgradefalle
+        Demonic Painting Upgrade Trap: Dämonische Färbeupgradefalle
+        Big Random Upgrade: Großes zufälliges Upgrade
+        Small Random Upgrade: Kleines zufälliges Upgrade
       foundBy: gefunden von <player> in <location>
       extraInfo:
         upgradeId:
-          belt: in den Fließbänderupgrades
-          miner: in den Extraktorenupgrades
-          processors: in den Verarbeitungsupgrades
-          painting: in den Färbeupgrades
+          belt: Fließbänderupgrade
+          miner: Extraktorenupgrade
+          processors: Verarbeitungsupgrade
+          painting: Färbeupgrade
         versionBlueprint: Blaupausenformen
-        versionLevel: Aktuelle Levelformen
         time: für <x> Sekunden
     statisticsBox:
       perBelt: Pro Fließband
@@ -232,3 +252,5 @@ storyRewards:
 dialogs:
   blueprintsNotUnlocked:
     desc: Du musst nach dem AP-Item suchen oder darauf warten!
+tips:
+  - Bleib nicht zu lange im Burger King! (Wenn dies kein Ende nimmt, könnte das an einem Fehler liegen...)
