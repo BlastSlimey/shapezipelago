@@ -27,6 +27,7 @@ Client mod for the Archipelago multiworld randomizer.
  
 ### APWorld Qol
 - add 180 rotator to item group
+- chaining extractor as alternative to normal extractor in logic
 
 ### Gameplay
 - Something with energy link
