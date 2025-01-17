@@ -24,6 +24,7 @@ Client mod for the Archipelago multiworld randomizer.
 - Details when checking Level location, override hud
 - Add apworld and mod version to save file and notify the player at versions mismatch
 - auto disable tutorial setting (to make upgrades button always show)
+- Show sender on printjson messages
  
 ### APWorld Qol
 - add 180 rotator to item group
