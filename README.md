@@ -27,7 +27,7 @@ Client mod for the Archipelago multiworld randomizer.
 - Show sender on printjson messages
  
 ### APWorld Qol
-- add 180 rotator to item group
+- add 180 rotator and storage to item groups
 - chaining extractor as alternative to normal extractor in logic
 
 ### Gameplay
