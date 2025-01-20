@@ -3,7 +3,6 @@ Client mod for the Archipelago multiworld randomizer.
 
 ## TODO list
 ### Bugs
-- floating allowed but not possible => needs complete fall through
 
 ### Technicalities 
 - Build input box in HUD class
@@ -22,13 +21,8 @@ Client mod for the Archipelago multiworld randomizer.
   - when connected replace ap inventory, else load from save file
 - Text box (read only), received non-progression items only there
 - Details when checking Level location, override hud
-- Add apworld and mod version to save file and notify the player at versions mismatch
-- auto disable tutorial setting (to make upgrades button always show)
-- Show sender on printjson messages
  
 ### APWorld Qol
-- add 180 rotator and storage to item groups
-- chaining extractor as alternative to normal extractor in logic
 
 ### Gameplay
 - Something with energy link
