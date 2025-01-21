@@ -2,6 +2,7 @@
 Client mod for the Archipelago multiworld randomizer.
 
 ## TODO list
+
 ### Bugs
 
 ### Technicalities 
@@ -76,7 +77,6 @@ Client mod for the Archipelago multiworld randomizer.
     - Image
     - Name
     - Description
-  - Toolbar ordering
   - silhouette color
   - building variants
   - sound effects
