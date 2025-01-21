@@ -14,6 +14,7 @@ Client mod for the Archipelago multiworld randomizer.
 - Convert to TypeScript
 - Update archipelago.js to 2.0 (need fix for `structuredClone()`)
 - Store as many strings as possible in apworld in data subfolder
+- Rework ItemClassification Callable to accept options dataclass
 
 ### Client QoL
 - meantime offline playing
@@ -37,7 +38,6 @@ Client mod for the Archipelago multiworld randomizer.
 - producer with 100 "producable shape" items, options: no producer, yes producer, replace extractor
 - Expand shapesanity to 4 layers (blacklist needed!!!)
 - Option for how to unlock building variants, choice: individual, progressive, backwards
-- Inflation Trap
 - Mod compatibility and including some features in generation
   - Portable Micro Hub Receiver
   - Quad Stacker
@@ -52,13 +52,6 @@ Client mod for the Archipelago multiworld randomizer.
   - Plantz
   - Hexagonal
   - Diamond shape (original)
-- Option: Include whacky upgrades
-  - +10 
-  - x2 multiplier (sort of gamble item, the later you receive it the better)
-  - -3 trap
-  - x0.5 trap (the later you receive it the worse) 
-  - Disable traps on efficiency_iii goal
-  - random category +0.2 or +2
 - Option: additional upgrade categories, needs another datapackage setting
 - Time trials
   - trials to build a factory for a random shape in a limited time frame
@@ -66,6 +59,9 @@ Client mod for the Archipelago multiworld randomizer.
   - different difficulties based on available buildings and complexity
   - new tab in AP box with button for each trial to start and reveal the shape
   - New goal requiring all trials to be completed
+- More whacky upgrades:
+  - gigantic/rising/trap/demonic trap random upgrade
+  - random random upgrade (random size & category)
 
 ### More Randomization
 - Randomize blueprint shape
