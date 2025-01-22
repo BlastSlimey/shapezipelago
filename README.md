@@ -4,6 +4,8 @@ Client mod for the Archipelago multiworld randomizer.
 ## TODO list
 
 ### Bugs
+- level shapes bundle giving -1 shapes at some point
+- one item error preventing all following items from being received
 
 ### Technicalities 
 - Build input box in HUD class
