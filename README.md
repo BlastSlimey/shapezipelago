@@ -5,6 +5,8 @@ Client mod for the Archipelago multiworld randomizer.
 
 ### Bugs
 - level shapes bundle giving -1 shapes at some point
+- inflation traps leading to minor graphical bugs
+  - idea: save required shapes multiplier in save file
 
 ### Technicalities 
 - Build input box in HUD class
@@ -15,7 +17,6 @@ Client mod for the Archipelago multiworld randomizer.
 - Convert to TypeScript
 - Update archipelago.js to 2.0 (need fix for `structuredClone()`)
 - Store as many strings as possible in apworld in data subfolder
-- Rework ItemClassification Callable to accept options dataclass
 
 ### Client QoL
 - meantime offline playing
