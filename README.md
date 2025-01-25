@@ -5,7 +5,6 @@ Client mod for the Archipelago multiworld randomizer.
 
 ### Bugs
 - level shapes bundle giving -1 shapes at some point
-- one item error preventing all following items from being received
 
 ### Technicalities 
 - Build input box in HUD class
@@ -37,6 +36,13 @@ Client mod for the Archipelago multiworld randomizer.
   - If also added: Deliver bounty shape
   - 256 blueprint shapes per second to send goal (not saved if reached earlier)
 - Need some ideas for expanding upgrade requirements
+  - Idea: Amount of early phases (1-10, standard 1)
+  - Important: Look out for collisions with goal_amount
+  - Idea: Amount of shapes in late phase(s) (1-5, standard 3)
+  - Idea: Amount of shapes in early phase(s) (1-5, standard 5)
+  - Idea: Different modes:
+    - Standard (x early phase(s), 1 late phase)
+    - Alternate (x <early, late>)
 - producer with 100 "producable shape" items, options: no producer, yes producer, replace extractor
 - Expand shapesanity to 4 layers (blacklist needed!!!)
 - Option for how to unlock building variants, choice: individual, progressive, backwards
