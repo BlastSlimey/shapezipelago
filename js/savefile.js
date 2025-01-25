@@ -17,7 +17,12 @@ export function registerSavingData() {
             apdebuglog("Serialized with processed item count " + currentIngame.processedItemCount);
         }
     });
-    modImpl.signals.gameDeserialized.add((root, savegame) => {
+    modImpl.signals.gameDeserialized.add((/**@type GameRoot */root, savegame) => {
+        const lateInitializations = () => {
+            for (const entry in currentIngame.lateToolbarInitializations) {
+                currentIngame.lateToolbarInitializations[entry]();
+            }
+        };
         if (connection) {
             /*for (var modDataName in data.modExtraData) {
                 if (modDataName.startsWith("reward_")) {
@@ -29,21 +34,25 @@ export function registerSavingData() {
             }*/
             currentIngame.processedItemCount = savegame.modExtraData["processedItemCount"] || 0;
             apdebuglog("Deserialized with processed item count " + currentIngame.processedItemCount);
+            lateInitializations();
         } else {
             if (savegame.modExtraData["connectInfo"]) {
                 currentIngame.isTryingToConnect = true;
                 currentIngame.processedItemCount = savegame.modExtraData["processedItemCount"] || 0;
                 apdebuglog("Deserialized with processed item count " + currentIngame.processedItemCount);
-                const prom = new Connection().tryConnect(savegame.modExtraData["connectInfo"], processItemsPacket).finally(function () {
+                new Connection().tryConnect(savegame.modExtraData["connectInfo"], processItemsPacket).finally(function () {
                     // Resuming InGame stages
                     apdebuglog("Redeserializing data");
                     root.map.deserialize(savegame.map);
                     root.gameMode.deserialize(savegame.gameMode);
                     root.hubGoals.deserialize(savegame.hubGoals, root);
+                    lateInitializations();
                     apdebuglog("Switching to stage 5 after trying to connect");
                     root.app.gameAnalytics.handleGameResumed();
                     root.gameState.stage5FirstUpdate();
                 });
+            } else {
+                lateInitializations();
             }
         }
     });

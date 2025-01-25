@@ -251,7 +251,8 @@ export class Connection {
                 this.connectionInformation = connectinfo;
 
                 this.client.addListener(SERVER_PACKET_TYPE.PRINT_JSON, (packet, message) => {
-                    apuserlog(message);
+                    // @ts-ignore
+                    apuserlog((packet.slot != null ? this.client.players.name(packet.slot) + ": " : "") + message);
                 });
                 this.client.addListener(SERVER_PACKET_TYPE.RECEIVED_ITEMS, processItemsPacket);
                 
@@ -355,10 +356,15 @@ export class Connection {
                 this.complexityGrowthGradient = datacache == null ? 0.5 : Number(datacache);
                 apdebuglog(`Loaded slotData complexity_growth_gradient=${slotData["complexity_growth_gradient"]}`);
 
-                // undefined until at least 0.5.13
+                // undefined until at least 0.5.13, string since TBA
                 datacache = slotData["unlock_variant"];
                 this.unlockVariant = datacache == null ? "individual" : String(datacache);
                 apdebuglog(`Loaded slotData unlock_variant=${slotData["unlock_variant"]}`);
+
+                // undefined until 0.5.13, boolean since TBA
+                // Boolean(undefined) => false
+                this.isToolbarShuffled = Boolean(slotData["toolbar_shuffling"]);
+                apdebuglog(`Loaded slotData toolbar_shuffling=${slotData["toolbar_shuffling"]}`);
 
             })
             .catch((error) => {
@@ -475,6 +481,10 @@ export class Connection {
      * @type {string}
      */
     unlockVariant;
+    /**
+     * @type {boolean}
+     */
+    isToolbarShuffled;
 
     /**
      * 
@@ -624,6 +634,10 @@ export class Ingame {
      * @type {TypedSignal<[]>}
      */
     itemReceiveSignal = new Signal();
+    /**
+     * @type {Object<string, Function>}
+     */
+    lateToolbarInitializations = {};
 
     constructor() {
         apdebuglog("Constructing Ingame object");

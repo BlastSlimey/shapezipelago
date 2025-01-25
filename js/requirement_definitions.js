@@ -1,5 +1,7 @@
 import { RandomNumberGenerator } from "shapez/core/rng";
 import { apdebuglog, baseBuildingNames, connection, currentIngame, customRewards, modImpl } from "./global_data";
+import { ShapeDefinition } from "shapez/game/shape_definition";
+import { ShapeDefinitionManager } from "shapez/game/shape_definition_manager";
 
 export function vanillaShapes() {
     // No getAmountByLevel() because of mam goal and levelsToGenerate > 120
@@ -846,7 +848,8 @@ function stackLayers(bottom, newlayer, available, tasked, floatCutting) {
     if (connection.isFloatingLayersAllowed && available.rotator) { // rotator only ever available if cutter available
         if (floatCutting[0] != HORIZONTAL && 
             !(newlayer.substring(0, 4) !== "----" && bottom.substring(bottom.length-8, bottom.length-4) === "----") && 
-            !(newlayer.substring(4) !== "----" && bottom.substring(bottom.length-4) === "----")) {
+            !(newlayer.substring(4) !== "----" && bottom.substring(bottom.length-4) === "----")
+        ) {
             floatCutting[0] = VERTICAL;
             tasked.rotator = false;
             tasked.cutter = false;
@@ -855,12 +858,17 @@ function stackLayers(bottom, newlayer, available, tasked, floatCutting) {
         if (floatCutting[0] != VERTICAL && 
             !(newlayer.substring(2, 6) !== "----" && bottom.substring(bottom.length-6, bottom.length-2) === "----") && 
             !((newlayer.charAt(6) !== "-" || newlayer.charAt(0) !== "-") && 
-              (bottom.charAt(bottom.length-2) === "-" && bottom.charAt(bottom.length-8) === "-"))) {
+                (bottom.charAt(bottom.length-2) === "-" && bottom.charAt(bottom.length-8) === "-")
+            )
+        ) {
             floatCutting[0] = HORIZONTAL;
             tasked.rotator = false;
             tasked.cutter = false;
             return bottom + ":" + newlayer;
         }
+        // To prevent a rare bug leading to impossible shapes
+        if (floatCutting[0] != NONE)
+            return ShapeDefinition.fromShortKey(bottom).cloneAndStackWith(ShapeDefinition.fromShortKey(newlayer)).getHash();
     }
     let copy = bottom.substring(0, bottom.length-8);
     for (let i = 8; i > 0; i -= 2) {

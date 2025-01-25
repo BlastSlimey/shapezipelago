@@ -5,6 +5,7 @@ import { enumColorToShortcode } from "shapez/game/colors";
 import { enumHubGoalRewards } from "shapez/game/tutorial_goals";
 import { GameRoot } from "shapez/game/root";
 import { RandomNumberGenerator } from "shapez/core/rng";
+import { ShapeDefinitionManager } from "shapez/game/shape_definition_manager";
 
 /**
  * @type {{[x:string]: (root: GameRoot, resynced: Boolean, index: number) => String}}
@@ -126,7 +127,7 @@ export const receiveItemFunctions = {
         for (let category in currentIngame.upgradeDefs) {
             for (let tier of currentIngame.upgradeDefs[category]) {
                 for (let next of tier.required) {
-                    const remaining = next.amount - (root.hubGoals.storedShapes[next.shape] || 0);
+                    let remaining = next.amount - (root.hubGoals.storedShapes[next.shape] || 0);
                     upgrades[next.shape] = (
                         upgrades[next.shape] == null ? 
                         // If this shape wasn't written down yet, just use the calculated remaining
@@ -435,8 +436,16 @@ export const receiveItemFunctions = {
         connection.requiredShapesMultiplier++;
         currentIngame.levelDefs = null;
         currentIngame.upgradeDefs = null;
+        currentIngame.amountByLevelCache = null;
         root.gameMode.getLevelDefinitions();
         root.gameMode.getUpgrades();
+        root.hubGoals.computeNextGoal();
+        const currentHash = root.hubGoals.currentGoal.definition.getHash();
+        const currentStored = root.hubGoals.storedShapes[currentHash] || 0;
+        root.hubGoals.storedShapes[currentHash] = currentStored - 1;
+        setTimeout(() => {
+            root.hubGoals.storedShapes[currentHash]++;
+        }, 800);
         return "";
     },
 };
@@ -540,16 +549,19 @@ export function processItemsPacket(packet) {
  */
 function receiveItem(item, showInfo, resynced, index) {
     const itemName = connection.getItemName(item.item);
-    const message = receiveItemFunctions[itemName](currentIngame.root, resynced, index);
+    let message = ": [ERROR]";
+    aptry("Item receiving failed", () => {
+        message = receiveItemFunctions[itemName](currentIngame.root, resynced, index);
+    });
     apdebuglog("Processed item " + itemName + message);
     if (showInfo) {
         const sendingPlayerName = connection.getPlayername(item.player);
         const foundLocationName = connection.getLocationName(item.player, item.location);
         modImpl.dialogs.showInfo(shapez.T.mods.shapezipelago.itemReceivingBox.title.single, 
             shapez.T.mods.shapezipelago.itemReceivingBox.item[itemName] + message + "<br />" + 
-                shapez.T.mods.shapezipelago.itemReceivingBox.foundBy
-                    .replace("<player>", sendingPlayerName)
-                    .replace("<location>", foundLocationName));
+            shapez.T.mods.shapezipelago.itemReceivingBox.foundBy
+            .replace("<player>", sendingPlayerName).replace("<location>", foundLocationName)
+        );
         return "";
     } else {
         return shapez.T.mods.shapezipelago.itemReceivingBox.item[itemName] + message;

@@ -3,14 +3,14 @@ import { RandomNumberGenerator } from "shapez/core/rng";
 import { categoryRandomUpgradeShapes, categoryUpgradeShapes, hardcoreUpgradeShapes, linearUpgradeShapes, randomizedHardcoreDopamineShapes, randomizedQuickShapes, randomizedRandomStepsShapes, randomizedStretchedShapes, randomizedVanillaStepsShapes, vanillaLikeUpgradeShapes, vanillaShapes, vanillaUpgradeShapes } from "./requirement_definitions";
 import { checkLocation, shapesanityAnalyzer } from "./server_communication";
 import { enumAnalyticsDataSource } from "shapez/game/production_analytics";
-import { defaultBuildingVariant } from "shapez/game/meta_building";
+import { defaultBuildingVariant, MetaBuilding } from "shapez/game/meta_building";
 import { enumPainterVariants } from "shapez/game/buildings/painter";
 import { ShapeDefinition } from "shapez/game/shape_definition";
 import { enumItemProcessorTypes } from "shapez/game/components/item_processor";
 import { ACHIEVEMENTS } from "shapez/platform/achievement_provider";
 import { GameRoot } from "shapez/game/root";
 import { AchievementLocationProxy } from "./achievements";
-import { randomInt } from "shapez/core/utils";
+import { makeDiv, randomInt, removeAllChildren } from "shapez/core/utils";
 import { gMetaBuildingRegistry } from "shapez/core/global_registries";
 import { MetaHubBuilding } from "shapez/game/buildings/hub";
 import { Vector } from "shapez/core/vector";
@@ -19,6 +19,10 @@ import { enumHubGoalRewards } from "shapez/game/tutorial_goals";
 import { enumCutterVariants } from "shapez/game/buildings/cutter";
 import { enumRotaterVariants } from "shapez/game/buildings/rotater";
 import { GAME_LOADING_STATES } from "shapez/states/ingame";
+import { getBuildingDataFromCode } from "shapez/game/building_codes";
+import { enumMinerVariants, MetaMinerBuilding } from "shapez/game/buildings/miner";
+import { HUDBaseToolbar } from "shapez/game/hud/parts/base_toolbar";
+import { KEYMAPPINGS } from "shapez/game/key_action_mapper";
 
 export function overrideGameMode() {
     apdebuglog("Calling overrideGameMode");
@@ -27,12 +31,7 @@ export function overrideGameMode() {
             aptry("Upgrade definitions failed", () => {
                 if (!currentIngame.upgradeDefs) {
                     apdebuglog("Calculating upgrade definitions");
-                    const gameLoadingOverlay = document.body.getElementsByClassName("gameLoadingOverlay").item(0);
-                    const prefab_GameHint = gameLoadingOverlay.getElementsByClassName("prefab_GameHint").item(0);
-                    const original_message = prefab_GameHint.innerHTML;
-                    prefab_GameHint.innerHTML = shapez.T.mods.shapezipelago.loadingSplash.upgrades;
                     currentIngame.upgradeDefs = calcUpgradeDefinitions();
-                    prefab_GameHint.innerHTML = original_message;
                     // MOD_SIGNALS.modifyUpgrades.dispatch(currentIngame.upgradeDefs);
                 }
             });
@@ -46,12 +45,7 @@ export function overrideGameMode() {
             aptry("Level definitions failed", () => {
                 if (!currentIngame.levelDefs) {
                     apdebuglog("Calculating level definitions");
-                    const gameLoadingOverlay = document.body.getElementsByClassName("gameLoadingOverlay").item(0);
-                    const prefab_GameHint = gameLoadingOverlay.getElementsByClassName("prefab_GameHint").item(0);
-                    const original_message = prefab_GameHint.innerHTML;
-                    prefab_GameHint.innerHTML = shapez.T.mods.shapezipelago.loadingSplash.levels;
                     currentIngame.levelDefs = calcLevelDefinitions();
-                    prefab_GameHint.innerHTML = original_message;
                     // MOD_SIGNALS.modifyLevelDefinitions.dispatch(currentIngame.levelDefs);
                 }
             });
@@ -174,8 +168,11 @@ export function overrideLocationsListenToItems() {
             if (connection.goal === "efficiency_iii") {
                 currentIngame.startEfficiency3Interval(() => {
                     aptry("Efficiency III failed", () => {
-                        if (currentIngame.root.productionAnalytics.getCurrentShapeRateRaw(enumAnalyticsDataSource.delivered, 
-                            currentIngame.root.shapeDefinitionMgr.getShapeFromShortKey(connection.blueprintShape)) / 10 >= 256) {
+                        const currentRateRaw = currentIngame.root.productionAnalytics.getCurrentShapeRateRaw(
+                            enumAnalyticsDataSource.delivered, 
+                            currentIngame.root.shapeDefinitionMgr.getShapeFromShortKey(connection.blueprintShape)
+                        );
+                        if (currentRateRaw / globalConfig["analyticsSliceDurationSeconds"] >= 256) {
                             checkLocation("Checked", true);
                         }
                     });
@@ -507,7 +504,7 @@ export function overrideBuildings() {
             colorized
         ));
     });
-    // switching layers
+    // keyboard button pressing
     modImpl.modInterface.replaceMethod(shapez.HUDWiresOverlay, "switchLayers", function ($original, []) {
         if (!connection) {
             $original();
@@ -523,6 +520,54 @@ export function overrideBuildings() {
             this.root.currentLayer = "regular";
         }
         this.root.signals.editModeChanged.dispatch(this.root.currentLayer);
+    });
+    modImpl.modInterface.replaceMethod(shapez.HUDBuildingPlacerLogic, "startPipette", function ($original, []) {
+        if (this.root.camera.getIsMapOverlayActive()) return;
+        const mousePosition = this.root.app.mousePosition;
+        if (!mousePosition) return;
+        const worldPos = this.root.camera.screenToWorld(mousePosition);
+        const tile = worldPos.toTileSpace();
+        const contents = this.root.map.getTileContent(tile, this.root.currentLayer);
+        if (!contents) {
+            const tileBelow = this.root.map.getLowerLayerContentXY(tile.x, tile.y);
+            if (
+                tileBelow &&
+                this.root.app.settings.getAllSettings().pickMinerOnPatch &&
+                this.root.currentLayer === "regular" &&
+                this.root.gameMode.hasResources() &&
+                (this.root.hubGoals.isRewardUnlocked(customRewards.extractor) 
+                || this.root.hubGoals.isRewardUnlocked(enumHubGoalRewards.reward_miner_chainable))
+            ) {
+                this.currentMetaBuilding.set(gMetaBuildingRegistry.findByClass(MetaMinerBuilding));
+                if (this.root.hubGoals.isRewardUnlocked(enumHubGoalRewards.reward_miner_chainable)) {
+                    this.currentVariant.set(enumMinerVariants.chainable);
+                }
+            } else {
+                this.currentMetaBuilding.set(null);
+            }
+            return;
+        }
+        const buildingCode = contents.components.StaticMapEntity.code;
+        const extracted = getBuildingDataFromCode(buildingCode);
+        if (extracted.metaInstance.getId() === gMetaBuildingRegistry.findByClass(MetaHubBuilding).getId()) {
+            this.currentMetaBuilding.set(null);
+            return;
+        }
+        if (this.root.gameMode.isBuildingExcluded(extracted.metaClass)) {
+            this.currentMetaBuilding.set(null);
+            return;
+        }
+        if (
+            this.currentMetaBuilding.get() &&
+            extracted.metaInstance.getId() === this.currentMetaBuilding.get().getId() &&
+            extracted.variant === this.currentVariant.get()
+        ) {
+            this.currentMetaBuilding.set(null);
+            return;
+        }
+        this.currentMetaBuilding.set(extracted.metaInstance);
+        this.currentVariant.set(extracted.variant);
+        this.currentBaseRotation = contents.components.StaticMapEntity.rotation;
     });
     // getAdditionalStatistics
     modImpl.modInterface.replaceMethod(shapez.MetaMinerBuilding, methodNames.metaBuildings.getAdditionalStatistics, function ($original, [root, variant]) {
@@ -594,6 +639,48 @@ export function overrideBuildings() {
                 .toFixed(1).replace(".", shapez.T.global.decimalSeparator)
         ]);
         return stats;
+    });
+    // Cosmetic randomization and shuffling
+    modImpl.modInterface.replaceMethod(shapez.HUDBaseToolbar, "initialize", function ($original, []) {
+        aptry("Toolbar initializing failed", () => {
+            // This code is used in 2 seperate places
+            const shuffle = () => {
+                /**
+                 * @type {Array<typeof MetaBuilding>}
+                 */
+                let allBuildings = this.allBuildings.slice();
+                let random = new RandomNumberGenerator(connection.clientSeed);
+                this.primaryBuildings = [];
+                this.secondaryBuildings = [];
+                while (allBuildings.length) {
+                    let nextBuilding = allBuildings.splice(random.nextIntRange(0, allBuildings.length), 1)[0];
+                    if (this.primaryBuildings.length >= 12 || random.choice([true, false]))
+                        this.secondaryBuildings.push(nextBuilding);
+                    else
+                        this.primaryBuildings.push(nextBuilding);
+                }
+                if (this.primaryBuildings.length == 0) {
+                    this.primaryBuildings.push(this.secondaryBuildings.pop());
+                }
+            };
+            /**@type {GameRoot} */
+            const root = this.root;
+            if (!root.savegame.hasGameDump()) {
+                apdebuglog("Initializing toolbar");
+                if (connection && connection.isToolbarShuffled) {
+                    shuffle();
+                }
+                $original();
+            } else {
+                currentIngame.lateToolbarInitializations[this.htmlElementId] = () => {
+                    apdebuglog("Late initializing toolbar");
+                    if (connection && connection.isToolbarShuffled) {
+                        shuffle();
+                    }
+                    $original();
+                };
+            }
+        });
     });
 }
 
