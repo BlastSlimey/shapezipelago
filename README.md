@@ -62,6 +62,7 @@ Client mod for the Archipelago multiworld randomizer.
   - Hexagonal
   - Diamond shape (original)
 - Option: additional upgrade categories, needs another datapackage setting
+- Stuck Belts Trap
 - Time trials
   - trials to build a factory for a random shape in a limited time frame
   - adjustable punishment
