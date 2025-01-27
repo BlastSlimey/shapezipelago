@@ -4,7 +4,9 @@ Client mod for the Archipelago multiworld randomizer.
 ## TODO list
 
 ### Bugs
-- level shapes bundle giving -1 shapes at some point
+- level shapes bundle giving -1 shapes at some point (1 occurence so far)
+- high required shape multiplier not working correctly at high level amount
+- achievement proxy not initializing if connected after deserialization because it happens before deserialization
 - inflation traps leading to minor graphical bugs
   - idea: save required shapes multiplier in save file
 
