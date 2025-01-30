@@ -21,7 +21,6 @@ Client mod for the Archipelago multiworld randomizer.
 - Update archipelago.js to 2.0 (need fix for `structuredClone()`)
 - Store as many strings as possible in apworld in data subfolder
 - Rework shapesanity data transfer and processing
-- Prevent UT functionalities if there is no UT
 
 ### Client QoL
 - meantime offline playing
@@ -70,6 +69,7 @@ Client mod for the Archipelago multiworld randomizer.
   - Diamond shape (original)
 - Option: additional upgrade categories, needs another datapackage setting
 - Stuck Belts Trap
+- Long belt helper hotkey as an item
 - Time trials
   - trials to build a factory for a random shape in a limited time frame
   - adjustable punishment
