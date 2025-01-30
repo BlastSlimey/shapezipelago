@@ -9,6 +9,7 @@ Client mod for the Archipelago multiworld randomizer.
 - achievement proxy not initializing if connected after deserialization because it happens before deserialization
 - inflation traps leading to minor graphical bugs
   - idea: save required shapes multiplier in save file
+  - idea: only works after current level, every trap saves its current level 
 
 ### Technicalities 
 - Build input box in HUD class
