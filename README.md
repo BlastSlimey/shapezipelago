@@ -29,6 +29,7 @@ Client mod for the Archipelago multiworld randomizer.
   - when connected replace ap inventory, else load from save file
 - Text box (read only), received non-progression items only there
 - Details when checking Level location, override hud
+- Automatic reconnecting after losing connection mid-game 
  
 ### APWorld Qol
 
