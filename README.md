@@ -32,6 +32,7 @@ Client mod for the Archipelago multiworld randomizer.
 - Automatic reconnecting after losing connection mid-game 
  
 ### APWorld Qol
+- Define achievement logic better
 
 ### Gameplay
 - Something with energy link
