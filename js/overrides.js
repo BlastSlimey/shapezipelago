@@ -141,11 +141,9 @@ export function overrideLocationsListenToItems() {
         currentIngame.itemReceiveSignal.add(this.rerenderFull, this);
     });
     modImpl.signals.gameInitialized.add(function (/** @type {GameRoot} */ root) {
-        if (connection) {
-            aptry("AchievementProxy contruction failed", () => {
-                root.achievementProxy = new AchievementLocationProxy(root);
-            });
-        }
+        aptry("AchievementProxy contruction failed", () => {
+            root.achievementProxy = new AchievementLocationProxy(root);
+        });
     });
     modImpl.signals.gameStarted.add(function (/** @type {GameRoot} */ root) {
         if (connection) {

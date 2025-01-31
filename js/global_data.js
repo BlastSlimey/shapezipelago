@@ -1,4 +1,4 @@
-import { Client, CLIENT_PACKET_TYPE, CLIENT_STATUS, SERVER_PACKET_TYPE } from "archipelago.js";
+import { Client, CLIENT_PACKET_TYPE, CLIENT_STATUS, CONNECTION_STATUS, SERVER_PACKET_TYPE } from "archipelago.js";
 import { Dialog } from "shapez/core/modal_dialog_elements";
 import { Signal } from "shapez/core/signal";
 import { GameRoot } from "shapez/game/root";
@@ -234,6 +234,7 @@ export var connection;
 export class Connection {
 
     client = new Client();
+    disconnectListener = null;
 
     /**
      * @param {{hostname: string;port: number;game: string;name: string;items_handling: number;password: string;protocol?: "ws" | "wss";version?: {major: number;minor: number;build: number;};uuid?: string;tags?: string[];}} connectinfo
@@ -255,6 +256,16 @@ export class Connection {
                     apuserlog((packet.slot != null ? this.client.players.name(packet.slot) + ": " : "") + message);
                 });
                 this.client.addListener(SERVER_PACKET_TYPE.RECEIVED_ITEMS, processItemsPacket);
+                this.disconnectListener = setInterval(() => {
+                    if (this.client.status === CONNECTION_STATUS.DISCONNECTED) {
+                        modImpl.dialogs.showInfo(
+                            shapez.T.mods.shapezipelago.connectionLostBox.title,
+                            shapez.T.mods.shapezipelago.connectionLostBox.message
+                        );
+                        window.clearInterval(this.disconnectListener);
+                        this.disconnectListener = null;
+                    }
+                }, 5000);
                 
                 this.gamepackage = this.client.data.package.get("shapez");
 
@@ -374,6 +385,10 @@ export class Connection {
 
     disconnect() {
         apuserlog("Disconnecting from the server");
+        if (this.disconnectListener) {
+            window.clearInterval(this.disconnectListener);
+            this.disconnectListener = null;
+        }
         this.client.disconnect();
         connection = null;
     }

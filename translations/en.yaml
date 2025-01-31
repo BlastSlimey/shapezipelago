@@ -232,6 +232,9 @@ mods:
         time: for <x> seconds
     statisticsBox:
       perBelt: Per belt
+    connectionLostBox:
+      title: Connection lost
+      message: The game lost connection to the server. Please return to the main menu and open the save file again.
     loadingSplash:
       upgrades: >-
         Generating upgrade shapes...

@@ -374,28 +374,20 @@ function getAmountByLevel(level) {
             currentIngame.amountByLevelCache[i] -= currentIngame.amountByLevelCache[i] % 500;
         }
     } else {
-        const earlyLevels = Math.floor(connection.levelsToGenerate*1/5);
-        const buildupLevels = Math.floor(connection.levelsToGenerate*3/5);
-        const earlyToBuildupLevels = buildupLevels-earlyLevels;
-        const remainingAfterBuildup = connection.levelsToGenerate-buildupLevels
-        for (var i = 0; i < earlyLevels; i++) {
-            currentIngame.amountByLevelCache[i] = Math.ceil((30*(i+1))*connection.requiredShapesMultiplier/10);
+        const phaseA = Math.floor(connection.levelsToGenerate*1/5);
+        const phaseB = Math.floor((connection.levelsToGenerate-phaseA)/2);
+        const phaseC = connection.levelsToGenerate-phaseA-phaseB;
+        const amountA = phaseA*30, amountB = 50000, amountC = 200000;
+        const stepB = (amountB-amountA)/phaseB, stepC = (amountC-amountB)/phaseC;
+        const reqMultiplier = connection.requiredShapesMultiplier/10;
+        for (let i = 0; i < phaseA; i++) {
+            currentIngame.amountByLevelCache[i] = Math.ceil(30*(i+1)*reqMultiplier);
         }
-        const buildupAmount = currentIngame.amountByLevelCache[earlyLevels-1];
-        const buildupNeeded = 50000-buildupAmount;
-        for (var i = earlyLevels; i < buildupLevels; i++) {
-            currentIngame.amountByLevelCache[i] = Math.ceil(
-                (buildupAmount+(buildupNeeded)*(i+1-earlyLevels)/earlyToBuildupLevels)*connection.requiredShapesMultiplier/10
-            );
-            currentIngame.amountByLevelCache[i] -= currentIngame.amountByLevelCache[i] % 500;
+        for (let i = 0; i < phaseB; i++) {
+            currentIngame.amountByLevelCache[i+phaseA] = polishNumber(Math.ceil((amountA+stepB*(i+1))*reqMultiplier));
         }
-        const lateAmount = currentIngame.amountByLevelCache[buildupLevels-1];
-        const lateNeeded = 200000-lateAmount;
-        for (var i = buildupLevels; i < connection.levelsToGenerate; i++) {
-            currentIngame.amountByLevelCache[i] = Math.ceil(
-                (lateAmount+(lateNeeded)*(i+1-buildupLevels)/remainingAfterBuildup)*connection.requiredShapesMultiplier/10
-            );
-            currentIngame.amountByLevelCache[i] -= currentIngame.amountByLevelCache[i] % 500;
+        for (let i = 0; i < phaseC; i++) {
+            currentIngame.amountByLevelCache[i+phaseB] = polishNumber(Math.ceil((amountB+stepC*(i+1))*reqMultiplier));
         }
     }
     return currentIngame.amountByLevelCache[level-1];
@@ -405,12 +397,14 @@ function getAmountByLevel(level) {
  * @param {number} level
  */
 function getThroughputByLevel(level) {
+    // This calculation has to stay that way, or else logic might break
     if (currentIngame.throughputByLevelCache)
         return currentIngame.throughputByLevelCache[level-1];
     currentIngame.throughputByLevelCache = new Array(connection.levelsToGenerate);
     for (var i = 0; i < 26; i++) {
         currentIngame.throughputByLevelCache[i] = Math.ceil((2.999+i*0.333)*connection.requiredShapesMultiplier/10);
     }
+    // Vanilla throughput if required multiplier == 10, max 200 is important!
     for (var i = 26; i < connection.levelsToGenerate; i++) {
         currentIngame.throughputByLevelCache[i] = Math.min((4+(i-26)*0.25)*connection.requiredShapesMultiplier/10, 200);
     }
@@ -423,6 +417,25 @@ function getThroughputByLevel(level) {
  */
 function getGrowingComplexity(base, step) {
     return Math.floor(base + connection.complexityGrowthGradient * step);
+}
+
+/**
+ * @param {number} num
+ */
+function polishNumber(num) {
+    if (num < 20) return num;
+    if (num < 100) return num - (num % 5);
+    let pow10 = 0, num2 = num;
+    while (num2 >= 10) {
+        pow10++;
+        num2 /= 10;
+    }
+    if (num < 10000) {
+        if (num2 < 4) return num - (num % Math.pow(10, pow10-1));
+        else return num - (num % (5 * Math.pow(10, pow10-1)));
+    } else {
+        return num - (num % (5* Math.pow(10, pow10-2)));
+    }
 }
 
 export function vanillaUpgradeShapes() {

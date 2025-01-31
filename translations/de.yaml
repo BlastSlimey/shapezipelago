@@ -232,6 +232,9 @@ mods:
         time: für <x> Sekunden
     statisticsBox:
       perBelt: Pro Fließband
+    connectionLostBox:
+      title: Verbindungsabbruch
+      message: Das Spiel hat die Verbindung zum Server verloren. Kehre bitte zum Hauptmenü zurück und öffne den Spielstand erneut.
     loadingSplash:
       upgrades: >-
         Generiere Upgradeformen...

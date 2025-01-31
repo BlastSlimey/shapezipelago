@@ -6,6 +6,8 @@ import { enumHubGoalRewards } from "shapez/game/tutorial_goals";
 import { GameRoot } from "shapez/game/root";
 import { RandomNumberGenerator } from "shapez/core/rng";
 import { ShapeDefinitionManager } from "shapez/game/shape_definition_manager";
+import { globalConfig } from "shapez/core/config";
+import { smoothenDpi } from "shapez/core/dpi_manager";
 
 /**
  * @type {{[x:string]: (root: GameRoot, resynced: Boolean, index: number) => String}}
@@ -440,12 +442,9 @@ export const receiveItemFunctions = {
         root.gameMode.getLevelDefinitions();
         root.gameMode.getUpgrades();
         root.hubGoals.computeNextGoal();
-        const currentHash = root.hubGoals.currentGoal.definition.getHash();
-        const currentStored = root.hubGoals.storedShapes[currentHash] || 0;
-        root.hubGoals.storedShapes[currentHash] = currentStored - 1;
-        setTimeout(() => {
-            root.hubGoals.storedShapes[currentHash]++;
-        }, 800);
+        root.hud.parts["pinnedShapes"].rerenderFull();
+        root.buffers.cache.delete("hub");
+        root.hud.update();
         return "";
     },
 };
