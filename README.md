@@ -4,12 +4,7 @@ Client mod for the Archipelago multiworld randomizer.
 ## TODO list
 
 ### Bugs
-- level shapes bundle giving -1 shapes at some point (1 occurence so far)
-- high required shape multiplier not working correctly at high level amount
-- achievement proxy not initializing if connected after deserialization because it happens before deserialization
-- inflation traps leading to minor graphical bugs
-  - idea: save required shapes multiplier in save file
-  - idea: only works after current level, every trap saves its current level 
+- level shapes bundle giving -1 shapes at some point (2 occurences so far)
 
 ### Technicalities 
 - Build input box in HUD class
@@ -19,7 +14,6 @@ Client mod for the Archipelago multiworld randomizer.
 - Rework building overrides for future mod compatibility
 - Convert to TypeScript
 - Update archipelago.js to 2.0 (need fix for `structuredClone()`)
-- Store as many strings as possible in apworld in data subfolder
 - Rework shapesanity data transfer and processing
 
 ### Client QoL
@@ -29,10 +23,8 @@ Client mod for the Archipelago multiworld randomizer.
   - when connected replace ap inventory, else load from save file
 - Text box (read only), received non-progression items only there
 - Details when checking Level location, override hud
-- Automatic reconnecting after losing connection mid-game 
  
 ### APWorld Qol
-- Define achievement logic better
 
 ### Gameplay
 - Something with energy link
@@ -69,6 +61,7 @@ Client mod for the Archipelago multiworld randomizer.
   - Diamond shape (original)
 - Option: additional upgrade categories, needs another datapackage setting
 - Stuck Belts Trap
+- Canvas clearing trap (via `GameLogic.clearAllBeltsAndItems()`)
 - Long belt helper hotkey as an item
 - Time trials
   - trials to build a factory for a random shape in a limited time frame
