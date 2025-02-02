@@ -28,13 +28,19 @@ Client mod for the Archipelago multiworld randomizer.
 
 ### Gameplay
 - Something with energy link
+  - idea: blueprint shape
+  - idea: AP logo resembling shape (Dragion)
+  - idea: building for sending and receiving energy (Dragion)
+  - idea: disable blueprint achievements when energy link active
 - Add bounty goal: collect mcguffins, enough of them reveal bounty (always fully randomized shape with up to 4 layers), checking that sends goal (not without enough mcguffins)
+  - idea: mcguffins are called customer requirements (Boo)
 - Add Maximum goal: all other goals combined
   - All levels up to goal_amount
   - All upgrades up to goal_amount
   - If also added: Deliver bounty shape
   - 256 blueprint shapes per second to send goal (not saved if reached earlier)
 - Need some ideas for expanding upgrade requirements
+  - idea: patterns per category (Dragion)
   - Idea: Amount of early phases (1-10, standard 1)
   - Important: Look out for collisions with goal_amount
   - Idea: Amount of shapes in late phase(s) (1-5, standard 3)
