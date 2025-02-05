@@ -68,6 +68,7 @@ Client mod for the Archipelago multiworld randomizer.
   - Hexagonal
   - Diamond shape (original)
 - Option: additional upgrade categories, needs another datapackage setting
+- task-based read-only implementation
 - Stuck Belts Trap
 - Canvas clearing trap (via `GameLogic.clearAllBeltsAndItems()`)
 - Long belt helper hotkey as an item
