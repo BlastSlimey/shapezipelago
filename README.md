@@ -15,6 +15,7 @@ Client mod for the Archipelago multiworld randomizer.
 - Convert to TypeScript
 - Update archipelago.js to 2.0 (need fix for `structuredClone()`)
 - Rework shapesanity data transfer and processing
+- use missingLocations when resyncing to reduce traffic
 
 ### Client QoL
 - meantime offline playing
