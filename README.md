@@ -16,6 +16,7 @@ Client mod for the Archipelago multiworld randomizer.
 - Update archipelago.js to 2.0 (need fix for `structuredClone()`)
 - Rework shapesanity data transfer and processing
 - use missingLocations when resyncing to reduce traffic
+- use missingLocations and checkedLocations to correctly display which achievement locations are included
 
 ### Client QoL
 - meantime offline playing
