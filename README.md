@@ -4,7 +4,7 @@ Client mod for the Archipelago multiworld randomizer.
 ## TODO list
 
 ### Bugs
-- level shapes bundle giving -1 shapes at some point (2 occurences so far)
+- Connection details erased from save file if connecting failed
 
 ### Technicalities 
 - Build input box in HUD class
@@ -26,6 +26,7 @@ Client mod for the Archipelago multiworld randomizer.
 - Text box (read only), received non-progression items only there
 - Details when checking Level location, override hud
 - Make windmills more rare in shape generator
+- Automatic reconnecting if connection lost
  
 ### APWorld Qol
 
