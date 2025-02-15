@@ -4,7 +4,6 @@ Client mod for the Archipelago multiworld randomizer.
 ## TODO list
 
 ### Bugs
-- Connection details erased from save file if connecting failed
 
 ### Technicalities 
 - Build input box in HUD class
@@ -15,8 +14,6 @@ Client mod for the Archipelago multiworld randomizer.
 - Convert to TypeScript
 - Update archipelago.js to 2.0 (need fix for `structuredClone()`)
 - Rework shapesanity data transfer and processing
-- use missingLocations when resyncing to reduce traffic
-- use missingLocations and checkedLocations to correctly display which achievement locations are included
 
 ### Client QoL
 - meantime offline playing
@@ -25,7 +22,6 @@ Client mod for the Archipelago multiworld randomizer.
   - when connected replace ap inventory, else load from save file
 - Text box (read only), received non-progression items only there
 - Details when checking Level location, override hud
-- Make windmills more rare in shape generator
 - Automatic reconnecting if connection lost
  
 ### APWorld Qol
@@ -71,8 +67,6 @@ Client mod for the Archipelago multiworld randomizer.
   - Diamond shape (original)
 - Option: additional upgrade categories, needs another datapackage setting
 - task-based read-only implementation
-- Stuck Belts Trap
-- Canvas clearing trap (via `GameLogic.clearAllBeltsAndItems()`)
 - Long belt helper hotkey as an item
 - Time trials
   - trials to build a factory for a random shape in a limited time frame
@@ -80,9 +74,6 @@ Client mod for the Archipelago multiworld randomizer.
   - different difficulties based on available buildings and complexity
   - new tab in AP box with button for each trial to start and reveal the shape
   - New goal requiring all trials to be completed
-- More whacky upgrades:
-  - gigantic/rising/trap/demonic trap random upgrade
-  - random random upgrade (random size & category)
 
 ### More Randomization
 - Randomize blueprint shape
