@@ -65,6 +65,7 @@ Client mod for the Archipelago multiworld randomizer.
   - Plantz
   - Hexagonal
   - Diamond shape (original)
+  - Non-constant signal (original) 
 - Option: additional upgrade categories, needs another datapackage setting
 - task-based read-only implementation
 - Long belt helper hotkey as an item
