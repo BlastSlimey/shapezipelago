@@ -29,6 +29,7 @@ Client mod for the Archipelago multiworld randomizer.
   - something about the bucket
  
 ### APWorld Qol
+- Make list of compatible utility mods
 
 ### Gameplay
 - Something with energy link
