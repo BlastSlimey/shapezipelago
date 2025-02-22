@@ -23,6 +23,10 @@ Client mod for the Archipelago multiworld randomizer.
 - Text box (read only), received non-progression items only there
 - Details when checking Level location, override hud
 - Automatic reconnecting if connection lost
+- make even_fasterer goal collaborytive using datastorage
+- More splash tips
+  - something about random yamls and even_fasterer goal
+  - something about the bucket
  
 ### APWorld Qol
 
