@@ -4,6 +4,7 @@ Client mod for the Archipelago multiworld randomizer.
 ## TODO list
 
 ### Bugs
+- shapesanity cheat sheet broken
 
 ### Technicalities 
 - Build input box in HUD class
