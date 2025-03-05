@@ -57,6 +57,7 @@ Client mod for the Archipelago multiworld randomizer.
 - producer with 100 "producable shape" items, options: no producer, yes producer, replace extractor
 - Expand shapesanity to 4 layers (blacklist needed!!!)
 - Option for how to unlock building variants, choice: individual, progressive, backwards
+- Add option to automatically complete and skip checked levels and upgrades
 - Mod compatibility and including some features in generation
   - Portable Micro Hub Receiver
   - Quad Stacker
