@@ -5,6 +5,7 @@ Client mod for the Archipelago multiworld randomizer.
 
 ### Bugs
 - shapesanity cheat sheet broken
+- logic error for floating shapes with quad cutter but no half cutter
 
 ### Technicalities 
 - Build input box in HUD class
