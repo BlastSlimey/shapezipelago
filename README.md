@@ -76,7 +76,6 @@ Client mod for the Archipelago multiworld randomizer.
   - Diamond shape (original)
   - Non-constant signal (original) 
 - Option: additional upgrade categories, needs another datapackage setting
-- task-based read-only implementation
 - Long belt helper hotkey as an item
 - Time trials
   - trials to build a factory for a random shape in a limited time frame
@@ -84,6 +83,11 @@ Client mod for the Archipelago multiworld randomizer.
   - different difficulties based on available buildings and complexity
   - new tab in AP box with button for each trial to start and reveal the shape
   - New goal requiring all trials to be completed
+
+### More mods/implementations
+- Better freeplay shape generator (just copy from this mod) 
+- task-based read-only implementation
+- Offline randomizer
 
 ### More Randomization
 - Randomize blueprint shape
