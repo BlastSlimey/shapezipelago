@@ -1,5 +1,4 @@
 import { Client, CLIENT_PACKET_TYPE, CLIENT_STATUS, CONNECTION_STATUS, SERVER_PACKET_TYPE } from "archipelago.js";
-import { Dialog } from "shapez/core/modal_dialog_elements";
 import { Signal } from "shapez/core/signal";
 import { GameRoot } from "shapez/game/root";
 import { enumHubGoalRewards } from "shapez/game/tutorial_goals";
@@ -180,7 +179,7 @@ export function apdebuglog(message) {
  * @param {string} message
  */
 export function apassert(condition, message) {
-    if (!condition) apthrow(message, new Error(message));
+    if (!condition) apthrow(message, new Error(message), true);
 }
 
 /**
@@ -191,15 +190,16 @@ export function aptry(title, code) {
     try {
         return code();
     } catch (error) {
-        apthrow(title, error);
+        apthrow(title, error, false);
     }
 }
 
 /**
  * @param {string} message
  * @param {Error} error
+ * @param {boolean} shouldThrowCompletely
  */
-function apthrow(message, error) {
+function apthrow(message, error, shouldThrowCompletely) {
     const text = (
         message + "<br />---<br />" + 
         error.stack.replaceAll("<", "").replaceAll(">", "").replaceAll("    at ", "<br />- at ")
@@ -211,7 +211,10 @@ function apthrow(message, error) {
     } else {
         modImpl.dialogs.showInfo(shapez.T.mods.shapezipelago.infoBox.aptry.title, text);
     }
-    throw error;
+    if (!shouldThrowCompletely) setTimeout(() => {
+        throw error;
+    });
+    else throw error;
 }
 
 /**
@@ -653,6 +656,10 @@ export class Ingame {
      * @type {Object<string, Function>}
      */
     lateToolbarInitializations = {};
+    /**
+     * @type {{ hostname: string; port: number; game: string; name: string; items_handling: number; password: string; protocol?: "ws" | "wss"; version?: { major: number; minor: number; build: number; }; uuid?: string; tags?: string[]; }}
+     */
+    connectionInformation;
 
     constructor() {
         apdebuglog("Constructing Ingame object");

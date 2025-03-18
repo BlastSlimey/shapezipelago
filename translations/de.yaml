@@ -129,6 +129,7 @@ mods:
       shop: Geschenkeshop geöffnet
       notRandomized: Nicht gerandomized
       shopNone: Nicht implementiert
+      clearCanvasButton: Fließbänder von Formen und Farben bereinigen
     achievementsBox:
       title: Achievements
       disabled: Deaktiviert
@@ -221,6 +222,7 @@ mods:
         Demonic Painting Upgrade Trap: Dämonische Färbeupgradefalle
         Big Random Upgrade: Großes zufälliges Upgrade
         Small Random Upgrade: Kleines zufälliges Upgrade
+        Belts Clearing Trap: Fließbandentleerungsfalle
       foundBy: gefunden von <player> in <location>
       extraInfo:
         upgradeId:

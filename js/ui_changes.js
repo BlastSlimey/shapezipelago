@@ -6,7 +6,6 @@ import { BaseHUDPart } from "shapez/game/hud/base_hud_part";
 import { DynamicDomAttach } from "shapez/game/hud/dynamic_dom_attach";
 import { InputReceiver } from "shapez/core/input_receiver";
 import { KeyActionMapper, KEYMAPPINGS } from "shapez/game/key_action_mapper";
-import { GameRoot } from "shapez/game/root";
 import { ClickDetector } from "shapez/core/click_detector";
 
 export function addInputContainer() {
@@ -239,6 +238,10 @@ class HUDShapesanity extends BaseHUDPart {
                 + "<br />" + shapez.T.mods.shapezipelago.slotDetailsBox.floatingLayers + ": " + connection.isFloatingLayersAllowed 
                 + "<br />" + shapez.T.mods.shapezipelago.slotDetailsBox.shop + ": " + shapez.T.mods.shapezipelago.slotDetailsBox.shopNone;
                 this.contentDiv.appendChild(detailsElem);
+                let clearCanvasButton = makeButton(this.contentDiv, [], shapez.T.mods.shapezipelago.slotDetailsBox.clearCanvasButton);
+                clearCanvasButton.addEventListener("click", () => {
+                    currentIngame.root.logic.clearAllBeltsAndItems();
+                });
             }
         });
     }
@@ -251,16 +254,19 @@ class HUDShapesanity extends BaseHUDPart {
             if (this.visible) {
                 if (this.achievementsIncluded) {
                     for (let achievementId in achievementNames) {
-                        const divElem = makeDiv(this.contentDiv, null, ["shapesanityRow"]);
-                        const nextName = document.createElement("span");
-                        nextName.classList.add("achievementName");
-                        nextName.innerText = achievementNames[achievementId];
-                        if (connection.client.locations.checked.includes(
-                            connection.gamepackage.location_name_to_id[achievementNames[achievementId]]
-                        )) {
-                            divElem.classList.add("locationChecked");
+                        let availability = 0, id = connection.gamepackage.location_name_to_id[achievementNames[achievementId]];
+                        if (connection.client.locations.missing.includes(id)) availability = 1;
+                        if (connection.client.locations.checked.includes(id)) availability = 2;
+                        if (availability) {
+                            const divElem = makeDiv(this.contentDiv, null, ["shapesanityRow"]);
+                            const nextName = document.createElement("span");
+                            nextName.classList.add("achievementName");
+                            nextName.innerText = achievementNames[achievementId];
+                            if (availability == 2) {
+                                divElem.classList.add("locationChecked");
+                            }
+                            divElem.appendChild(nextName);
                         }
-                        divElem.appendChild(nextName);
                     }
                 } else {
                     let placeholder = document.createElement("span", {});
@@ -315,8 +321,6 @@ class HUDShapesanity extends BaseHUDPart {
         for (let checked of connection.getCheckedLocationNames()) {
             if (checked.startsWith("Shapesanity")) {
                 currentIngame.scoutedShapesanity[Number(checked.split(" ")[1])-1] = true;
-            } else if (false) {
-                // Scout for achievements
             }
         }
     }

@@ -1,7 +1,6 @@
 import { RandomNumberGenerator } from "shapez/core/rng";
 import { apdebuglog, baseBuildingNames, connection, currentIngame, customRewards, modImpl } from "./global_data";
 import { ShapeDefinition } from "shapez/game/shape_definition";
-import { ShapeDefinitionManager } from "shapez/game/shape_definition_manager";
 
 export function vanillaShapes() {
     // No getAmountByLevel() because of mam goal and levelsToGenerate > 120
@@ -387,7 +386,7 @@ function getAmountByLevel(level) {
             currentIngame.amountByLevelCache[i+phaseA] = polishNumber(Math.ceil((amountA+stepB*(i+1))*reqMultiplier));
         }
         for (let i = 0; i < phaseC; i++) {
-            currentIngame.amountByLevelCache[i+phaseB] = polishNumber(Math.ceil((amountB+stepC*(i+1))*reqMultiplier));
+            currentIngame.amountByLevelCache[i+phaseA+phaseB] = polishNumber(Math.ceil((amountB+stepC*(i+1))*reqMultiplier));
         }
     }
     return currentIngame.amountByLevelCache[level-1];
@@ -1260,7 +1259,7 @@ function calcRandomHalf(randomizer, complexity, available, tasked, important, wi
  * @param {boolean} windmillAllowed
  */
 function calcRandomSubShape(randomizer, windmillAllowed) {
-    let pool = ["C", "R", "S"];
+    let pool = ["C", "R", "S", "C", "R", "S"];
     if (windmillAllowed) pool.push("W");
     return randomizer.choice(pool);
 }

@@ -1,7 +1,7 @@
 import { apassert, apdebuglog, aptry, connection, currentIngame, customRewards, methodNames, modImpl, roman, upgradeIdNames } from "./global_data";
 import { RandomNumberGenerator } from "shapez/core/rng";
 import { categoryRandomUpgradeShapes, categoryUpgradeShapes, hardcoreUpgradeShapes, linearUpgradeShapes, randomizedHardcoreDopamineShapes, randomizedQuickShapes, randomizedRandomStepsShapes, randomizedStretchedShapes, randomizedVanillaStepsShapes, vanillaLikeUpgradeShapes, vanillaShapes, vanillaUpgradeShapes } from "./requirement_definitions";
-import { checkLocation, shapesanityAnalyzer } from "./server_communication";
+import { bulkCheckLocation, checkLocation, shapesanityAnalyzer } from "./server_communication";
 import { enumAnalyticsDataSource } from "shapez/game/production_analytics";
 import { defaultBuildingVariant, MetaBuilding } from "shapez/game/meta_building";
 import { enumPainterVariants } from "shapez/game/buildings/painter";
@@ -10,7 +10,7 @@ import { enumItemProcessorTypes } from "shapez/game/components/item_processor";
 import { ACHIEVEMENTS } from "shapez/platform/achievement_provider";
 import { GameRoot } from "shapez/game/root";
 import { AchievementLocationProxy } from "./achievements";
-import { makeDiv, randomInt, removeAllChildren } from "shapez/core/utils";
+import { randomInt } from "shapez/core/utils";
 import { gMetaBuildingRegistry } from "shapez/core/global_registries";
 import { MetaHubBuilding } from "shapez/game/buildings/hub";
 import { Vector } from "shapez/core/vector";
@@ -21,8 +21,6 @@ import { enumRotaterVariants } from "shapez/game/buildings/rotater";
 import { GAME_LOADING_STATES } from "shapez/states/ingame";
 import { getBuildingDataFromCode } from "shapez/game/building_codes";
 import { enumMinerVariants, MetaMinerBuilding } from "shapez/game/buildings/miner";
-import { HUDBaseToolbar } from "shapez/game/hud/parts/base_toolbar";
-import { KEYMAPPINGS } from "shapez/game/key_action_mapper";
 
 export function overrideGameMode() {
     apdebuglog("Calling overrideGameMode");
@@ -152,10 +150,12 @@ export function overrideLocationsListenToItems() {
             root.signals.upgradePurchased.add(function (upgrade) {
                 aptry("Testing even_fasterer goal failed", () => {
                     if (connection.goal === "even_fasterer") {
-                        if (root.hubGoals.getUpgradeLevel("belt") >= connection.tiersToGenerate 
-                        && root.hubGoals.getUpgradeLevel("miner") >= connection.tiersToGenerate 
-                        && root.hubGoals.getUpgradeLevel("processors") >= connection.tiersToGenerate 
-                        && root.hubGoals.getUpgradeLevel("painting") >= connection.tiersToGenerate) {
+                        // upgrade levels start at 0, because it is used for index of upgrade definitions
+                        if (root.hubGoals.getUpgradeLevel("belt") + 1 >= connection.tiersToGenerate 
+                            && root.hubGoals.getUpgradeLevel("miner") + 1 >= connection.tiersToGenerate 
+                            && root.hubGoals.getUpgradeLevel("processors") + 1 >= connection.tiersToGenerate 
+                            && root.hubGoals.getUpgradeLevel("painting") + 1 >= connection.tiersToGenerate
+                        ) {
                             checkLocation("Checked", true);
                         }
                     }
@@ -752,22 +752,26 @@ function calcUpgradeDefinitions() {
 
 function resyncLocationChecks() {
     apdebuglog("Resyncing already reached locations");
+    let toResync = [];
     // resync levels
     for (var i = 1; i < currentIngame.root.hubGoals.level; i++) { // current level is what is to be completed
-        checkLocation("Resynced", false, `Level ${i}`);
+        toResync.push(`Level ${i}`);
     }
     if (currentIngame.root.hubGoals.level > 20) {
-        checkLocation("Resynced", false, "Level 1 Additional", "Level 20 Additional", "Level 20 Additional 2");
-    } else if (currentIngame.root.hubGoals.level > 1) {
-        checkLocation("Resynced", false, "Level 1 Additional");
+        toResync.push("Level 20 Additional", "Level 20 Additional 2");
+    } 
+    if (currentIngame.root.hubGoals.level > 1) {
+        toResync.push("Level 1 Additional");
     }
     // resync upgrades
     for (var upgradeId of ["belt", "miner", "processors", "painting"]) {
         const currentLevel = currentIngame.root.hubGoals.getUpgradeLevel(upgradeId);
         for (var i = 1; i <= currentLevel; i++) {
-            checkLocation("Resynced", false, upgradeIdNames[upgradeId] + " Upgrade Tier " + roman(i+1));
+            toResync.push(upgradeIdNames[upgradeId] + " Upgrade Tier " + roman(i+1));
         }
     }
+    // Send resync packet
+    bulkCheckLocation("Resynced", false, toResync);
     // resync shapesanity
     for (var [hash, amount] of Object.entries(currentIngame.root.hubGoals.storedShapes)) {
         if ((amount || 0) > 0) {
@@ -779,10 +783,12 @@ function resyncLocationChecks() {
         if (connection.levelsToGenerate < currentIngame.root.hubGoals.level) 
             checkLocation("Checked", true);
     } else if (connection.goal === "even_fasterer") {
-        if (currentIngame.root.hubGoals.getUpgradeLevel("belt") >= connection.tiersToGenerate 
-                && currentIngame.root.hubGoals.getUpgradeLevel("miner") >= connection.tiersToGenerate 
-                && currentIngame.root.hubGoals.getUpgradeLevel("processors") >= connection.tiersToGenerate 
-                && currentIngame.root.hubGoals.getUpgradeLevel("painting") >= connection.tiersToGenerate) {
+        // upgrade levels start at 0, because it is used for index of upgrade definitions
+        if (currentIngame.root.hubGoals.getUpgradeLevel("belt") + 1 >= connection.tiersToGenerate 
+            && currentIngame.root.hubGoals.getUpgradeLevel("miner") + 1 >= connection.tiersToGenerate 
+            && currentIngame.root.hubGoals.getUpgradeLevel("processors") + 1 >= connection.tiersToGenerate 
+            && currentIngame.root.hubGoals.getUpgradeLevel("painting") + 1 >= connection.tiersToGenerate
+        ) {
             checkLocation("Checked", true);
         }
     }

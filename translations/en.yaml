@@ -129,6 +129,7 @@ mods:
       shop: Gift shop opened
       notRandomized: Not randomized
       shopNone: Not implemented
+      clearCanvasButton: Clear belts of shapes and colors
     achievementsBox:
       title: Achievements
       disabled: Disabled
@@ -221,6 +222,7 @@ mods:
         Demonic Painting Upgrade Trap: Demonic Painting Upgrade Trap
         Big Random Upgrade: Big Random Upgrade
         Small Random Upgrade: Small Random Upgrade
+        Belts Clearing Trap: Belts Clearing Trap
       foundBy: found by <player> at <location>
       extraInfo:
         upgradeId:

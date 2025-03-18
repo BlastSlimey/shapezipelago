@@ -1,13 +1,10 @@
 import { enumSubShapeToShortcode, ShapeDefinition } from "shapez/game/shape_definition";
-import { apassert, apdebuglog, aptry, baseBuildingNames, colorNames, Connection, connection, currentIngame, customRewards, getIsUnlockedForTrap, modImpl, subShapeNames, upgradeIdNames } from "./global_data";
+import { apdebuglog, aptry, baseBuildingNames, colorNames, connection, currentIngame, customRewards, getIsUnlockedForTrap, modImpl, subShapeNames } from "./global_data";
 import { CLIENT_STATUS } from "archipelago.js";
 import { enumColorToShortcode } from "shapez/game/colors";
 import { enumHubGoalRewards } from "shapez/game/tutorial_goals";
 import { GameRoot } from "shapez/game/root";
 import { RandomNumberGenerator } from "shapez/core/rng";
-import { ShapeDefinitionManager } from "shapez/game/shape_definition_manager";
-import { globalConfig } from "shapez/core/config";
-import { smoothenDpi } from "shapez/core/dpi_manager";
 
 /**
  * @type {{[x:string]: (root: GameRoot, resynced: Boolean, index: number) => String}}
@@ -139,48 +136,57 @@ export const receiveItemFunctions = {
                 }
             }
         }
+        for (let level of currentIngame.levelDefs) {
+            if (!level.throughputOnly) {
+                let remaining = level.required - (root.hubGoals.storedShapes[level.shape] || 0);
+                upgrades[level.shape] = (
+                    upgrades[level.shape] == null ? 
+                    // If this shape wasn't written down yet, just use the calculated remaining
+                    // If it was already written down, only update remaining if it's less than before
+                    remaining : Math.min(upgrades[level.shape], remaining)
+                );
+            }
+        }
         levelLoop: for (let levelIndex = root.hubGoals.level-1; levelIndex < currentIngame.levelDefs.length; levelIndex++) {
             const definition = currentIngame.levelDefs[levelIndex];
-            const stored = root.hubGoals.storedShapes[definition.shape] || 0;
             let addedAmount;
-            if (upgrades[definition.shape] > 0) {
-                if (definition.throughputOnly) {
-                    addedAmount = Math.floor(upgrades[definition.shape] / 2);
-                } else {
-                    addedAmount = Math.floor(Math.min(upgrades[definition.shape], definition.required - (stored)) / 2);
-                }
-            } else if (upgrades[definition.shape] == null && !definition.throughputOnly) {
-                // No throughput, so stored will never be higher than required
-                addedAmount = Math.floor((definition.required - (stored)) / 2);
-            } else {
+            if (upgrades[definition.shape] > 1) {
+                // Non-ool amount to give
+                addedAmount = Math.floor(upgrades[definition.shape] / 2);
+            } else if (upgrades[definition.shape] == 1) {
+                // addedAmount would be 0, so let's look for another level
+                continue levelLoop;
+            } else { // upgrades[definition.shape] == null or < 1
+                // This level is throughput and no upgrade requires its shape, or shape is producible
                 addedAmount = 1000;
             }
-            if (addedAmount == 0) continue levelLoop;
-            apassert(addedAmount >= 0, `Trying to give negative amount of shapes: ${addedAmount}`);
-            root.hubGoals.storedShapes[definition.shape] = stored + addedAmount;
+            root.hubGoals.storedShapes[definition.shape] = (root.hubGoals.storedShapes[definition.shape] || 0) + addedAmount;
             shapesanityAnalyzer(ShapeDefinition.fromShortKey(definition.shape));
             return `: ${addedAmount} ${definition.shape}`;
         }
-        if (root.hubGoals.currentGoal.throughputOnly) {
+        // In case of the current level being in freeplay
+        freeplay: if (root.hubGoals.isFreePlay()) {
             const definition = root.hubGoals.currentGoal;
-            const stored = root.hubGoals.storedShapes[definition.definition.getHash()] || 0;
+            const hash = definition.definition.getHash();
             let addedAmount;
-            if (upgrades[definition.definition.getHash()] > 0) {
-                addedAmount = Math.floor(upgrades[definition.definition.getHash()] / 2);
-            } else {
+            if (upgrades[hash] > 1) {
+                // Non-ool amount to give
+                addedAmount = Math.floor(upgrades[hash] / 2);
+            } else if (upgrades[hash] == 1) {
+                // addedAmount would be 0, so let's look for another level
+                break freeplay;
+            } else { // upgrades[definition.shape] == null or < 1
+                // This level is throughput, and no upgrade requires its shape or shape is producible
                 addedAmount = 1000;
             }
-            if (addedAmount != 0) {
-                apassert(addedAmount >= 0, `Trying to give negative amount of shapes: ${addedAmount}`);
-                root.hubGoals.storedShapes[definition.definition.getHash()] = stored + addedAmount;
-                shapesanityAnalyzer(ShapeDefinition.fromShortKey(definition.definition.getHash()));
-                return `: ${addedAmount} ${definition.definition.getHash()}`;
-            }
+            root.hubGoals.storedShapes[hash] = (root.hubGoals.storedShapes[hash] || 0) + addedAmount;
+            shapesanityAnalyzer(ShapeDefinition.fromShortKey(hash));
+            return `: ${addedAmount} ${hash}`;
         }
         // If loop found nothing, then addedAmount can only be 0, so no shapes
         return ": None";
     },
-    "Upgrade Shapes Bundle": (root, resynced, index) => {
+    "Upgrade Shapes Bundle": (root, resynced, index) => { // TODO
         // Resyncing should never do something to hubGoals.storedShapes
         if (resynced) return "";
         // Write all remaining for every upgrade down
@@ -447,6 +453,11 @@ export const receiveItemFunctions = {
         root.hud.update();
         return "";
     },
+    "Belts Clearing Trap": (root, resynced, index) => {
+        if (resynced) return "";
+        root.logic.clearAllBeltsAndItems();
+        return "";
+    },
 };
 
 /**
@@ -455,6 +466,15 @@ export const receiveItemFunctions = {
  * @param {boolean} goal
  */
 export function checkLocation(resyncMessage, goal, ...names) {
+    bulkCheckLocation(resyncMessage, goal, names);
+}
+
+/**
+ * @param {string[]} names
+ * @param {string} resyncMessage
+ * @param {boolean} goal
+ */
+export function bulkCheckLocation(resyncMessage, goal, names) {
     aptry("Checking location failed", () => {
         apdebuglog(`Checking ${names.length} locations (goal==${goal}): ${names.toString()}`);
         if (goal) 
@@ -462,13 +482,17 @@ export function checkLocation(resyncMessage, goal, ...names) {
         const locids = [];
         const namesCopy = names.slice();
         for (var name of namesCopy)
-            if (name.startsWith("Shapesanity"))
+            if (name.startsWith("Shapesanity")) {
                 names.push("Shapesanity " + (connection.shapesanityNames.indexOf(name.substring("Shapesanity ".length))+1));
-        for (var name of names)
-            if (connection.gamepackage.location_name_to_id[name]) {
-                locids.push(connection.gamepackage.location_name_to_id[name]);
-                apdebuglog(`${resyncMessage} location ${name} with ID ${connection.gamepackage.location_name_to_id[name]}`);
+                names.splice(names.indexOf(name), 1); // Get rid of pre-0.5.0 shapesanity location names
             }
+        for (var name of names) {
+            const nextId = connection.gamepackage.location_name_to_id[name];
+            if (nextId != null && connection.client.locations.missing.includes(nextId)) {
+                locids.push(nextId);
+                apdebuglog(`${resyncMessage} location ${name} with ID ${nextId}`);
+            }
+        }
         connection.sendLocationChecks(locids);
     });
 }
@@ -634,7 +658,10 @@ export function shapesanityAnalyzer(shape) {
                                                     } else if (parts[2].color === parts[3].color) { //AaAaAbAb
                                                         checkLocation("Checked", false, "Shapesanity Half-Half " + 
                                                             ordered(parts[0], parts[2]));
-                                                    } //AaAaAbAc
+                                                    } else { //AaAaAbAc
+                                                        checkLocation("Checked", false, "Shapesanity Adjacent 2-1-1 " + toShort(parts[0]) + " " + 
+                                                            ordered(parts[2], parts[3]));
+                                                    }
                                                 }
                                             } else { //AaAbA?A?
                                                 if (parts[0].color === parts[2].color) { //AaAbAaA?
