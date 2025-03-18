@@ -27,6 +27,9 @@ Client mod for the Archipelago multiworld randomizer.
 - Details when checking Level location, override hud
 - Automatic reconnecting if connection lost
 - make even_fasterer goal collaborytive using datastorage
+- filtering shapesanity rows
+  - color, subshape, type (half/piece/singles/...)
+  - and/or/not switch
 - More splash tips
   - something about random yamls and even_fasterer goal
   - something about the bucket
