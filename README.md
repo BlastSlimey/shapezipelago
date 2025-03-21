@@ -7,6 +7,7 @@ Client mod for the Archipelago multiworld randomizer.
 - shapesanity cheat sheet broken
 - logic error for floating shapes with quad cutter but no half cutter
 - upgrade traps missing in traps item group
+- double painter per-belt info is wrong
 
 ### Technicalities 
 - Build input box in HUD class
