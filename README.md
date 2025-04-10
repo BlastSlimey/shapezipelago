@@ -10,6 +10,7 @@ Client mod for the Archipelago multiworld randomizer.
 - double painter per-belt info is wrong
 - going into settings resyncs all items, even inflation traps, but connection stuff doesn't rest
 - upgrade accessibility if logictype category_random mismatch (tier vi)
+- wires layer inaccessible in vanilla
 
 ### Technicalities 
 - Build input box in HUD class
