@@ -11,6 +11,7 @@ Client mod for the Archipelago multiworld randomizer.
 - going into settings resyncs all items, even inflation traps, but connection stuff doesn't rest
 - upgrade accessibility if logictype category_random mismatch (tier vi)
 - wires layer inaccessible in vanilla
+- weird level checking after loading save file with saved connection details, maybe because of inflation trap?
 
 ### Technicalities 
 - Build input box in HUD class
