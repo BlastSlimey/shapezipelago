@@ -5,13 +5,14 @@ Client mod for the Archipelago multiworld randomizer.
 
 ### Bugs
 - shapesanity cheat sheet broken
-- logic error for floating shapes with quad cutter but no half cutter
+- logic error for floating shapes with quad cutter but no half cutter (found by elayan)
 - upgrade traps missing in traps item group
-- double painter per-belt info is wrong
+- double painter per-belt info is wrong (found by LightWarrior Kaz)
 - going into settings resyncs all items, even inflation traps, but connection stuff doesn't rest
 - upgrade accessibility if logictype category_random mismatch (tier vi)
-- wires layer inaccessible in vanilla
+- wires layer inaccessible in vanilla (found by LightWarrior Kaz)
 - weird level checking after loading save file with saved connection details, maybe because of inflation trap?
+- level 100 achievement being included in mam goal with < 100 levels (found by Dragorrod)
 
 ### Technicalities 
 - Build input box in HUD class
