@@ -13,6 +13,7 @@ Client mod for the Archipelago multiworld randomizer.
 - wires layer inaccessible in vanilla (found by LightWarrior Kaz)
 - weird level checking after loading save file with saved connection details, maybe because of inflation trap?
 - level 100 achievement being included in mam goal with < 100 levels (found by Dragorrod)
+- update sent protocol version to 0.5.0
 
 ### Technicalities 
 - Build input box in HUD class
