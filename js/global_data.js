@@ -246,6 +246,12 @@ export class Connection {
      */
     tryConnect(connectinfo, processItemsPacket) {
         apdebuglog("Trying to connect to server");
+        // Phar (dev of the library) said the library already follows 0.5.0 protocol
+        connectinfo.version = {
+            major: 0,
+            minor: 5,
+            build: 0,
+        };
         return this.client.connect(connectinfo)
             .then(() => {
 

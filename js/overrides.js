@@ -511,7 +511,10 @@ export function overrideBuildings() {
             return;
         }
         if (this.root.currentLayer === "regular") {
-            if (this.root.hubGoals.isRewardUnlocked(customRewards.wires)) {
+            if (
+                this.root.hubGoals.isRewardUnlocked(customRewards.wires) 
+                || this.root.hubGoals.isRewardUnlocked(enumHubGoalRewards.reward_wires_painter_and_levers)
+            ) {
                 this.root.currentLayer = "wires";
             }
         } else {
@@ -618,7 +621,7 @@ export function overrideBuildings() {
         if (variant === defaultBuildingVariant || variant === enumPainterVariants.mirrored)
             speed = currentIngame.root.hubGoals.getProcessorBaseSpeed(enumItemProcessorTypes.painter);
         else if (variant === enumPainterVariants.double)
-            speed = currentIngame.root.hubGoals.getProcessorBaseSpeed(enumItemProcessorTypes.painterDouble);
+            speed = currentIngame.root.hubGoals.getProcessorBaseSpeed(enumItemProcessorTypes.painterDouble)*2;
         else if (variant === enumPainterVariants.quad)
             speed = currentIngame.root.hubGoals.getProcessorBaseSpeed(enumItemProcessorTypes.painterQuad);
         let stats = $original(root, variant);
