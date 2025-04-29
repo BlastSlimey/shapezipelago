@@ -4,16 +4,8 @@ Client mod for the Archipelago multiworld randomizer.
 ## TODO list
 
 ### Bugs
-- shapesanity cheat sheet broken
-- logic error for floating shapes with quad cutter but no half cutter (found by elayan)
-- upgrade traps missing in traps item group
-- double painter per-belt info is wrong (found by LightWarrior Kaz)
-- going into settings resyncs all items, even inflation traps, but connection stuff doesn't rest
-- upgrade accessibility if logictype category_random mismatch (tier vi)
-- wires layer inaccessible in vanilla (found by LightWarrior Kaz)
+- going into settings resyncs all items, even inflation traps, but connection stuff doesn't reset
 - weird level checking after loading save file with saved connection details, maybe because of inflation trap?
-- level 100 achievement being included in mam goal with < 100 levels (found by Dragorrod)
-- update sent protocol version to 0.5.0
 
 ### Technicalities 
 - Build input box in HUD class
@@ -34,6 +26,7 @@ Client mod for the Archipelago multiworld randomizer.
 - Details when checking Level location, override hud
 - Automatic reconnecting if connection lost
 - make even_fasterer goal collaborytive using datastorage
+- sorting shapesanity rows by completion
 - filtering shapesanity rows
   - color, subshape, type (half/piece/singles/...)
   - and/or/not switch
