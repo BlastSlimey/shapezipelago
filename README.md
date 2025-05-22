@@ -95,6 +95,8 @@ Client mod for the Archipelago multiworld randomizer.
 
 ### More Randomization
 - Randomize blueprint shape
+  - option to have it in earlier spheres
+  - preset option
 - Buildings functionality randomization, like malfunctioning trap, but permanent
 - Add music tracks to item pool (is that even possible?)
 - Cosmetic randomization (togglable)
