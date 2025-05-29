@@ -6,6 +6,7 @@ Client mod for the Archipelago multiworld randomizer.
 ### Bugs
 - going into settings resyncs all items, even inflation traps, but connection stuff doesn't reset
 - weird level checking after loading save file with saved connection details, maybe because of inflation trap?
+- pinned shapes unpin after receiving upgrades
 
 ### Technicalities 
 - Build input box in HUD class
