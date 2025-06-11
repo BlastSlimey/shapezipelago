@@ -38,6 +38,7 @@ Client mod for the Archipelago multiworld randomizer.
 ### APWorld Qol
 - Make list of compatible utility mods
 - Add cosmetic randomization to game info
+- Option groups for building variants
 
 ### Gameplay
 - Something with energy link
