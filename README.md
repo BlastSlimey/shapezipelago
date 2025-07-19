@@ -24,6 +24,7 @@ Client mod for the Archipelago multiworld randomizer.
   - Save all slot data in save file
   - when connected replace ap inventory, else load from save file
 - Text box (read only), received non-progression items only there
+- Achievement description ingame
 - Details when checking Level location, override hud
 - Automatic reconnecting if connection lost
 - make even_fasterer goal collaborytive using datastorage
