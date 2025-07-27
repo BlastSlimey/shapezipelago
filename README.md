@@ -40,6 +40,7 @@ Client mod for the Archipelago multiworld randomizer.
 - Make list of compatible utility mods
 - Add cosmetic randomization to game info
 - Option groups for building variants
+- Make being able to build a MAM a requirement for MAM goal
 
 ### Gameplay
 - Something with energy link
