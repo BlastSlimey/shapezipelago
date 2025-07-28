@@ -55,6 +55,11 @@ Client mod for the Archipelago multiworld randomizer.
   - All upgrades up to goal_amount
   - If also added: Deliver bounty shape
   - 256 blueprint shapes per second to send goal (not saved if reached earlier)
+- Raid boss goal
+  - Level 26 as horrendously large level, scaling with participating player count
+  - Players contribute to common boss, bounce packet sends contributed shapes to all players
+  - Two variants: sync and async
+  - Shapes get drained in certain time intervals (interval length depending on variant + host setting)
 - Need some ideas for expanding upgrade requirements
   - idea: patterns per category (Dragion)
   - Idea: Amount of early phases (1-10, standard 1)
