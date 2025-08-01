@@ -29,6 +29,7 @@ Client mod for the Archipelago multiworld randomizer.
 - Automatic reconnecting if connection lost
 - make even_fasterer goal collaborytive using datastorage
 - sorting shapesanity rows by completion
+- shapesanity shape signal at hub
 - filtering shapesanity rows
   - color, subshape, type (half/piece/singles/...)
   - and/or/not switch
