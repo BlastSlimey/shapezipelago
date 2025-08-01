@@ -42,6 +42,7 @@ Client mod for the Archipelago multiworld randomizer.
 - Add cosmetic randomization to game info
 - Option groups for building variants
 - Make being able to build a MAM a requirement for MAM goal
+- Option to make shapesanity logically require building a mam
 
 ### Gameplay
 - Something with energy link
