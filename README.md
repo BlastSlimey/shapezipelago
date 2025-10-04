@@ -8,6 +8,7 @@ Client mod for the Archipelago multiworld randomizer.
 - weird level checking after loading save file with saved connection details, maybe because of inflation trap?
 - pinned shapes unpin after receiving upgrades
 - wire layer not showing in vanilla
+- later level requiring less amount than previous
 
 ### Technicalities 
 - Build input box in HUD class
