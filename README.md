@@ -19,6 +19,7 @@ Client mod for the Archipelago multiworld randomizer.
 - Convert to TypeScript
 - Update archipelago.js to 2.0 (need fix for `structuredClone()`)
 - Rework shapesanity data transfer and processing
+- ability to remove done shapesanity row
 
 ### Client QoL
 - meantime offline playing
@@ -45,6 +46,7 @@ Client mod for the Archipelago multiworld randomizer.
 - Option groups for building variants
 - Make being able to build a MAM a requirement for MAM goal
 - Option to make shapesanity logically require building a mam
+- item that gives preview on next level
 
 ### Gameplay
 - Something with energy link
