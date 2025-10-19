@@ -9,6 +9,7 @@ Client mod for the Archipelago multiworld randomizer.
 - pinned shapes unpin after receiving upgrades
 - wire layer not showing in vanilla
 - later level requiring less amount than previous
+- king of efficency might softlock if rotating required but only got ccw rotator so far, maybe fix by requiring cw rotator for that location?
 
 ### Technicalities 
 - Build input box in HUD class
