@@ -21,6 +21,7 @@ Client mod for the Archipelago multiworld randomizer.
 - Update archipelago.js to 2.0 (need fix for `structuredClone()`)
 - Rework shapesanity data transfer and processing
 - ability to remove done shapesanity row
+- add level 50/level 100 achievements to list of disabled long playtime achievements if goal == even fasterer or efficiency III
 
 ### Client QoL
 - meantime offline playing
