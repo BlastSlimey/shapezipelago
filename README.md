@@ -99,6 +99,7 @@ Client mod for the Archipelago multiworld randomizer.
   - Non-constant signal (original) 
 - Option: additional upgrade categories, needs another datapackage setting
 - Long belt helper hotkey as an item
+- "slow" choice for the `randomize_level_logic` option: every region contains one third of the remaining levels (i.e. 0 processors 1/3 of levels, 1 proc 2/3 * 1/3, 2 proc 2/3 * 2/3 * 1/3, ...)
 - Time trials
   - trials to build a factory for a random shape in a limited time frame
   - adjustable punishment
